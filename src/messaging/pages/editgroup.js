@@ -54,7 +54,10 @@ function EditGroup({navigation, appState, route, setgroups}) {
       const response = await fetch(image);
       const blob = await response.blob();
 
-      const storageRef = ref(storage, `groupPhotos/${groupid}`);
+      const storageRef = ref(
+        storage,
+        `groupPhotos/${groupid}/${image.split('/').pop()}`,
+      );
 
       // Uploading image to Firebase Storage
       await uploadBytes(storageRef, blob); // Use uploadBytes method to upload the image blob

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -11,9 +11,13 @@ import Icon from 'react-native-vector-icons/FontAwesome'; // Replace with the ap
 import {CommentIcon, LoveIcon, ShareIcon, ThreeDots, UnlikeIcon} from './icons';
 import {Style} from '../../../assets/styles';
 import {Color} from '../../components/theme';
-import {NameDisplayCard} from '../../components/name-display-card';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {StaticImage} from '../../utilities';
+import {NameDisplayCard} from './NameCard';
+import {collection, onSnapshot, query} from 'firebase/firestore';
+import {db} from '../../../firebase';
+import {unlikepost} from '../apis/unlikepost';
+import {likepost} from '../apis/likepost';
 // import {  } from 'react-native-paper';
 
 const Colors = Color();
@@ -25,36 +29,73 @@ export function FeedCard({
   setpickImage,
   loading,
   setLoading,
+  user,
+  setPost,
 }) {
-  // const UnlikeReaction = () => {
-  //     // get index
-  //     let Index = posts.findIndex(e => e.text == data.text)
-  //     let newData = {
-  //         ...data,
-  //         liked: false
-  //     }
-  //     posts.splice(Index, 1, newData)
-  //     setPosts(posts)
-  //     console.log("unliked")
-  // }
+  const [liked, setLiked] = useState();
+  const [numberOfLikes, setNumberOfLikes] = useState();
+  const [numberOfComments, setNumberOfComments] = useState();
+  const postaction = async () => {
+    if (liked) {
+      console.log('unlike');
+      await unlikepost(user, data?.postid);
+    } else {
+      console.log('like');
+      await likepost(user, data?.postid);
+    }
+  };
+  useEffect(() => {
+    const q = query(
+      collection(db, 'posts', data.postid, 'likes'), // Order by 'sent' field in ascending order (oldest first)
+    );
 
-  // const LikeReaction = () => {
-  //     // get index
-  //     let Index = posts.findIndex(e => e.text == data.text)
-  //     let newData = {
-  //         ...data,
-  //         liked: true
-  //     }
-  //     posts.splice(Index, 1, newData)
-  //     setPosts(posts)
-  //     console.log("liked")
-  // }
+    const unsubscribe = onSnapshot(q, querySnapshot => {
+      let likes = [];
+      querySnapshot.forEach(doc => {
+        console.log(doc.id + '==' + data?.postid);
+        likes.push(doc.id); // Assuming the likes are stored as document IDs
+      });
+      setNumberOfLikes(likes.length);
+      // Check if the user's ID is in the likes array
+      const isLiked = likes.includes(user); // Replace 'userId' with your actual user ID field
+
+      setLiked(isLiked);
+    });
+
+    // Cleanup: Unsubscribe from real-time updates when component unmounts
+    return () => {
+      unsubscribe();
+    };
+  }, []); // Include necessary dependencies in the dependency array
+  useEffect(() => {
+    const q = query(
+      collection(db, 'posts', data.postid, 'comments'), // Order by 'sent' field in ascending order (oldest first)
+    );
+
+    const unsubscribe = onSnapshot(q, querySnapshot => {
+      let likes = [];
+      querySnapshot.forEach(doc => {
+        likes.push(doc.id); // Assuming the likes are stored as document IDs
+      });
+      setNumberOfComments(likes.length);
+    });
+
+    // Cleanup: Unsubscribe from real-time updates when component unmounts
+    return () => {
+      unsubscribe();
+    };
+  }, []); // Include necessary dependencies in the dependency array
+
   return (
     <View style={styles.container}>
-      {setpickImage(true)}
-      <NameDisplayCard navigation={navigation} data dot={true} />
+      <NameDisplayCard
+        user={user}
+        navigation={navigation}
+        item={data}
+        dot={true}
+      />
 
-      {data.img != null && (
+      {data?.mediaurl != null && (
         <>
           {loading ? (
             <ActivityIndicator />
@@ -78,7 +119,7 @@ export function FeedCard({
                     aspectRatio: 1,
                   },
                 ]}
-                src={StaticImage}
+                src={data?.mediaurl}
                 resizeMode={'cover'}
               />
             </Pressable>
@@ -86,43 +127,35 @@ export function FeedCard({
         </>
       )}
       <View style={styles.iconsContainer}>
-        {data.liked == true ? (
-          <TouchableOpacity
-            onPress={() => {
-              // UnlikeReaction(data)
-              // setpickImage(true)
-            }}
-            style={{flexDirection: 'row', marginRight: 10}}>
-            <LoveIcon />
-            <Text style={[Style.boldText2, {marginTop: 6, color: '#041616'}]}>
-              {data.likes}
-            </Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            onPress={() => {
-              // LikeReaction(data)
-              // setpickImage(true)
-            }}
-            style={{flexDirection: 'row', marginRight: 10}}>
-            <UnlikeIcon />
-            <Text
-              style={[
-                Style.boldText2,
-                {
-                  marginTop: 6,
-                  fontFamily: 'Montserrat_Regular',
-                  color: '#041616',
-                },
-              ]}>
-              {data.likes}
-            </Text>
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity onPress={() => postaction()}>
+          {liked == true ? (
+            <View style={{flexDirection: 'row', marginRight: 10}}>
+              <LoveIcon />
+              <Text style={[Style.boldText2, {marginTop: 6, color: '#041616'}]}>
+                {numberOfLikes}
+              </Text>
+            </View>
+          ) : (
+            <View style={{flexDirection: 'row', marginRight: 10}}>
+              <UnlikeIcon />
+              <Text
+                style={[
+                  Style.boldText2,
+                  {
+                    marginTop: 6,
+                    fontFamily: 'Montserrat_Regular',
+                    color: '#041616',
+                  },
+                ]}>
+                {numberOfLikes}
+              </Text>
+            </View>
+          )}
+        </TouchableOpacity>
 
         <TouchableOpacity
           onPress={() => {
-            navigation.navigate('Comment');
+            navigation.navigate('Comment', {post: data});
           }}
           style={{flexDirection: 'row', marginRight: 10}}>
           <CommentIcon />
@@ -135,7 +168,7 @@ export function FeedCard({
                 color: '#041616',
               },
             ]}>
-            54
+            {numberOfComments}
           </Text>
         </TouchableOpacity>
         <View style={{flexDirection: 'row'}}>
@@ -143,7 +176,7 @@ export function FeedCard({
         </View>
       </View>
       <Text style={[styles.content, {fontFamily: 'Montserrat_light'}]}>
-        {data.text}
+        {data?.caption}
       </Text>
       <Text style={[{fontFamily: 'Montserrat_Regular', color: Colors.grey}]}>
         11:18 AM

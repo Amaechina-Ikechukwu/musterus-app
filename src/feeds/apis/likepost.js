@@ -4,12 +4,12 @@ const api = axios.create({
   baseURL: 'https://musterus-api.onrender.com', // Replace with your API base URL
 });
 
-export const getposts = async token => {
+export const likepost = async (token, postid) => {
   try {
     const response = await api.post(
-      '/home/posts',
+      '/home/likepost',
       {
-        groupid: 'bvn',
+        postid,
       },
       {
         headers: {
@@ -17,6 +17,7 @@ export const getposts = async token => {
         },
       },
     );
+    console.log(response.data);
     return response.data;
   } catch (error) {
     throw error;

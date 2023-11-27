@@ -129,3 +129,11 @@ export const setGroupsMessages = group => ({
   type: 'GROUP MESSAGES',
   payload: group,
 });
+export const setPosts = posts => ({
+  type: 'POSTS',
+  payload: posts,
+});
+export const setPost = post => ({
+  type: 'POST',
+  payload: post,
+});

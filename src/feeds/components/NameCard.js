@@ -1,12 +1,13 @@
 import React, {useEffect, useLayoutEffect, useState} from 'react';
 import {View, Text, Image, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Replace with the appropriate icon library
-import {Color} from './theme';
-import {ThreeDots} from '../events/components/icons';
+
 import {TouchableOpacity} from 'react-native-gesture-handler';
-import {StaticImage} from '../utilities';
-import {amifollwoing} from '../muster-points/apis/amifollowing';
-import {followuser} from '../muster-points/apis/followuser';
+
+import {usersprofile} from '../../user/apis/firebaseprofile';
+import {Color} from '../../components/theme';
+import {amifollwoing} from '../../muster-points/apis/amifollowing';
+import {followuser} from '../../muster-points/apis/followuser';
 
 const Colors = Color();
 export function NameDisplayCard({
@@ -19,8 +20,13 @@ export function NameDisplayCard({
   component,
 }) {
   const [following, setFollowing] = useState();
+  const [Author, setAuthor] = useState();
+  const userprofile = async () => {
+    const result = await usersprofile(item.author);
+    setAuthor(result);
+  };
   const followinguser = async () => {
-    const result = await amifollwoing(user, item.id);
+    const result = await amifollwoing(user, item.author);
 
     setFollowing(result?.message);
   };
@@ -32,12 +38,14 @@ export function NameDisplayCard({
   const emptyimage =
     'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
   useEffect(() => {
+    userprofile();
     followinguser();
   }, []);
+  useEffect(() => {}, [Author, following]);
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Image style={styles.avatar} src={item?.photourl || emptyimage} />
+        <Image style={styles.avatar} src={Author?.photourl || emptyimage} />
         <View style={[styles.headerInfo, {flexDirection: 'row'}]}>
           <View
             style={{
@@ -53,13 +61,13 @@ export function NameDisplayCard({
                 }
               }}>
               <Text style={styles.username}>
-                {item?.firstname + ' ' + item?.lastname}
+                {Author?.firstname + ' ' + Author?.lastname}
               </Text>
-              <Text style={styles.usernameTag}>{'@' + item?.username}</Text>
+              <Text style={styles.usernameTag}>{'@' + Author?.username}</Text>
             </TouchableOpacity>
           </View>
 
-          {component == 'SUGGESTION' ? (
+          {user !== item?.author ? (
             !following ? (
               <>
                 <View
@@ -85,29 +93,7 @@ export function NameDisplayCard({
                   </TouchableOpacity>
                 </View>
               </>
-            ) : (
-              <View
-                style={{
-                  flex: 0.8,
-                  // backgroundColor: "red",
-                  alignItems: 'flex-start',
-                  justifyContent: 'center',
-                  // marginRight: 10,
-                  // flex:1
-                }}>
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: Colors.lightgrey,
-                    height: 30,
-                    width: 90,
-                    borderRadius: 40,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <Text style={{color: Colors.primaryText}}>Following</Text>
-                </TouchableOpacity>
-              </View>
-            )
+            ) : null
           ) : null}
           {/* {dot && (
             <View

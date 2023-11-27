@@ -4,12 +4,13 @@ const api = axios.create({
   baseURL: 'https://musterus-api.onrender.com', // Replace with your API base URL
 });
 
-export const getposts = async token => {
+export const sendmessage = async (token, friendid, text) => {
   try {
     const response = await api.post(
-      '/home/posts',
+      '/dm/sendDM',
       {
-        groupid: 'bvn',
+        friendid,
+        text,
       },
       {
         headers: {

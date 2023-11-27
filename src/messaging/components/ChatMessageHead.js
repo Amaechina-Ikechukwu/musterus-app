@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {View, Text, Image, StyleSheet} from 'react-native';
+import React, {useEffect, useLayoutEffect, useState} from 'react';
+import {View, Text, Image, StyleSheet, Alert} from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign'; // Replace with the appropriate icon library
 import {MaterialCommunityIcons} from '@expo/vector-icons';
 import {Color} from '../../components/theme';
@@ -13,8 +13,12 @@ import {
   limit,
 } from 'firebase/firestore';
 import {db} from '../../../firebase';
+import {usersprofile} from '../../user/apis/firebaseprofile';
 
 const Colors = Color();
+const getUserid = (uid, data) => {
+  return data.filter(id => id !== uid)[0];
+};
 
 export function ChatMessagingHeads({
   dot,
@@ -23,13 +27,29 @@ export function ChatMessagingHeads({
   page,
   uid,
   user,
-  gdata,
+  dmData,
 }) {
+  const friendid = getUserid(user, dmData?.participants);
   const [data, setData] = useState([]);
+  const [friendData, setFriendData] = useState();
+  const getFriendProfile = async () => {
+    try {
+      const result = await usersprofile(friendid);
 
+      setFriendData(result);
+    } catch (err) {
+      Alert.alert(
+        'Do not be angry',
+        'Our service seems to be down at the moment',
+      );
+    }
+  };
+  useEffect(() => {
+    getFriendProfile();
+  }, []);
   useEffect(() => {
     const q = query(
-      collection(db, 'groups', gdata.groupID, 'chats'),
+      collection(db, 'direct_messages', dmData?.conversationId, 'messages'),
       orderBy('sent', 'desc'), // Order by 'sent' field in descending order (latest first)
       limit(1), // Limit the query to retrieve only the latest chat message
     );
@@ -38,6 +58,7 @@ export function ChatMessagingHeads({
       querySnapshot.forEach(doc => {
         chats = {id: doc.id, ...doc.data()};
       });
+
       setData(chats);
     });
 
@@ -46,12 +67,15 @@ export function ChatMessagingHeads({
       unsubscribe();
     };
   }, []); // Ensure db and gdata.groupid are dependencies if they change
+  const emptyimage =
+    'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
 
   return (
     <TouchableOpacity
       onPress={() => {
-        navigation.navigate('chat group', {
-          groupid: gdata.groupID,
+        navigation.navigate('chat person', {
+          conversationId: dmData?.conversationId,
+          friendid: friendid,
         });
       }}
       style={[
@@ -66,16 +90,7 @@ export function ChatMessagingHeads({
         },
       ]}>
       <View style={styles.header}>
-        {gdata?.data?.photourl ? (
-          <Image style={styles.avatar} src={gdata?.data?.photourl} />
-        ) : (
-          <MaterialCommunityIcons
-            name="account-group-outline"
-            size={24}
-            color="black"
-            style={styles.avatar}
-          />
-        )}
+        <Image style={styles.avatar} src={friendData?.photourl || emptyimage} />
 
         <View style={[styles.headerInfo, {flexDirection: 'row'}]}>
           <View
@@ -83,11 +98,13 @@ export function ChatMessagingHeads({
               flex: 1,
               // backgroundColor: "green"
             }}>
-            <Text style={styles.username}>{gdata?.data?.name}</Text>
+            <Text style={styles.username}>
+              {friendData?.firstname + ' ' + friendData?.lastname}
+            </Text>
             <Text style={styles.usernameTag}>
               {data && Object.entries(data).length == 0
                 ? 'Enter message'
-                : data?.message}
+                : data?.text}
             </Text>
           </View>
           <View

@@ -11,7 +11,7 @@ import {FlatInput, OutlinedInput} from '../../components/inputs';
 import {PrimaryButton} from '../../components/buttons/primary';
 import {UpcomingBirthdays} from './upcoming-birthdays';
 import {SuggestedImages} from './suggested-images';
-import {StaticImage} from '../../utilities';
+import {useEffect} from 'react';
 
 const Colors = Color();
 const IMAGE_WIDTH = '100%';
@@ -23,7 +23,12 @@ export function CreatePostModal({
   showCreatePost,
   pickImage,
   setpickImage,
+  image,
+  chooseimage,
+  createpost,
+  fetchposts,
 }) {
+  useEffect(() => {}, []);
   return (
     <>
       <View
@@ -91,7 +96,7 @@ export function CreatePostModal({
           {pickImage == true && (
             <View style={styles.imageWrapper}>
               <View style={styles.imageContainer}>
-                <Image style={styles.image} src={StaticImage} />
+                <Image style={styles.image} src={image} />
                 <View style={styles.textWrapper}>
                   <TouchableOpacity
                     onPress={() => {
@@ -110,25 +115,19 @@ export function CreatePostModal({
               </View>
             </View>
           )}
-
-          {/* <View style={{ flexDirection: 'row',}}>
-                    
-                    <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-                        <View style={{}}>
-                            {Array.from({ length: 10 }, (_, index) => (
-                                <AddPhoto />
-                            ))}
-                        </View>
-                    </ScrollView>
-                </View> */}
         </ScrollView>
 
-        <SuggestedImages setpickImage={setpickImage} data={data} />
+        <SuggestedImages
+          setpickImage={setpickImage}
+          data={data}
+          image={image}
+          chooseimage={() => chooseimage()}
+        />
 
         <View>
           <PrimaryButton
             // loading={loading}
-            noBG={data.length < 1 ? true : false}
+            noBG={data.length < 10 ? true : false}
             style={{
               width: '90%',
               marginLeft: '5%',
@@ -145,7 +144,8 @@ export function CreatePostModal({
                   : Colors.inactiveButton,
             }}
             callBack={() => {
-              // navigation.replace('Dashboard', { screen: 'FEEDS' });
+              createpost();
+              fetchposts();
             }}
             title={`Post `}
           />

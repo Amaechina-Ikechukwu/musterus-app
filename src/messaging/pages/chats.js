@@ -12,6 +12,7 @@ import {Header} from '../components/header';
 import {MessagingHeads} from '../components/messageHeads';
 import {chatlist} from '../apis/chatlist';
 import {ChatMessagingHeads} from '../components/ChatMessageHead';
+import ChatFlatlist from '../components/ChatFlatlist';
 
 const Colors = Color();
 
@@ -20,14 +21,15 @@ function SignIn({navigation, appState}) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const getChatList = async () => {
-    const result = await chatlist(User.mykey, User.mskl);
-    console.log({result});
+    const result = await chatlist(User?.mykey);
+    setData(result.chats);
   };
 
   useEffect(() => {
+    console.log(data);
     getChatList();
   }, []);
-
+  useEffect(() => {}, [data]);
   const STYLES = ['default', 'dark-content', 'light-content'];
   const TRANSITIONS = ['fade', 'slide', 'none'];
   const [hidden, setHidden] = useState(false);
@@ -58,24 +60,11 @@ function SignIn({navigation, appState}) {
                 // marginHorizontal: 15
               }}>
               <View>
-                <MessagingHeads
+                <ChatFlatlist
                   navigation={navigation}
-                  page="chat person"
-                  active={true}
+                  data={data}
+                  mykey={User?.mykey}
                 />
-                {/* <Divider style={{
-                                                    marginVertical: 15
-                                                }} /> */}
-              </View>
-              <View>
-                <ChatMessagingHeads
-                  navigation={navigation}
-                  page="chat person"
-                  active={false}
-                />
-                {/* <Divider style={{
-                                                    marginVertical: 15
-                                                }} /> */}
               </View>
             </View>
           </View>
