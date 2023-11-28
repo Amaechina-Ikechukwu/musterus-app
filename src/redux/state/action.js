@@ -121,6 +121,10 @@ export const setGroups = groups => ({
   type: 'GROUPS',
   payload: groups,
 });
+export const setChatlist = chatlist => ({
+  type: 'CHATLIST',
+  payload: chatlist,
+});
 export const setGroup = group => ({
   type: 'GROUP',
   payload: group,

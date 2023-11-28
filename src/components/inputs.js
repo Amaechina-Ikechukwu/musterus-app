@@ -71,7 +71,7 @@ export function OutlinedInput({
         // value={cvv}
         value={data} // Display masked CVV
         onChangeText={text => setData(text)}
-        maxLength={40}
+        maxLength={500}
         // keyboardType={type}
         placeholderTextColor="#888"
         height={55}

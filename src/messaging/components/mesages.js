@@ -11,6 +11,8 @@ import {
 } from 'firebase/firestore';
 import {db} from '../../../firebase';
 import {usersprofile} from '../../user/apis/firebaseprofile';
+import {ActivityIndicator} from 'react-native';
+import {initializechat} from '../apis/initializechat';
 const fetchUserProfiles = async messages => {
   const uniqueUserIds = [...new Set(messages.map(message => message.from))];
   const profiles = {};
@@ -43,22 +45,20 @@ function extractTimeFromFirestoreTimestamp(timestampObj) {
 export const ChatScreen = ({page, groupid, user}) => {
   const [messages, setMessages] = useState();
   const flatListRef = useRef(null);
+  const [showMessage, setShowMessage] = useState(false);
 
   useEffect(() => {
-    if (flatListRef.current) {
-      flatListRef.current.scrollToEnd({animated: true});
-    }
-  }, [messages]); // Scroll to end whenever messages change
-  const scrollToBottom = () => {
-    flatListRef.current.scrollToIndex({
-      index: messages.length - 1,
-      animated: true,
-    });
-  };
+    const timer = setTimeout(() => {
+      setShowMessage(true);
+    }, 7000); // 7 seconds
+
+    return () => clearTimeout(timer);
+  }, []);
+
   useEffect(() => {
     const q = query(
       collection(db, 'groups', groupid, 'chats'),
-      orderBy('sent', 'asc'), // Order by 'sent' field in ascending order (oldest first)
+      orderBy('sent', 'desc'), // Order by 'sent' field in ascending order (oldest first)
     );
     const unsubscribe = onSnapshot(q, querySnapshot => {
       let chats = [];
@@ -67,10 +67,6 @@ export const ChatScreen = ({page, groupid, user}) => {
       });
 
       setMessages(chats);
-
-      if (flatListRef.current) {
-        flatListRef.current.scrollToEnd({animated: true});
-      }
     });
 
     // Cleanup: Unsubscribe from real-time updates when component unmounts
@@ -137,16 +133,27 @@ export const ChatScreen = ({page, groupid, user}) => {
       <FlatList
         ref={flatListRef}
         data={messages}
+        inverted
+        style={{flex: 1, height: '100%'}}
         renderItem={renderMessage}
         keyExtractor={item => item.id.toString()}
-        initialScrollIndex={
-          messages && messages.length > 0 ? messages.length - 1 : 0
+        scrollToIndex={messages && messages.length - 1}
+        ListEmptyComponent={
+          <View
+            style={{
+              flex: 1,
+              height: '100%',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginTop: 20,
+            }}>
+            {showMessage ? (
+              <Text>No messages yet</Text>
+            ) : (
+              <ActivityIndicator size={'large'} />
+            )}
+          </View>
         }
-        getItemLayout={(data, index) => ({
-          length: 60, // Update with your actual item's height
-          offset: 60 * index,
-          index,
-        })}
       />
     </View>
   );

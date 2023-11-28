@@ -11,15 +11,9 @@ import {
 } from 'firebase/firestore';
 import {db} from '../../../firebase';
 import {usersprofile} from '../../user/apis/firebaseprofile';
-const fetchUserProfiles = async messages => {
-  const uniqueUserIds = [...new Set(messages.map(message => message.from))];
-  const profiles = {};
-
-  for (const userId of uniqueUserIds) {
-    profiles[userId] = await usersprofile(userId);
-  }
-  return profiles;
-};
+import {ActivityIndicator} from 'react-native';
+import {initializechat} from '../apis/initializechat';
+import {Image} from 'react-native';
 
 function extractTimeFromFirestoreTimestamp(timestampObj) {
   const {seconds, nanoseconds} = timestampObj;
@@ -44,21 +38,20 @@ export const ChatMessages = ({page, user, route}) => {
   const [messages, setMessages] = useState();
   const flatListRef = useRef(null);
   const {conversationId} = route?.params;
+  const [showMessage, setShowMessage] = useState(false);
+
   useEffect(() => {
-    if (flatListRef.current) {
-      flatListRef.current.scrollToEnd({animated: true});
-    }
-  }, [messages]); // Scroll to end whenever messages change
-  const scrollToBottom = () => {
-    flatListRef.current.scrollToIndex({
-      index: messages.length - 1,
-      animated: true,
-    });
-  };
+    const timer = setTimeout(() => {
+      setShowMessage(true);
+    }, 7000); // 7 seconds
+
+    return () => clearTimeout(timer);
+  }, []);
+
   useEffect(() => {
     const q = query(
       collection(db, 'direct_messages', conversationId, 'messages'),
-      orderBy('sent', 'asc'), // Order by 'sent' field in ascending order (oldest first)
+      orderBy('sent', 'desc'), // Order by 'sent' field in ascending order (oldest first)
     );
     const unsubscribe = onSnapshot(q, querySnapshot => {
       let chats = [];
@@ -67,10 +60,6 @@ export const ChatMessages = ({page, user, route}) => {
       });
 
       setMessages(chats);
-
-      if (flatListRef.current) {
-        flatListRef.current.scrollToEnd({animated: true});
-      }
     });
 
     // Cleanup: Unsubscribe from real-time updates when component unmounts
@@ -79,31 +68,9 @@ export const ChatMessages = ({page, user, route}) => {
     };
   }, []);
 
-  const [userProfiles, setUserProfiles] = useState({});
-
-  useEffect(() => {
-    if (messages && messages.length > 0) {
-      fetchUserProfiles(messages).then(profiles => {
-        setUserProfiles(profiles);
-      });
-    }
-  }, [messages]);
-
   const renderMessage = ({item}) => {
-    const userName = userProfiles[item.from]
-      ? userProfiles[item.from].firstname
-        ? userProfiles[item.from].firstname
-        : userProfiles[item.from].fullName
-      : '';
-
     return (
       <>
-        {item?.author !== user.mykey && page == 'GROUP' && (
-          <Text style={[Style.boldText2, {marginBottom: 5, fontSize: 13}]}>
-            {userName}
-          </Text>
-        )}
-
         <View
           style={[
             styles.messageBubble,
@@ -111,6 +78,15 @@ export const ChatMessages = ({page, user, route}) => {
               ? styles.sentBubble
               : styles.receivedBubble,
           ]}>
+          <View>
+            {item?.mediaurl && (
+              <Image
+                source={{uri: item?.mediaurl}}
+                style={{width: 400, height: 200, borderRadius: 10}}
+                resizeMode="contain"
+              />
+            )}
+          </View>
           <Text
             style={[
               styles.messageText,
@@ -141,18 +117,28 @@ export const ChatMessages = ({page, user, route}) => {
   return (
     <View style={styles.container}>
       <FlatList
-        ref={flatListRef}
+        style={{flex: 1, width: '100%', height: '100%'}}
         data={messages}
         renderItem={renderMessage}
-        keyExtractor={item => item.id.toString()}
-        initialScrollIndex={
-          messages && messages.length > 0 ? messages.length - 1 : 0
+        keyExtractor={item => item.id}
+        inverted
+        scrollToIndex={messages && messages.length - 1}
+        ListEmptyComponent={
+          <View
+            style={{
+              flex: 1,
+              height: '100%',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginTop: 20,
+            }}>
+            {showMessage ? (
+              <Text>Be the first to send a message</Text>
+            ) : (
+              <ActivityIndicator size={'large'} />
+            )}
+          </View>
         }
-        getItemLayout={(data, index) => ({
-          length: 60, // Update with your actual item's height
-          offset: 60 * index,
-          index,
-        })}
       />
     </View>
   );
@@ -163,6 +149,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     marginBottom: 60,
+    height: '100%',
   },
   messageBubble: {
     // borderRadius: 8,
@@ -179,6 +166,16 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 16,
   },
   receivedBubble: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#072B2C',
+    borderTopRightRadius: 16,
+    borderBottomRightRadius: 16,
+    borderBottomLeftRadius: 16,
+  },
+  sentImage: {
+    alignSelf: 'flex-start',
+  },
+  receivedImage: {
     alignSelf: 'flex-start',
     backgroundColor: '#072B2C',
     borderTopRightRadius: 16,

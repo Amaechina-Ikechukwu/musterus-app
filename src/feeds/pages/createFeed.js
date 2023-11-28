@@ -34,6 +34,7 @@ import {getDownloadURL, getStorage, ref, uploadBytes} from 'firebase/storage';
 import * as ImagePicker from 'expo-image-picker';
 import {createpost} from '../apis/createpost';
 import {getposts} from '../apis/home';
+import {storage} from '../../../firebase';
 // import * as MediaLibrary from 'expo-media-library';
 
 const Colors = Color();
@@ -42,6 +43,7 @@ function SignIn({navigation, appState, setposts}) {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState('');
+  const [mediaurl, setMediaurl] = useState('');
   const [CreatePost, showCreatePost] = useState(false);
   const [pickImage, setpickImage] = useState(false);
   const {User} = appState;
@@ -76,7 +78,6 @@ function SignIn({navigation, appState, setposts}) {
   const [image, setImage] = useState(null);
   const [recentImages, setRecentImages] = useState([]);
   const ChooseImage = async () => {
-    console.log('Image me');
     const permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
@@ -84,45 +85,57 @@ function SignIn({navigation, appState, setposts}) {
       return;
     }
 
-    const result = await ImagePicker.launchImageLibraryAsync();
-    if (!result.cancelled) {
-      setImage(result.uri);
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      // Use "canceled" instead of "cancelled"
+      setImage(result.assets[0].uri);
+      setpickImage(true);
     }
   };
 
   // Function to upload image to Firebase Storage
-
+  useEffect(() => {}, [mediaurl]);
   const uploadImageToFirebase = async () => {
     try {
       const response = await fetch(image);
       const blob = await response.blob();
 
-      const storageRef = ref(
-        storage,
-        `groupPhotos/${groupid}/${image.split('/').pop()}`,
-      );
+      const storageRef = ref(storage, `posts/${image.split('/').pop()}`);
 
       // Uploading image to Firebase Storage
       await uploadBytes(storageRef, blob); // Use uploadBytes method to upload the image blob
 
       const downloadURL = await getDownloadURL(storageRef); // Get the download URL
 
-      setData({...data, photourl: downloadURL}); // Update group data with the downloadURL
+      return downloadURL; // Update group data with the downloadURL
     } catch (error) {
       console.error('Error uploading image: ', error);
     }
   };
+
   const createPost = async () => {
     try {
       // Upload image before updating group data
       if (image) {
-        await uploadImageToFirebase();
-      }
-      const token = User?.mykey;
-      // Update group data
+        const url = await uploadImageToFirebase();
+        const token = User?.mykey;
+        // Update group data
 
-      await createpost(token, data);
-      navigation.goBack();
+        await createpost(token, data, url);
+        navigation.goBack();
+      } else {
+        const token = User?.mykey;
+        // Update group data
+
+        await createpost(token, data);
+        navigation.goBack();
+      }
     } catch (err) {
       console.log(err);
       Alert.alert('Error creating post');

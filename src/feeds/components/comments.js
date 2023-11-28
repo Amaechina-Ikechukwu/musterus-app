@@ -22,6 +22,10 @@ export function CommentsComponent({item, tag}) {
   useLayoutEffect(() => {
     userprofile();
   }, []);
+  if (!Author || Object.keys(Author).length === 0) {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>

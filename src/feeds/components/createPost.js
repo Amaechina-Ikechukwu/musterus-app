@@ -4,7 +4,6 @@ import {ScrollView, TouchableOpacity} from 'react-native-gesture-handler';
 import {CreateFeedHeader} from './createpost-header';
 import {Divider} from 'react-native-paper';
 import {AddPhoto, DividerIcon} from './icons';
-import {NameDisplayCard} from '../../components/name-display-card';
 import {BackIcon} from '../../../assets/icons/auth-icons';
 import {LabelTexts} from './texts';
 import {FlatInput, OutlinedInput} from '../../components/inputs';
@@ -28,6 +27,12 @@ export function CreatePostModal({
   createpost,
   fetchposts,
 }) {
+  const CreateMyPost = () => {
+    if (data.length > 3) {
+      createpost();
+      fetchposts();
+    }
+  };
   useEffect(() => {}, []);
   return (
     <>
@@ -76,9 +81,7 @@ export function CreatePostModal({
             <View
               style={{
                 padding: 15,
-              }}>
-              <NameDisplayCard />
-            </View>
+              }}></View>
 
             {/* post input */}
             {/* {data.length < 1 && <LabelTexts text="Say something about ths photo..." style={{ marginLeft: 20, color: "gray" }} />} */}
@@ -127,7 +130,7 @@ export function CreatePostModal({
         <View>
           <PrimaryButton
             // loading={loading}
-            noBG={data.length < 10 ? true : false}
+            noBG={data.length < 3 ? true : false}
             style={{
               width: '90%',
               marginLeft: '5%',
@@ -135,17 +138,16 @@ export function CreatePostModal({
               marginTop: 20,
               marginBottom: 40,
               backgroundColor:
-                data.length > 200
+                data.length < 0
                   ? Colors.inactiveButton
-                  : data.length < 1
+                  : data.length < 0
                   ? Colors.inactiveButton
-                  : pickImage == true
+                  : pickImage == true || data.length > 0
                   ? Colors.primary
                   : Colors.inactiveButton,
             }}
             callBack={() => {
-              createpost();
-              fetchposts();
+              CreateMyPost();
             }}
             title={`Post `}
           />

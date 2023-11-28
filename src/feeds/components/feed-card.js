@@ -37,10 +37,8 @@ export function FeedCard({
   const [numberOfComments, setNumberOfComments] = useState();
   const postaction = async () => {
     if (liked) {
-      console.log('unlike');
       await unlikepost(user, data?.postid);
     } else {
-      console.log('like');
       await likepost(user, data?.postid);
     }
   };
@@ -52,7 +50,6 @@ export function FeedCard({
     const unsubscribe = onSnapshot(q, querySnapshot => {
       let likes = [];
       querySnapshot.forEach(doc => {
-        console.log(doc.id + '==' + data?.postid);
         likes.push(doc.id); // Assuming the likes are stored as document IDs
       });
       setNumberOfLikes(likes.length);
@@ -95,35 +92,31 @@ export function FeedCard({
         dot={true}
       />
 
-      {data?.mediaurl != null && (
+      {data?.mediaurl != null && data?.mediaurl?.length > 0 && (
         <>
-          {loading ? (
-            <ActivityIndicator />
-          ) : (
-            <Pressable
-              onPress={() => {
-                setPostToView(data);
-                setModalVisible(true);
+          <Pressable
+            onPress={() => {
+              setPostToView(data);
+              setModalVisible(true);
+            }}
+            style={styles.imageContainer}>
+            <Image
+              onLoadEnd={() => {
+                setLoading(true);
               }}
-              style={styles.imageContainer}>
-              <Image
-                // onLoadStart={() => {
-                //     setLoading(true)
-                // }}
-                onLoad={() => {
-                  setLoading(false);
-                }}
-                style={[
-                  styles.tweetImage,
-                  {
-                    aspectRatio: 1,
-                  },
-                ]}
-                src={data?.mediaurl}
-                resizeMode={'cover'}
-              />
-            </Pressable>
-          )}
+              onLoad={() => {
+                setLoading(true);
+              }}
+              style={[
+                styles.tweetImage,
+                {
+                  aspectRatio: 1,
+                },
+              ]}
+              source={{uri: data?.mediaurl}}
+              resizeMode={'cover'}
+            />
+          </Pressable>
         </>
       )}
       <View style={styles.iconsContainer}>
@@ -222,7 +215,8 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   tweetImage: {
-    width: '100%',
+    width: 500,
+    height: 500,
     borderRadius: 10,
     marginTop: 16,
     resizeMode: 'cover',

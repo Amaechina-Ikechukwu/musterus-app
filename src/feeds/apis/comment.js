@@ -18,7 +18,7 @@ export const commentonpost = async (token, postid, comment) => {
         },
       },
     );
-    console.log(response.data);
+
     return response.data;
   } catch (error) {
     throw error;

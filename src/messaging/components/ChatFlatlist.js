@@ -14,7 +14,7 @@ import {connect} from 'react-redux';
 import {ChatMessagingHeads} from './ChatMessageHead';
 
 const ChatsFlatlist = ({appState, data, navigation, mykey, setgroup}) => {
-  const {Group} = appState;
+  const {Chatlist} = appState;
   const renderItem = ({item}) => {
     return (
       <View>
@@ -31,7 +31,7 @@ const ChatsFlatlist = ({appState, data, navigation, mykey, setgroup}) => {
 
   return (
     <FlatList
-      data={data}
+      data={Chatlist}
       renderItem={renderItem}
       keyExtractor={item => item.conversationId}
       ListEmptyComponent={

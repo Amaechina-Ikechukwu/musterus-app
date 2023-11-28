@@ -19,7 +19,25 @@ const Colors = Color();
 const getUserid = (uid, data) => {
   return data.filter(id => id !== uid)[0];
 };
+function extractTimeFromFirestoreTimestamp(timestampObj) {
+  const {seconds, nanoseconds} = timestampObj;
+  const milliseconds = seconds * 1000 + nanoseconds / 1000000;
 
+  // Create a Date object using the milliseconds value
+  const date = new Date(milliseconds);
+
+  // Extract hours, minutes, and seconds from the Date object
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const second = date.getSeconds();
+
+  // Format the time to desired format (example: hh:mm:ss)
+  const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes
+    .toString()
+    .padStart(2, '0')}`;
+
+  return formattedTime;
+}
 export function ChatMessagingHeads({
   dot,
   active,
@@ -69,6 +87,9 @@ export function ChatMessagingHeads({
   }, []); // Ensure db and gdata.groupid are dependencies if they change
   const emptyimage =
     'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
+  if (!friendData || Object.keys(friendData).length === 0) {
+    return null;
+  }
 
   return (
     <TouchableOpacity
@@ -117,24 +138,16 @@ export function ChatMessagingHeads({
             }}>
             <Text
               style={{
-                color: Colors.grey,
-                fontSize: 11,
-              }}>
-              Now
-            </Text>
-            <Text
-              style={{
                 color: Colors.light,
                 fontSize: 11,
                 backgroundColor: Colors.primary,
                 borderRadius: 20,
                 height: 25,
-                width: 25,
                 textAlign: 'center',
                 padding: 4,
                 marginTop: 5,
               }}>
-              99
+              {extractTimeFromFirestoreTimestamp(data?.sent)}
             </Text>
           </View>
         </View>

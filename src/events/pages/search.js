@@ -28,6 +28,7 @@ import UsersFlatlist from '../../muster-points/pages/UsersFlatlist';
 import {
   and,
   collection,
+  getDocs,
   onSnapshot,
   or,
   orderBy,
@@ -37,55 +38,105 @@ import {
 import {db} from '../../../firebase';
 const {height, width} = Dimensions.get('window');
 const Colors = Color();
-let ImgUrl =
-  'https://scontent.flos1-2.fna.fbcdn.net/v/t39.30808-6/311838830_3341516792834673_1624830650213567335_n.jpg?_nc_cat=100&cb=99be929b-59f725be&ccb=1-7&_nc_sid=09cbfe&_nc_eui2=AeG2I4ezOTyJWd1Q6SaGyWtTt0TqlRk4Rf63ROqVGThF_hMhAEUxrZPmz-YfwDVqi9XSOwJeMBUHJjjW2mK1cXwG&_nc_ohc=tMcuz-iePZwAX-IlhsR&_nc_zt=23&_nc_ht=scontent.flos1-2.fna&oh=00_AfAvDZURMf1osfZvCjNmFOAq3WF5xqNQrwbghpiwEBotoQ&oe=64D287F2';
+const removePassword = data => {
+  delete data.password;
+  return data;
+};
 function Profile({route, appState, disp_surprise}) {
   const User = appState.User;
   const navigation = useNavigation();
   const [imageUri, setImageUri] = useState(null);
   const [data, setData] = useState('');
   const [searchedUsers, setSearchedUsers] = useState();
+  const makeconvid = friend => {
+    const conversationId = [User?.mykey, friend?.id].sort().join('_');
 
-  const suggestedUsers = () => {
+    navigation.navigate('Chat', {
+      screen: 'chat person',
+      params: {
+        conversationId: conversationId,
+        friendid: friend?.id,
+        friend: friend,
+      },
+    });
+  };
+  const usersRef = collection(db, 'profile');
+
+  const handleInputChange = async event => {
+    const newValue = event; // Convert to lowercase
+    setData(newValue);
     try {
-      const currentUserID = User?.mykey;
-      let q = collection(db, 'profile');
+      const q = query(usersRef);
+      const querySnapshot = await getDocs(q);
 
-      if (data.length > 0) {
-        q = query(
-          q,
-          and(where('firstname', '>=', data)),
-          or(
-            where('lastname', '>=', data),
-            where('lastname', '<=', data + '\uf8ff'),
-          ),
-        );
-      }
-
-      const unsubscribe = onSnapshot(q, querySnapshot => {
-        let users = [];
-        querySnapshot.forEach(doc => {
-          const userID = doc.id;
-          if (userID !== currentUserID) {
-            users.push({id: userID, ...doc.data()});
+      const usersData = [];
+      querySnapshot.forEach(doc => {
+        const userData = doc.data();
+        const {firstname, lastname} = userData;
+        const lowerCaseFirstname = firstname;
+        const lowerCaseLastname = lastname;
+        if (
+          lowerCaseFirstname.includes(newValue) ||
+          lowerCaseLastname.includes(newValue)
+        ) {
+          if (doc.id !== User?.mykey) {
+            const newData = removePassword(userData);
+            usersData.push({id: doc.id, ...newData});
           }
-        });
-
-        console.log(users);
-        setSearchedUsers(users);
+        }
       });
-
-      return unsubscribe; // Return a function to unsubscribe
-    } catch (err) {
-      console.error('Error in suggestedUsers:', err);
-      // Handle the error or display a specific message
+      setSearchedUsers(usersData);
+    } catch (error) {
+      console.error('Error searching users:', error);
     }
   };
 
+  // const handleSearch = async () => {
+  //   try {
+  //     const q = query(usersRef);
+  //     r;
+  //     const querySnapshot = await getDocs(q);
+
+  //     const usersData = [];
+  //     querySnapshot.forEach(doc => {
+  //       const userData = doc.data();
+  //       const {firstname, lastname} = userData;
+  //       const lowerCaseFirstname = firstname;
+  //       const lowerCaseLastname = lastname;
+  //       if (
+  //         lowerCaseFirstname.includes(data) ||
+  //         lowerCaseLastname.includes(data)
+  //       ) {
+  //         const newData = removePassword(userData);
+  //         usersData.push({id: doc.id, ...newData});
+  //       }
+  //     });
+  //     setSearchedUsers(usersData);
+  //   } catch (error) {
+  //     console.error('Error searching users:', error);
+  //   }
+  // };
+  const initializeuser = async () => {
+    try {
+      const q = query(usersRef);
+      const querySnapshot = await getDocs(q);
+
+      const usersData = [];
+      querySnapshot.forEach(doc => {
+        const userData = doc.data();
+        if (doc.id !== User?.mykey) {
+          const newData = removePassword(userData);
+          usersData.push({id: doc.id, ...newData});
+        }
+      });
+      setSearchedUsers(usersData);
+    } catch (error) {
+      console.error('Error searching users:', error);
+    }
+  };
   useEffect(() => {
-    const unsubscribe = suggestedUsers();
-    return () => unsubscribe(); // Unsubscribe when component unmounts
-  }, [data]);
+    initializeuser();
+  }, []);
   try {
     return (
       <>
@@ -100,75 +151,74 @@ function Profile({route, appState, disp_surprise}) {
           }}>
           <AppStatusBar StatusBar={StatusBar} useState={useState} />
 
-          <ScrollView>
+          <View
+            style={{
+              flexDirection: 'row',
+              padding: 10,
+              marginTop: 20,
+              // backgroundColor: "red"
+            }}>
             <View
               style={{
+                flex: 1,
                 flexDirection: 'row',
-                padding: 10,
-                marginTop: 20,
-                // backgroundColor: "red"
+                // backgroundColor: "blue"
               }}>
-              <View
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.pop();
+                }}
                 style={{
                   flex: 1,
                   flexDirection: 'row',
                   // backgroundColor: "blue"
                 }}>
-                <TouchableOpacity
-                  onPress={() => {
-                    navigation.pop();
-                  }}
-                  style={{
-                    flex: 1,
-                    flexDirection: 'row',
-                    // backgroundColor: "blue"
-                  }}>
-                  <BackIcon />
-                </TouchableOpacity>
-              </View>
-              <View
-                style={{
-                  flex: 2,
-                  flexDirection: 'row',
-                  // backgroundColor: "blue"
-                }}>
-                <LabelTexts style={{marginLeft: 15}} text="Search" />
-              </View>
+                <BackIcon />
+              </TouchableOpacity>
             </View>
-
             <View
               style={{
-                // backgroundColor: "red",
-                // marginTop: 5,
-                // alignItems: "center",
-                padding: 15,
+                flex: 2,
+                flexDirection: 'row',
+                // backgroundColor: "blue"
               }}>
-              <OutlinedInput
-                data={data}
-                setData={setData}
-                placeholder="Search"
-                multiline={false}
-              />
-              <Text
-                style={[
-                  Style.text,
-                  {
-                    marginTop: 15,
-                    marginBottom: 15,
-                    color: Colors.grey,
-                    textAlign: 'left',
-                  },
-                ]}>
-                Try typing a keyword or username
-              </Text>
-
-              <UsersFlatlist
-                data={searchedUsers}
-                navigation={navigation}
-                component={'SEARCH'}
-              />
+              <LabelTexts style={{marginLeft: 15}} text="Search" />
             </View>
-          </ScrollView>
+          </View>
+
+          <View
+            style={{
+              // backgroundColor: "red",
+              // marginTop: 5,
+              // alignItems: "center",
+              padding: 15,
+            }}>
+            <OutlinedInput
+              data={data}
+              setData={value => handleInputChange(value)}
+              placeholder="Search"
+              multiline={false}
+            />
+            <Text
+              style={[
+                Style.text,
+                {
+                  marginTop: 15,
+                  marginBottom: 15,
+                  color: Colors.grey,
+                  textAlign: 'left',
+                },
+              ]}>
+              Try typing a keyword or username
+            </Text>
+
+            <UsersFlatlist
+              data={searchedUsers}
+              navigation={navigation}
+              component={'SEARCH'}
+              conversationId={makeconvid}
+            />
+          </View>
         </SafeAreaView>
       </>
     );

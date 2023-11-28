@@ -17,6 +17,8 @@ export function NameDisplayCard({
   link,
   item,
   component,
+  conversationId,
+  sendACard,
 }) {
   const [following, setFollowing] = useState();
   const followinguser = async () => {
@@ -59,7 +61,9 @@ export function NameDisplayCard({
             </TouchableOpacity>
           </View>
 
-          {component == 'SUGGESTION' ? (
+          {component == 'SUGGESTION' ||
+          component == 'SEARCH' ||
+          component == 'SENDCARD' ? (
             !following ? (
               <>
                 <View
@@ -95,17 +99,45 @@ export function NameDisplayCard({
                   // marginRight: 10,
                   // flex:1
                 }}>
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: Colors.lightgrey,
-                    height: 30,
-                    width: 90,
-                    borderRadius: 40,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <Text style={{color: Colors.primaryText}}>Following</Text>
-                </TouchableOpacity>
+                {component == 'SEARCH' ? (
+                  <TouchableOpacity
+                    onPress={() => conversationId(item)}
+                    style={{
+                      backgroundColor: Colors.white,
+                      height: 30,
+                      width: 90,
+                      borderRadius: 40,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                    <Text style={{color: Colors.primaryText}}>Message</Text>
+                  </TouchableOpacity>
+                ) : component == 'SENDCARD' ? (
+                  <TouchableOpacity
+                    onPress={() => sendACard(item)}
+                    style={{
+                      backgroundColor: Colors.white,
+                      height: 30,
+                      width: 90,
+                      borderRadius: 40,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                    <Text style={{color: Colors.primaryText}}>Send Card</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={{
+                      backgroundColor: Colors.lightgrey,
+                      height: 30,
+                      width: 90,
+                      borderRadius: 40,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                    <Text style={{color: Colors.primaryText}}>Following</Text>
+                  </TouchableOpacity>
+                )}
               </View>
             )
           ) : null}

@@ -47,7 +47,7 @@ export function Header({page, navigation, groupname, groupid}) {
             </Text>
           )}
         </View>
-        {page !== 'Group Message' && (
+        {page == 'chat group' && (
           <TouchableOpacity
             onPress={() => {
               navigation.navigate('update group', {

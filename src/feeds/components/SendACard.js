@@ -2,51 +2,42 @@ import React from 'react';
 import {View, ScrollView, Image, StyleSheet, Text} from 'react-native';
 import {Style} from '../../../assets/styles';
 import {Color} from '../../components/theme';
-import {AddPhoto} from './icons';
-import {TouchableOpacity} from '@gorhom/bottom-sheet';
+import {TouchableOpacity} from 'react-native-gesture-handler';
 import {StaticImage} from '../../utilities';
-const IMAGE_WIDTH = 70;
-const IMAGE_HEIGHT = 70;
+const IMAGE_WIDTH = 74;
+const IMAGE_HEIGHT = 130;
 const Colors = Color();
-export function SuggestedImages({data, setpickImage, image, chooseimage}) {
+export function SendACard({navigation}) {
   return (
     <View style={styles.container}>
+      <Text
+        style={[
+          Style.LabelText,
+          {
+            paddingVertical: 15,
+            paddingHorizontal: 10,
+            color: '#204624',
+            fontWeight: 400,
+          },
+        ]}>
+        Send A Card
+      </Text>
       <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
         <View style={styles.imagesContainer}>
-          <View
-            style={{
-              justifyContent: 'center',
-              marginLeft: 20,
-            }}>
-            <Text
-              style={{
-                borderWidth: 1,
-                borderColor: data.length > 500 ? Colors.red : Colors.dark,
-                borderRadius: 100,
-                paddingHorizontal: 17,
-                paddingVertical: 10,
-                color: data.length > 500 ? Colors.red : Colors.dark,
-              }}>
-              {500 - data.length}
-            </Text>
-          </View>
           <TouchableOpacity
-            onPress={() => chooseimage()}
-            style={{marginHorizontal: 10}}>
-            <AddPhoto />
+            onPress={() => {
+              navigation.navigate('MuterCards');
+            }}
+            style={styles.imageWrapper}>
+            <View style={styles.imageContainer}>
+              <Image
+                style={styles.image}
+                source={{
+                  uri: 'https://images.pexels.com/photos/6675835/pexels-photo-6675835.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+                }}
+              />
+            </View>
           </TouchableOpacity>
-          {Array.from({length: 10}, (_, index) => (
-            <TouchableOpacity
-              onPress={() => {
-                setpickImage(true);
-              }}
-              key={index}
-              style={styles.imageWrapper}>
-              <View style={styles.imageContainer}>
-                <Image style={styles.image} src={StaticImage} />
-              </View>
-            </TouchableOpacity>
-          ))}
         </View>
       </ScrollView>
     </View>
@@ -55,9 +46,8 @@ export function SuggestedImages({data, setpickImage, image, chooseimage}) {
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
-    marginTop: 20,
-    // backgroundColor:"red"
+    flex: 1,
+    paddingHorizontal: 4,
   },
   imagesContainer: {
     flexDirection: 'row',
@@ -68,7 +58,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   imageContainer: {
-    flex: 1,
     alignItems: 'center',
   },
   image: {

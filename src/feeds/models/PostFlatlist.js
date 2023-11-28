@@ -12,6 +12,8 @@ import {setGroup, setPosts} from '../../redux';
 import {connect} from 'react-redux';
 import {NameDisplayCard} from '../../components/name-display-card';
 import {FeedCard} from '../components/feed-card';
+import {UpcomingBirthdays} from '../components/upcoming-birthdays';
+import {SendACard} from '../components/SendACard';
 
 const PostFlatlist = ({
   appState,
@@ -22,6 +24,7 @@ const PostFlatlist = ({
   loading,
   setLoading,
   setpost,
+  setPostToView,
 }) => {
   const {User} = appState;
   const [showMessage, setShowMessage] = useState(false);
@@ -43,6 +46,7 @@ const PostFlatlist = ({
           navigation={navigation}
           setpickImage={setpickImage}
           user={User?.mykey}
+          setPostToView={setPostToView}
           loading={loading}
           setLoading={setLoading}
           setPost={() => setpost(item)}
@@ -53,6 +57,7 @@ const PostFlatlist = ({
 
   return (
     <FlatList
+      ListHeaderComponent={<SendACard navigation={navigation} />}
       data={data}
       renderItem={renderItem}
       initialNumToRender={8}

@@ -68,23 +68,23 @@ function SignIn({navigation, appState, route, setgroupmessages}) {
           hidden={hidden}
         />
         <Header
-          page="group chats"
+          page="chat group"
           groupname={group?.data?.name}
           groupid={groupid}
           navigation={navigation}
         />
         <ChatHead navigation={navigation} />
-        <ScrollView>
-          <View style={{width: '100%'}}>
-            <View
-              style={{
-                marginTop: 25,
-                // marginHorizontal: 15
-              }}>
-              <ChatScreen groupid={groupid} page="GROUP" user={user} />
-            </View>
+
+        <View style={{flex: 1, width: '100%', height: '100%'}}>
+          <View
+            style={{
+              marginTop: 25,
+              height: '100%',
+              flex: 1,
+            }}>
+            <ChatScreen groupid={groupid} page="GROUP" user={user} />
           </View>
-        </ScrollView>
+        </View>
       </SafeAreaView>
     </>
   );

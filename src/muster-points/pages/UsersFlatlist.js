@@ -12,7 +12,14 @@ import {setGroup} from '../../redux';
 import {connect} from 'react-redux';
 import {NameDisplayCard} from '../../components/name-display-card';
 
-const UsersFlatlist = ({appState, data, navigation, component}) => {
+const UsersFlatlist = ({
+  appState,
+  data,
+  navigation,
+  component,
+  conversationId,
+  sendACard,
+}) => {
   const {User} = appState;
   const [showMessage, setShowMessage] = useState(false);
 
@@ -32,6 +39,8 @@ const UsersFlatlist = ({appState, data, navigation, component}) => {
           navigation={navigation}
           component={component}
           item={item}
+          conversationId={conversationId}
+          sendACard={sendACard}
         />
       </View>
     );

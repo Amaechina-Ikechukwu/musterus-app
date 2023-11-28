@@ -42,6 +42,10 @@ export function NameDisplayCard({
     followinguser();
   }, []);
   useEffect(() => {}, [Author, following]);
+  if (!Author || Object.keys(Author).length === 0) {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>

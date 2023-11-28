@@ -103,45 +103,43 @@ function Profile({route, appState}) {
         }}>
         <AppStatusBar StatusBar={StatusBar} useState={useState} />
 
-        <ScrollView>
+        <View
+          style={{
+            flexDirection: 'row',
+            padding: 10,
+            marginTop: 20,
+            // backgroundColor: "red"
+          }}>
           <View
             style={{
+              flex: 1,
               flexDirection: 'row',
-              padding: 10,
-              marginTop: 20,
-              // backgroundColor: "red"
+              // backgroundColor: "blue"
             }}>
-            <View
+            <TouchableOpacity
+              onPress={() => {
+                navigation.pop();
+              }}
               style={{
                 flex: 1,
                 flexDirection: 'row',
                 // backgroundColor: "blue"
               }}>
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.pop();
-                }}
-                style={{
-                  flex: 1,
-                  flexDirection: 'row',
-                  // backgroundColor: "blue"
-                }}>
-                <BackIcon />
-              </TouchableOpacity>
-              <LabelTexts style={{marginLeft: 15}} text="Comments" />
-            </View>
+              <BackIcon />
+            </TouchableOpacity>
+            <LabelTexts style={{marginLeft: 15}} text="Comments" />
           </View>
-          <Divider style={{marginTop: 30, backgroundColor: Colors.primary}} />
-          <View
-            style={{
-              // backgroundColor: "red",
-              // marginTop: 5,
-              // alignItems: "center",
-              padding: 15,
-            }}>
-            <CommentFlatList data={postComments} />
-          </View>
-        </ScrollView>
+        </View>
+        <Divider style={{marginTop: 30, backgroundColor: Colors.primary}} />
+        <View
+          style={{
+            // backgroundColor: "red",
+            // marginTop: 5,
+            // alignItems: "center",
+            padding: 15,
+          }}>
+          <CommentFlatList data={postComments} />
+        </View>
 
         <CommentInput
           setMessage={setMessage}

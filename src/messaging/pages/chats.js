@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {ScrollView, TouchableOpacity} from 'react-native-gesture-handler';
 import {connect} from 'react-redux';
-import {surprise_state, user_state} from '../../redux';
+import {setChatlist, surprise_state, user_state} from '../../redux';
 import {Color} from '../../components/theme';
 import {DividerIcon} from '../../events/components/icons';
 import {Divider, Avatar} from 'react-native-paper';
@@ -16,17 +16,16 @@ import ChatFlatlist from '../components/ChatFlatlist';
 
 const Colors = Color();
 
-function SignIn({navigation, appState}) {
+function SignIn({navigation, appState, setchatlist}) {
   const {User, Profile} = appState;
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const getChatList = async () => {
     const result = await chatlist(User?.mykey);
-    setData(result.chats);
+    setchatlist(result.chats);
   };
 
   useEffect(() => {
-    console.log(data);
     getChatList();
   }, []);
   useEffect(() => {}, [data]);
@@ -51,24 +50,22 @@ function SignIn({navigation, appState}) {
           showHideTransition={statusBarTransition}
           hidden={hidden}
         />
-        <ScrollView>
-          <View style={{width: '100%'}}>
-            <View
-              style={{
-                marginBottom: 80,
-                marginTop: 80,
-                // marginHorizontal: 15
-              }}>
-              <View>
-                <ChatFlatlist
-                  navigation={navigation}
-                  data={data}
-                  mykey={User?.mykey}
-                />
-              </View>
+        <View style={{width: '100%'}}>
+          <View
+            style={{
+              marginBottom: 80,
+              marginTop: 80,
+              // marginHorizontal: 15
+            }}>
+            <View>
+              <ChatFlatlist
+                navigation={navigation}
+                data={data}
+                mykey={User?.mykey}
+              />
             </View>
           </View>
-        </ScrollView>
+        </View>
       </SafeAreaView>
     </>
   );
@@ -84,6 +81,7 @@ const mapDispatchToProps = (dispatch, encoded) => {
   return {
     disp_Login: payload => dispatch(user_state(payload)),
     disp_surprise: payload => dispatch(surprise_state(payload)),
+    setchatlist: payload => dispatch(setChatlist(payload)),
   };
 };
 

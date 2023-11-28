@@ -47,7 +47,7 @@ const CommentFlatList = ({
       data={data}
       renderItem={renderItem}
       initialNumToRender={8}
-      keyExtractor={item => item.postid}
+      keyExtractor={item => item.id}
       contentContainerStyle={{gap: 20}}
       ListEmptyComponent={
         <View

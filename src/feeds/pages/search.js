@@ -24,38 +24,108 @@ import {FeedHeader} from '../components/feed-header';
 import {Style} from '../../../assets/styles';
 import {NameDisplayCard} from '../../components/name-display-card';
 import {Header} from '../../messaging/components/header';
-import {search} from '../apis/search';
-
+import UsersFlatlist from '../../muster-points/pages/UsersFlatlist';
+import {
+  and,
+  collection,
+  getDocs,
+  onSnapshot,
+  or,
+  orderBy,
+  query,
+  where,
+} from 'firebase/firestore';
+import {db} from '../../../firebase';
 const {height, width} = Dimensions.get('window');
 const Colors = Color();
-let ImgUrl =
-  'https://scontent.flos1-2.fna.fbcdn.net/v/t39.30808-6/311838830_3341516792834673_1624830650213567335_n.jpg?_nc_cat=100&cb=99be929b-59f725be&ccb=1-7&_nc_sid=09cbfe&_nc_eui2=AeG2I4ezOTyJWd1Q6SaGyWtTt0TqlRk4Rf63ROqVGThF_hMhAEUxrZPmz-YfwDVqi9XSOwJeMBUHJjjW2mK1cXwG&_nc_ohc=tMcuz-iePZwAX-IlhsR&_nc_zt=23&_nc_ht=scontent.flos1-2.fna&oh=00_AfAvDZURMf1osfZvCjNmFOAq3WF5xqNQrwbghpiwEBotoQ&oe=64D287F2';
+const removePassword = data => {
+  delete data.password;
+  return data;
+};
 function Profile({route, appState, disp_surprise}) {
   const User = appState.User;
   const navigation = useNavigation();
   const [imageUri, setImageUri] = useState(null);
   const [data, setData] = useState('');
-  const getSearchFeed = async () => {
-    const result = await search(mykey, mskl);
-    console.log(search, JSON.stringify(result, null, 2));
+  const [searchedUsers, setSearchedUsers] = useState();
+  const makeconvid = friend => {
+    const conversationId = [User?.mykey, friend?.id].sort().join('_');
+
+    navigation.navigate('Chat', {
+      screen: 'chat person',
+      params: {
+        conversationId: conversationId,
+        friendid: friend?.id,
+        friend: friend,
+      },
+    });
+  };
+  const usersRef = collection(db, 'profile');
+
+  const handleInputChange = async event => {
+    const newValue = event; // Convert to lowercase
+    setData(newValue);
+    try {
+      const q = query(usersRef);
+      const querySnapshot = await getDocs(q);
+
+      const usersData = [];
+      querySnapshot.forEach(doc => {
+        const userData = doc.data();
+        const {firstname, lastname} = userData;
+        const lowerCaseFirstname = firstname;
+        const lowerCaseLastname = lastname;
+        if (
+          lowerCaseFirstname.includes(newValue) ||
+          lowerCaseLastname.includes(newValue)
+        ) {
+          if (doc.id !== User?.mykey) {
+            const newData = removePassword(userData);
+            usersData.push({id: doc.id, ...newData});
+          }
+        }
+      });
+      setSearchedUsers(usersData);
+    } catch (error) {
+      console.error('Error searching users:', error);
+    }
+  };
+
+  const initializeuser = async () => {
+    try {
+      const q = query(usersRef);
+      const querySnapshot = await getDocs(q);
+
+      const usersData = [];
+      querySnapshot.forEach(doc => {
+        const userData = doc.data();
+        if (doc.id !== User?.mykey) {
+          const newData = removePassword(userData);
+          usersData.push({id: doc.id, ...newData});
+        }
+      });
+      setSearchedUsers(usersData);
+    } catch (error) {
+      console.error('Error searching users:', error);
+    }
   };
   useEffect(() => {
-    getSearchFeed();
+    initializeuser();
   }, []);
+  try {
+    return (
+      <>
+        <Header navigation={navigation} />
 
-  return (
-    <>
-      <Header navigation={navigation} />
-      <SafeAreaView
-        style={{
-          flex: 1,
-          backgroundColor: Colors.background,
-          paddingTop: 80,
-          // padding: 20
-        }}>
-        <AppStatusBar StatusBar={StatusBar} useState={useState} />
+        <SafeAreaView
+          style={{
+            flex: 1,
+            backgroundColor: Colors.background,
+            paddingTop: 80,
+            // padding: 20
+          }}>
+          <AppStatusBar StatusBar={StatusBar} useState={useState} />
 
-        <ScrollView>
           <View
             style={{
               flexDirection: 'row',
@@ -99,9 +169,8 @@ function Profile({route, appState, disp_surprise}) {
               padding: 15,
             }}>
             <OutlinedInput
-              autoFocus={true}
               data={data}
-              setData={setData}
+              setData={value => handleInputChange(value)}
               placeholder="Search"
               multiline={false}
             />
@@ -118,26 +187,29 @@ function Profile({route, appState, disp_surprise}) {
               Try typing a keyword or username
             </Text>
 
-            {data.length > 3 && (
-              <>
-                {[1, 1, 1, 1, 1].map((e, index) => {
-                  return (
-                    <View
-                      key={index}
-                      style={{
-                        marginVertical: 7,
-                      }}>
-                      <NameDisplayCard tag="@calvin" />
-                    </View>
-                  );
-                })}
-              </>
-            )}
+            <UsersFlatlist
+              data={searchedUsers}
+              navigation={navigation}
+              component={'SEARCH'}
+              conversationId={makeconvid}
+            />
           </View>
-        </ScrollView>
-      </SafeAreaView>
-    </>
-  );
+        </SafeAreaView>
+      </>
+    );
+  } catch (err) {
+    console.log(err);
+    return (
+      <View
+        style={{
+          flex: 2,
+          flexDirection: 'row',
+          // backgroundColor: "blue"
+        }}>
+        <LabelTexts style={{marginLeft: 15}} text="Little Error" />
+      </View>
+    );
+  }
 }
 
 const mapStateToProps = state => {

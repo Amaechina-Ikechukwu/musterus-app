@@ -1,9 +1,9 @@
-import {StyleSheet, View, Text, StatusBar} from 'react-native';
+import {StyleSheet, View, Text, StatusBar, Alert} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {ScrollView, TouchableOpacity} from 'react-native-gesture-handler';
 import {connect} from 'react-redux';
-import {surprise_state, user_state} from '../../redux';
+import {setChatlist, surprise_state, user_state} from '../../redux';
 import {Color} from '../../components/theme';
 import {DividerIcon} from '../../events/components/icons';
 import {Divider, Avatar} from 'react-native-paper';
@@ -15,16 +15,17 @@ import {ChatScreen, SentMessage} from '../components/mesages';
 import {ChatInput} from '../components/chatInput';
 import {ChatMessages} from '../components/chatmessages';
 import {sendmessage} from '../apis/sendDM';
+import {initializechat} from '../apis/initializechat';
 
 const Colors = Color();
 
-function SignIn({navigation, appState, route}) {
+function SignIn({navigation, appState, route, setchatlist}) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const {friendid} = route?.params;
   const {User} = appState;
   useEffect(() => {
-    // console.log(route)
+    initializechat(User?.mykey, friendid);
   }, []);
 
   const STYLES = ['default', 'dark-content', 'light-content'];
@@ -45,6 +46,7 @@ function SignIn({navigation, appState, route}) {
       await sendmessage(User?.mykey, friendid, message);
       setTempMessage('');
     } catch (err) {
+      console.log(err);
       setMessage(tempmessage);
       Alert.alert('Sending', 'Couldnt send message at this time');
     }
@@ -66,12 +68,14 @@ function SignIn({navigation, appState, route}) {
         />
         <Header page="Chat" />
         <ChatHead navigation={navigation} page="PERSON" />
-        <ScrollView>
-          <View style={{width: '100%'}}>
+        <View style={{flex: 1, width: '100%', height: '100%'}}>
+          <View style={{width: '100%', height: '100%'}}>
             <View
               style={{
                 marginTop: 25,
-                // marginHorizontal: 15
+                width: '100%',
+                height: '100%',
+                flex: 1,
               }}>
               <ChatMessages
                 message={message}
@@ -81,7 +85,7 @@ function SignIn({navigation, appState, route}) {
               />
             </View>
           </View>
-        </ScrollView>
+        </View>
       </SafeAreaView>
     </>
   );
@@ -97,6 +101,7 @@ const mapDispatchToProps = (dispatch, encoded) => {
   return {
     disp_Login: payload => dispatch(user_state(payload)),
     disp_surprise: payload => dispatch(surprise_state(payload)),
+    setchatlist: payload => dispatch(setChatlist(payload)),
   };
 };
 

@@ -77,6 +77,7 @@ function SignIn({navigation, appState, setposts}) {
     getHomeFeed();
   }, []);
   useEffect(() => {}, [posts]);
+
   return (
     <>
       {CreatePost == true && (
@@ -100,31 +101,34 @@ function SignIn({navigation, appState, setposts}) {
           showHideTransition={statusBarTransition}
           hidden={hidden}
         />
-        <ScrollView>
-          <View style={{marginTop: 80}}>
-            <UpcomingBirthdays navigation={navigation} />
 
-            <View
-              style={{
-                marginTop: 10,
-                marginBottom: 80,
-              }}>
-              <PostFlatlist
-                setPostToView={setPostToView}
-                data={Posts}
-                setModalVisible={setModalVisible}
-                navigation={navigation}
-                setPosts={setPosts}
-              />
-            </View>
+        <View style={{marginTop: 80}}>
+          <View
+            style={{
+              marginTop: 10,
+              marginBottom: 80,
+            }}>
+            <PostFlatlist
+              setPostToView={setPostToView}
+              data={Posts}
+              loading={loading}
+              setLoading={setLoading}
+              setModalVisible={setModalVisible}
+              navigation={navigation}
+              setPosts={setPosts}
+            />
           </View>
-        </ScrollView>
+        </View>
       </SafeAreaView>
 
       <Modal
         animationType="fade"
         transparent={false}
         visible={modalVisible}
+        onMagicTap={() => {
+          setModalVisible(!modalVisible);
+          // Alert.alert('Modal has been closed.');
+        }}
         onRequestClose={() => {
           setModalVisible(!modalVisible);
           // Alert.alert('Modal has been closed.');
@@ -137,7 +141,10 @@ function SignIn({navigation, appState, setposts}) {
             alignItems: 'center',
             padding: 10,
           }}>
-          <Image style={styles.tweetImage} src={StaticImage} />
+          <Image
+            style={styles.tweetImage}
+            source={{uri: postToView?.mediaurl}}
+          />
         </View>
       </Modal>
     </>
