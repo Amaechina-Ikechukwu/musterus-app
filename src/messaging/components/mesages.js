@@ -12,7 +12,7 @@ import {
 import {db} from '../../../firebase';
 import {usersprofile} from '../../user/apis/firebaseprofile';
 import {ActivityIndicator} from 'react-native';
-import {initializechat} from '../apis/initializechat';
+import {FlashList} from '@shopify/flash-list';
 const fetchUserProfiles = async messages => {
   const uniqueUserIds = [...new Set(messages.map(message => message.from))];
   const profiles = {};
@@ -130,12 +130,12 @@ export const ChatScreen = ({page, groupid, user}) => {
 
   return (
     <View style={styles.container}>
-      <FlatList
+      <FlashList
         ref={flatListRef}
         data={messages}
         inverted
-        style={{flex: 1, height: '100%'}}
         renderItem={renderMessage}
+        estimatedItemSize={200}
         keyExtractor={item => item.id.toString()}
         scrollToIndex={messages && messages.length - 1}
         ListEmptyComponent={

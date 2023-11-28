@@ -74,7 +74,9 @@
     "@expo/vector-icons": "^13.0.0",
     "firebase": "10.6.0",
     "expo-image-picker": "~14.1.1",
-    "expo-av": "~13.2.1"
+    "expo-av": "~13.2.1",
+    "expo-media-library": "~15.2.3",
+    "@shopify/flash-list": "1.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

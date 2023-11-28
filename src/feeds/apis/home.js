@@ -6,17 +6,16 @@ const api = axios.create({
 
 export const getposts = async token => {
   try {
-    const response = await api.post(
+    const response = await api.get(
       '/home/posts',
-      {
-        groupid: 'bvn',
-      },
+
       {
         headers: {
           Authorization: `Bearer ${token}`, // Include the Bearer token in the request headers
         },
       },
     );
+
     return response.data;
   } catch (error) {
     throw error;

@@ -90,8 +90,9 @@ function MuterCards({route, appState, disp_surprise}) {
 
         <View style={{flex: 1}}>
           <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-            {holidaysImages.map(image => (
+            {holidaysImages.map((image, index) => (
               <TouchableOpacity
+                key={index}
                 onPress={() => {
                   navigation.navigate('SelectCard', {
                     selected: image.title,

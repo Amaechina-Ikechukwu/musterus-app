@@ -133,9 +133,8 @@ function Profile({route, appState}) {
         <Divider style={{marginTop: 30, backgroundColor: Colors.primary}} />
         <View
           style={{
-            // backgroundColor: "red",
-            // marginTop: 5,
-            // alignItems: "center",
+            height: '100%',
+            width: '100%',
             padding: 15,
           }}>
           <CommentFlatList data={postComments} />

@@ -183,11 +183,13 @@ function Profile({route, appState, disp_surprise}) {
               }}
             />
           </View>
-          <UsersFlatlist
-            navigation={navigation}
-            data={component == 'SUGGESTION' ? data : followingData}
-            component={component}
-          />
+          <View style={{height: '100%', width: '100%'}}>
+            <UsersFlatlist
+              navigation={navigation}
+              data={component == 'SUGGESTION' ? data : followingData}
+              component={component}
+            />
+          </View>
         </View>
       </SafeAreaView>
     </>

@@ -202,13 +202,14 @@ function MuterCards({route, appState, disp_surprise}) {
                 }}
               />
             </View>
-
-            <UsersFlatlist
-              data={searchedUsers}
-              navigation={navigation}
-              component={'SENDCARD'}
-              sendACard={makeconvid}
-            />
+            <View style={{width: '100%', height: '100%'}}>
+              <UsersFlatlist
+                data={searchedUsers}
+                navigation={navigation}
+                component={'SENDCARD'}
+                sendACard={makeconvid}
+              />
+            </View>
           </View>
         </View>
       </SafeAreaView>

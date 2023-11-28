@@ -11,7 +11,7 @@ import {
 import {MessagingHeads} from './messageHeads';
 import {setGroup} from '../../redux';
 import {connect} from 'react-redux';
-
+import {FlashList} from '@shopify/flash-list';
 const GroupsList = ({appState, groupsData, navigation, mykey, setgroup}) => {
   const {Group} = appState;
   const renderItem = ({item}) => {
@@ -28,6 +28,7 @@ const GroupsList = ({appState, groupsData, navigation, mykey, setgroup}) => {
     <FlatList
       data={groupsData}
       renderItem={renderItem}
+      estimatedItemSize={200}
       keyExtractor={item => item.groupID}
       ListEmptyComponent={
         <View style={{flex: 1, justifyContent: 'center'}}>

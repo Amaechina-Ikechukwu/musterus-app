@@ -11,7 +11,7 @@ import {
 import {setGroup} from '../../redux';
 import {connect} from 'react-redux';
 import {NameDisplayCard} from '../../components/name-display-card';
-
+import {FlashList} from '@shopify/flash-list';
 const UsersFlatlist = ({
   appState,
   data,
@@ -33,7 +33,7 @@ const UsersFlatlist = ({
 
   const renderItem = ({item}) => {
     return (
-      <View>
+      <View style={{marginBottom: 10}}>
         <NameDisplayCard
           user={User?.mykey}
           navigation={navigation}
@@ -47,11 +47,12 @@ const UsersFlatlist = ({
   };
 
   return (
-    <FlatList
+    <FlashList
       data={data}
       renderItem={renderItem}
       keyExtractor={item => item.id}
-      contentContainerStyle={{gap: 20}}
+      disableAutoLayout
+      estimatedItemSize={200}
       ListEmptyComponent={
         <View
           style={{

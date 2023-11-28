@@ -36,6 +36,7 @@ import {
   where,
 } from 'firebase/firestore';
 import {db} from '../../../firebase';
+
 const {height, width} = Dimensions.get('window');
 const Colors = Color();
 const removePassword = data => {
@@ -186,13 +187,14 @@ function Profile({route, appState, disp_surprise}) {
               ]}>
               Try typing a keyword or username
             </Text>
-
-            <UsersFlatlist
-              data={searchedUsers}
-              navigation={navigation}
-              component={'SEARCH'}
-              conversationId={makeconvid}
-            />
+            <View style={{height: '100%', width: '100%'}}>
+              <UsersFlatlist
+                data={searchedUsers}
+                navigation={navigation}
+                component={'SEARCH'}
+                conversationId={makeconvid}
+              />
+            </View>
           </View>
         </SafeAreaView>
       </>

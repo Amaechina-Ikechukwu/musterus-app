@@ -26,6 +26,7 @@ export function CreatePostModal({
   chooseimage,
   createpost,
   fetchposts,
+  progress,
 }) {
   const CreateMyPost = () => {
     if (data.length > 3) {
@@ -70,7 +71,10 @@ export function CreatePostModal({
                 }}>
                 <BackIcon />
               </TouchableOpacity>
-              <LabelTexts text="Create a post" style={{marginLeft: 20}} />
+              <LabelTexts
+                text={progress ? `Uploading ${progress}%` : 'Create a post'}
+                style={{marginLeft: 20}}
+              />
             </View>
             <View
               style={{

@@ -20,10 +20,12 @@ export function NameDisplayCard({
   component,
 }) {
   const [following, setFollowing] = useState();
-  const [Author, setAuthor] = useState();
+  const [Author, setAuthor] = useState(item?.authorinfo);
   const userprofile = async () => {
-    const result = await usersprofile(item.author);
-    setAuthor(result);
+    if (!item?.authorinfo) {
+      const result = await usersprofile(item.author);
+      setAuthor(result);
+    }
   };
   const followinguser = async () => {
     const result = await amifollwoing(user, item.author);

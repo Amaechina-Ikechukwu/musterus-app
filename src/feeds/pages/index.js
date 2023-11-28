@@ -28,6 +28,7 @@ import {Posts} from '../../utilities/data';
 import {StaticImage} from '../../utilities';
 import {getposts, home} from '../apis/home';
 import PostFlatlist from '../models/PostFlatlist';
+import {SendACard} from '../components/SendACard';
 // import RNPaystack from 'react-native-paystack';
 
 const Colors = Color();
@@ -102,11 +103,14 @@ function SignIn({navigation, appState, setposts}) {
           hidden={hidden}
         />
 
-        <View style={{marginTop: 80}}>
+        <View style={{marginTop: 80, width: '100%', height: '100%'}}>
           <View
             style={{
               marginTop: 10,
               marginBottom: 80,
+              width: '100%',
+              height: '100%',
+              gap: 20,
             }}>
             <PostFlatlist
               setPostToView={setPostToView}
@@ -116,6 +120,7 @@ function SignIn({navigation, appState, setposts}) {
               setModalVisible={setModalVisible}
               navigation={navigation}
               setPosts={setPosts}
+              fetchposts={() => getHomeFeed()}
             />
           </View>
         </View>

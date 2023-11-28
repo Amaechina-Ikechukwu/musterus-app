@@ -10,8 +10,7 @@ import {
 } from 'react-native';
 import {setGroup} from '../../redux';
 import {connect} from 'react-redux';
-import {NameDisplayCard} from '../../components/name-display-card';
-import {FeedCard} from '../components/feed-card';
+import {FlashList} from '@shopify/flash-list';
 import {CommentsComponent} from '../components/comments';
 
 const CommentFlatList = ({
@@ -43,12 +42,13 @@ const CommentFlatList = ({
   };
 
   return (
-    <FlatList
+    <FlashList
       data={data}
       renderItem={renderItem}
       initialNumToRender={8}
       keyExtractor={item => item.id}
       contentContainerStyle={{gap: 20}}
+      estimatedItemSize={200}
       ListEmptyComponent={
         <View
           style={{

@@ -50,14 +50,15 @@ function SignIn({navigation, appState, setchatlist}) {
           showHideTransition={statusBarTransition}
           hidden={hidden}
         />
-        <View style={{width: '100%'}}>
+        <View style={{width: '100%', height: '100%'}}>
           <View
             style={{
               marginBottom: 80,
               marginTop: 80,
-              // marginHorizontal: 15
+              width: '100%',
+              height: '100%',
             }}>
-            <View>
+            <View style={{width: '100%', height: '100%'}}>
               <ChatFlatlist
                 navigation={navigation}
                 data={data}

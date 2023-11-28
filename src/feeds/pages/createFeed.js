@@ -29,7 +29,13 @@ import {BottomTab} from '../components/bottomTab';
 import {CreatePostModal} from '../components/createPost';
 import {Posts} from '../../utilities/data';
 // import RNPaystack from 'react-native-paystack';
-import {getDownloadURL, getStorage, ref, uploadBytes} from 'firebase/storage';
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytes,
+  uploadBytesResumable,
+} from 'firebase/storage';
 
 import * as ImagePicker from 'expo-image-picker';
 import {createpost} from '../apis/createpost';
@@ -66,7 +72,7 @@ function SignIn({navigation, appState, setposts}) {
     //     BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
     // };
   }, [showCreatePost]);
-
+  useEffect(() => {}, [uploadProgress]);
   const STYLES = ['default', 'dark-content', 'light-content'];
   const TRANSITIONS = ['fade', 'slide', 'none'];
   const [hidden, setHidden] = useState(false);
@@ -74,7 +80,7 @@ function SignIn({navigation, appState, setposts}) {
   const [statusBarTransition, setStatusBarTransition] = useState(
     TRANSITIONS[0],
   );
-
+  const [progress, onProgress] = useState();
   const [image, setImage] = useState(null);
   const [recentImages, setRecentImages] = useState([]);
   const ChooseImage = async () => {
@@ -101,38 +107,63 @@ function SignIn({navigation, appState, setposts}) {
 
   // Function to upload image to Firebase Storage
   useEffect(() => {}, [mediaurl]);
-  const uploadImageToFirebase = async () => {
-    try {
-      const response = await fetch(image);
-      const blob = await response.blob();
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [downloadURL, setDownloadURL] = useState('');
 
-      const storageRef = ref(storage, `posts/${image.split('/').pop()}`);
+  const uploadImageToFirebase = () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const response = await fetch(image);
+        const blob = await response.blob();
 
-      // Uploading image to Firebase Storage
-      await uploadBytes(storageRef, blob); // Use uploadBytes method to upload the image blob
+        const storageRef = ref(storage, `posts/${image.split('/').pop()}`);
+        const uploadTask = uploadBytesResumable(storageRef, blob);
 
-      const downloadURL = await getDownloadURL(storageRef); // Get the download URL
+        uploadTask.on(
+          'state_changed',
+          snapshot => {
+            const progress = Math.floor(
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100,
+            );
+            setUploadProgress(progress);
+            console.log(progress);
+          },
+          error => {
+            console.error('Error uploading image: ', error);
+            reject(error);
+          },
+          async () => {
+            try {
+              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
 
-      return downloadURL; // Update group data with the downloadURL
-    } catch (error) {
-      console.error('Error uploading image: ', error);
-    }
+              setDownloadURL(downloadURL);
+              resolve(downloadURL);
+            } catch (downloadError) {
+              console.error('Error getting download URL: ', downloadError);
+              reject(downloadError);
+            }
+          },
+        );
+      } catch (error) {
+        console.error('Error uploading image: ', error);
+        reject(error);
+      }
+    });
   };
 
   const createPost = async () => {
     try {
       // Upload image before updating group data
       if (image) {
-        const url = await uploadImageToFirebase();
         const token = User?.mykey;
-        // Update group data
+        const url = await uploadImageToFirebase();
 
-        await createpost(token, data, url);
-        navigation.goBack();
+        if (url) {
+          await createpost(token, data, url);
+          navigation.goBack();
+        }
       } else {
         const token = User?.mykey;
-        // Update group data
-
         await createpost(token, data);
         navigation.goBack();
       }
@@ -141,6 +172,7 @@ function SignIn({navigation, appState, setposts}) {
       Alert.alert('Error creating post');
     }
   };
+
   const getHomeFeed = async () => {
     const result = await getposts(User?.mykey);
     setposts(result.data);
@@ -183,6 +215,7 @@ function SignIn({navigation, appState, setposts}) {
         chooseimage={() => ChooseImage()}
         image={image}
         setData={setData}
+        progress={uploadProgress}
         createpost={() => createPost()}
         fetchposts={() => getHomeFeed()}
       />

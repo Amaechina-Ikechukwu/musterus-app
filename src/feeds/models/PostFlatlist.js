@@ -12,9 +12,8 @@ import {setGroup, setPosts} from '../../redux';
 import {connect} from 'react-redux';
 import {NameDisplayCard} from '../../components/name-display-card';
 import {FeedCard} from '../components/feed-card';
-import {UpcomingBirthdays} from '../components/upcoming-birthdays';
+import {FlashList} from '@shopify/flash-list';
 import {SendACard} from '../components/SendACard';
-
 const PostFlatlist = ({
   appState,
   data,
@@ -25,6 +24,7 @@ const PostFlatlist = ({
   setLoading,
   setpost,
   setPostToView,
+  fetchposts,
 }) => {
   const {User} = appState;
   const [showMessage, setShowMessage] = useState(false);
@@ -56,13 +56,15 @@ const PostFlatlist = ({
   };
 
   return (
-    <FlatList
+    <FlashList
       ListHeaderComponent={<SendACard navigation={navigation} />}
       data={data}
       renderItem={renderItem}
+      // onRefresh={() => fetchposts()}
       initialNumToRender={8}
       keyExtractor={item => item.postid}
       contentContainerStyle={{gap: 20}}
+      estimatedItemSize={200}
       ListEmptyComponent={
         <View
           style={{

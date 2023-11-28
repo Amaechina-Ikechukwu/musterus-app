@@ -82,7 +82,7 @@ export function FeedCard({
       unsubscribe();
     };
   }, []); // Include necessary dependencies in the dependency array
-
+  useEffect(() => {}, [liked]);
   return (
     <View style={styles.container}>
       <NameDisplayCard

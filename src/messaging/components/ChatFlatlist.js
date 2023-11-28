@@ -12,7 +12,7 @@ import {MessagingHeads} from './messageHeads';
 import {setGroup} from '../../redux';
 import {connect} from 'react-redux';
 import {ChatMessagingHeads} from './ChatMessageHead';
-
+import {FlashList} from '@shopify/flash-list';
 const ChatsFlatlist = ({appState, data, navigation, mykey, setgroup}) => {
   const {Chatlist} = appState;
   const renderItem = ({item}) => {
@@ -30,9 +30,10 @@ const ChatsFlatlist = ({appState, data, navigation, mykey, setgroup}) => {
   };
 
   return (
-    <FlatList
+    <FlashList
       data={Chatlist}
       renderItem={renderItem}
+      estimatedItemSize={200}
       keyExtractor={item => item.conversationId}
       ListEmptyComponent={
         <View style={{flex: 1, justifyContent: 'center'}}>
