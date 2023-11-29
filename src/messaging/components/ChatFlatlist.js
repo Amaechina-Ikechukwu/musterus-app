@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   FlatList,
   Text,
@@ -28,7 +28,15 @@ const ChatsFlatlist = ({appState, data, navigation, mykey, setgroup}) => {
       </View>
     );
   };
+  const [showMessage, setShowMessage] = useState(false);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowMessage(true);
+    }, 7000); // 7 seconds
+
+    return () => clearTimeout(timer);
+  }, []);
   return (
     <FlashList
       data={Chatlist}
@@ -36,8 +44,19 @@ const ChatsFlatlist = ({appState, data, navigation, mykey, setgroup}) => {
       estimatedItemSize={200}
       keyExtractor={item => item.conversationId}
       ListEmptyComponent={
-        <View style={{flex: 1, justifyContent: 'center'}}>
-          <ActivityIndicator size={'large'} />
+        <View
+          style={{
+            flex: 1,
+            height: '100%',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginTop: 20,
+          }}>
+          {showMessage ? (
+            <Text>No chats yet</Text>
+          ) : (
+            <ActivityIndicator size={'large'} />
+          )}
         </View>
       }
     />

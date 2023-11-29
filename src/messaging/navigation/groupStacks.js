@@ -12,6 +12,7 @@ import {Color} from '../../components/theme';
 import editgroup from '../pages/editgroup';
 import {MyGroups} from '../apis/groups';
 import {setGroups} from '../../redux';
+import creategroup from '../pages/creategroup';
 
 const headerColor = '#fffdfb';
 const navTheme = DefaultTheme;
@@ -87,6 +88,13 @@ function HomeStack({appState, setgroups}) {
       <Stack.Screen
         name="update group"
         component={editgroup}
+        options={{
+          header: () => null,
+        }}
+      />
+      <Stack.Screen
+        name="create group"
+        component={creategroup}
         options={{
           header: () => null,
         }}

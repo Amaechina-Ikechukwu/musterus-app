@@ -8,13 +8,13 @@ import {
   Alert,
 } from 'react-native';
 import {TextInput} from 'react-native-paper';
-import {Divider, Avatar} from 'react-native-paper';
+import * as ImagePicker from 'expo-image-picker';
 import React, {useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {ScrollView} from 'react-native-gesture-handler';
 import {Color} from '../../components/theme';
 import {connect} from 'react-redux';
-import {surprise_state, user_state} from '../../redux';
+import {setMyProfile, surprise_state, user_state} from '../../redux';
 import {useNavigation} from '@react-navigation/native';
 import {AppStatusBar} from '../../components/status-bar';
 import {HeaderComponent} from '../../components/header';
@@ -27,36 +27,141 @@ import {FeedCard} from '../../events/components/feed-card';
 import {ThreeDots} from '../../events/components/icons';
 import {OutlinedInput} from '../../components/inputs';
 import {editprofile, updateprofile} from '../apis/editprofile';
-
-const {height, width} = Dimensions.get('window');
+import {usersfullprofile} from '../apis/profile';
+import {storage} from '../../../firebase';
+import {getDownloadURL, getStorage, ref, uploadBytes} from 'firebase/storage';
+const TextArea = ({data, setData, name, key, label}) => {
+  const color = Color();
+  const handleTextChange = text => {
+    setData(name, text);
+  };
+  return (
+    <TextInput
+      value={data}
+      key={key}
+      label={label}
+      // placeholder={data}
+      outlineColor="transparent"
+      activeUnderlineColor="transparent"
+      underlineColor="transparent"
+      onChangeText={value => handleTextChange(value)}
+      style={{
+        width: '100%',
+        backgroundColor: 'transparent',
+        borderColor: color.primary,
+        borderRadius: 15,
+        borderTopStartRadius: 15,
+        borderTopEndRadius: 15,
+        borderWidth: 1,
+        // Remove the default focus color
+        onFocus: () => ({borderColor: 'transparent'}),
+      }}
+    />
+  );
+};
 const Colors = Color();
-let ImgUrl =
-  'https://scontent.flos1-2.fna.fbcdn.net/v/t39.30808-6/311838830_3341516792834673_1624830650213567335_n.jpg?_nc_cat=100&cb=99be929b-59f725be&ccb=1-7&_nc_sid=09cbfe&_nc_eui2=AeG2I4ezOTyJWd1Q6SaGyWtTt0TqlRk4Rf63ROqVGThF_hMhAEUxrZPmz-YfwDVqi9XSOwJeMBUHJjjW2mK1cXwG&_nc_ohc=tMcuz-iePZwAX-IlhsR&_nc_zt=23&_nc_ht=scontent.flos1-2.fna&oh=00_AfAvDZURMf1osfZvCjNmFOAq3WF5xqNQrwbghpiwEBotoQ&oe=64D287F2';
-function Profile({route, appState, disp_surprise}) {
+
+function Profile({route, appState, setmyprofile}) {
   const {User, Profile} = appState;
   const navigation = useNavigation();
-  const [imageUri, setImageUri] = useState(null);
-  const [firstname, setFirstname] = useState(Profile?.user?.firstname);
-  const [lastname, setLastname] = useState(Profile?.user?.lastname);
-  const [username, setUsername] = useState(Profile?.user?.username);
-  const [bio, setBio] = useState(Profile?.user?.bio);
+  const [image, setImage] = useState(null);
+  const [formData, setFormData] = useState({
+    firstname: Profile?.user?.firstname,
+    lastname: Profile?.user?.lastname,
+    username: Profile?.user?.username,
+    bio: Profile?.user?.bio,
+    photourl: Profile?.user?.photourl,
+  });
+
+  const handleInputChange = (name, value) => {
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+  const inputFields = [
+    {name: 'firstname', label: 'Firstname'},
+    {name: 'lastname', label: 'Lastname'},
+    {name: 'username', label: 'Username'},
+    {name: 'bio', label: 'Bio'},
+    // Add more input field configurations as needed
+  ];
+  const getProfile = async () => {
+    const result = await usersfullprofile(User?.mykey);
+
+    setmyprofile(result);
+  };
+  const pickImage = async () => {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      Alert.alert('Permission to access camera roll is required!');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync();
+    if (!result.cancelled) {
+      setImage(result.uri);
+    }
+  };
+
+  // Function to upload image to Firebase Storage
+
+  const uploadImageToFirebase = async () => {
+    try {
+      const response = await fetch(image);
+      const blob = await response.blob();
+
+      const storageRef = ref(
+        storage,
+        `profilephotos/${User?.mykey}/${image.split('/').pop()}`,
+      );
+
+      // Uploading image to Firebase Storage
+      await uploadBytes(storageRef, blob); // Use uploadBytes method to upload the image blob
+
+      const downloadURL = await getDownloadURL(storageRef); // Get the download URL
+      setFormData({
+        ...formData,
+        photourl: downloadURL,
+      });
+      return downloadURL;
+    } catch (error) {
+      console.error('Error uploading image: ', error);
+    }
+  };
+  useEffect(() => {}, [formData.photourl]);
   const editProfile = async () => {
     try {
-      await updateprofile(User?.mykey, firstname, lastname, username, bio).then(
-        () => {
-          Alert.alert('Updating profile', 'Profile Updated');
-          navigation.pop();
-        },
-      );
+      let imageUrl = ''; // Renamed to avoid conflict with url from uploadImageToFirebase
+      if (image) {
+        imageUrl = await uploadImageToFirebase(); // Assigning the result to imageUrl
+      }
+
+      const {firstname, lastname, username, bio} = formData;
+
+      await updateprofile(
+        User?.mykey,
+        firstname,
+        lastname,
+        username,
+        bio,
+        imageUrl, // Pass imageUrl instead of url
+      ).then(async () => {
+        Alert.alert('Updating profile', 'Profile Updated');
+        await getProfile();
+        navigation.navigate('Home');
+      });
     } catch (err) {
       Alert.alert(
         'Error updating profile',
-        'Unfortunately, your profile can not be updated at this time',
+        'Unfortunately, your profile cannot be updated at this time',
       );
     }
   };
-  useEffect(() => {}, []);
 
+  const emptyimage =
+    'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
   return (
     <>
       <HeaderComponent page="Profile" />
@@ -92,18 +197,7 @@ function Profile({route, appState, disp_surprise}) {
                 flexDirection: 'row',
                 // backgroundColor: "blue",
                 justifyContent: 'flex-end',
-              }}>
-              {/* <TouchableOpacity style={{
-                                // backgroundColor: "green", 
-                                flex: 1,
-                                width: 100,
-                                justifyContent: "center",
-                                alignItems: "flex-end",
-                                paddingRight:15
-                            }}>
-                                <ThreeDots />
-                            </TouchableOpacity> */}
-            </View>
+              }}></View>
           </View>
 
           <View
@@ -115,129 +209,37 @@ function Profile({route, appState, disp_surprise}) {
             }}>
             <View
               style={{
-                // backgroundColor: "red",
-                marginTop: 10,
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
                 alignItems: 'center',
-                padding: 15,
+                justifyContent: 'center',
+                marginBottom: 10,
               }}>
               <TouchableOpacity
-                onPress={() => {
-                  // navigation.navigate("Profile")
-                }}>
-                <Image
-                  style={{
-                    width: 65,
-                    height: 65,
-                    borderRadius: 65,
-                  }}
-                  src={ImgUrl}
-                  resizeMode={'cover'}
-                />
+                onPress={pickImage}
+                style={styles.circularButton}>
+                {image ? (
+                  <Image
+                    source={{uri: image || data.photourl}}
+                    style={styles.circularImage}
+                  />
+                ) : (
+                  <Text style={styles.buttonText}>Choose Photo</Text>
+                )}
               </TouchableOpacity>
-
-              <Text
-                style={[
-                  Style.text,
-                  {
-                    marginTop: 10,
-                    marginBottom: 10,
-                    color: Colors.primary,
-                  },
-                ]}>
-                Edit picture
-              </Text>
             </View>
-
-            <Text
-              style={[
-                Style.text,
-                {
-                  marginTop: 15,
-                  marginBottom: -18,
-                  color: Colors.grey,
-                  textAlign: 'left',
-                },
-              ]}>
-              Name
-            </Text>
-            <OutlinedInput value={firstname} setData={setFirstname} />
-            <OutlinedInput value={lastname} setData={setLastname} />
-
-            <Text
-              style={[
-                Style.text,
-                {
-                  marginTop: 25,
-                  marginBottom: -18,
-                  color: Colors.grey,
-                  textAlign: 'left',
-                },
-              ]}>
-              Username
-            </Text>
-
-            <OutlinedInput value={username} setData={setUsername} />
-
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginTop: 25,
-              }}>
-              <Text
-                style={[
-                  Style.text,
-                  {
-                    marginBottom: -18,
-                    color: Colors.grey,
-                    textAlign: 'left',
-                  },
-                ]}>
-                Bio
-              </Text>
-              <Text
-                style={[
-                  Style.text,
-                  {
-                    marginTop: 15,
-                    marginBottom: -18,
-                    color: Colors.grey,
-                    textAlign: 'left',
-                  },
-                ]}>
-                {100 - (bio ? bio.length : 0)}
-              </Text>
+            <View style={{gap: 10}}>
+              {inputFields.map(field => (
+                <TextArea
+                  key={field.name}
+                  name={field.name}
+                  label={field.label}
+                  data={formData[field.name]}
+                  setData={handleInputChange}
+                />
+              ))}
             </View>
-            <TextInput
-              // keyboardType='numeric'
-              // autoFocus
-              value={bio}
-              onChangeText={value => {
-                if (value.length <= 100) {
-                  setBio(value);
-                }
-              }}
-              style={{
-                width: '100%',
-                marginTop: 20,
-                height: 100,
-              }}
-              textColor={Colors.dark}
-              outlineColor={Colors.inputOutlind}
-              activeOutlineColor="#999"
-              theme={{
-                colors: {
-                  primary: Colors.dark,
-                  background: Colors.background,
-                  placeholder: 'red',
-                },
-                roundness: 10,
-              }}
-              mode="outlined"
-              multiline
-              // label="Update your bio"
-            />
 
             <View
               style={{
@@ -270,6 +272,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = (dispatch, encoded) => {
   return {
     disp_surprise: payload => dispatch(surprise_state(payload)),
+    setmyprofile: userData => dispatch(setMyProfile(userData)),
   };
 };
 
@@ -292,5 +295,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     // marginTop: 22,
+  },
+  circularButton: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: 'lightgray',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  circularImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
   },
 });

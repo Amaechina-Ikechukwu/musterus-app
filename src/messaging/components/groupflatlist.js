@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   FlatList,
   Text,
@@ -28,7 +28,15 @@ const GroupsList = ({appState, groupsData, navigation, mykey, setgroup}) => {
       </View>
     );
   };
+  const [showMessage, setShowMessage] = useState(false);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowMessage(true);
+    }, 7000); // 7 seconds
+
+    return () => clearTimeout(timer);
+  }, []);
   return (
     <FlatList
       data={groupsData}
@@ -37,8 +45,19 @@ const GroupsList = ({appState, groupsData, navigation, mykey, setgroup}) => {
       keyExtractor={item => item.groupID}
       ListFooterComponent={<SuggestedGroups />}
       ListEmptyComponent={
-        <View style={{flex: 1, justifyContent: 'center'}}>
-          <ActivityIndicator size={'large'} />
+        <View
+          style={{
+            flex: 1,
+            height: '100%',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginTop: 20,
+          }}>
+          {showMessage ? (
+            <Text>No groups yet</Text>
+          ) : (
+            <ActivityIndicator size={'large'} />
+          )}
         </View>
       }
     />

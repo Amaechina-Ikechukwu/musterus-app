@@ -107,6 +107,7 @@ function SignIn({navigation, appState, setposts}) {
 
   // Function to upload image to Firebase Storage
   useEffect(() => {}, [mediaurl]);
+  useEffect(() => {}, [uploadProgress]);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [downloadURL, setDownloadURL] = useState('');
 
@@ -165,7 +166,6 @@ function SignIn({navigation, appState, setposts}) {
       } else {
         const token = User?.mykey;
         await createpost(token, data);
-        navigation.goBack();
       }
     } catch (err) {
       console.log(err);
@@ -176,6 +176,7 @@ function SignIn({navigation, appState, setposts}) {
   const getHomeFeed = async () => {
     const result = await getposts(User?.mykey);
     setposts(result.data);
+    navigation.goBack();
   };
   // const getRecentImages = async () => {
   //   try {

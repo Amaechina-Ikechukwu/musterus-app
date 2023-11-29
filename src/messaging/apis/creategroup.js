@@ -4,25 +4,14 @@ const api = axios.create({
   baseURL: 'https://musterus-api.onrender.com', // Replace with your API base URL
 });
 
-export const updateprofile = async (
-  token,
-  firstname,
-  lastname,
-  username,
-  bio,
-  photourl,
-  birthdate,
-) => {
+export const creategroup = async (token, name, description, photourl) => {
   try {
     const response = await api.post(
-      '/profile/update',
+      '/groups/creategroup',
       {
-        firstname, // Correct spelling here
-        lastname,
-        username,
-        bio,
+        name,
+        description,
         photourl,
-        birthdate,
       },
       {
         headers: {

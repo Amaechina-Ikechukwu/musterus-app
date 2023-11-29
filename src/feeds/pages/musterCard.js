@@ -36,9 +36,7 @@ function MuterCards({route, appState, disp_surprise}) {
   const navigation = useNavigation();
   const [imageUri, setImageUri] = useState(null);
   const [data, setData] = useState('');
-  useEffect(() => {
-    console.log('Account page');
-  }, []);
+  useEffect(() => {}, []);
 
   return (
     <>

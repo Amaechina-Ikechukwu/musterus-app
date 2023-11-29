@@ -19,7 +19,25 @@ import {db} from '../../../firebase';
 import {unlikepost} from '../apis/unlikepost';
 import {likepost} from '../apis/likepost';
 // import {  } from 'react-native-paper';
+function extractTimeFromFirestoreTimestamp(timestampObj) {
+  const {_seconds, _nanoseconds} = timestampObj;
+  const milliseconds = _seconds * 1000 + _nanoseconds / 1000000;
 
+  // Create a Date object using the milliseconds value
+  const date = new Date(milliseconds);
+
+  // Extract hours, minutes, and seconds from the Date object
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const second = date.getSeconds();
+
+  // Format the time to desired format (example: hh:mm:ss)
+  const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes
+    .toString()
+    .padStart(2, '0')}`;
+
+  return formattedTime;
+}
 const Colors = Color();
 export function FeedCard({
   data,
@@ -172,7 +190,7 @@ export function FeedCard({
         {data?.caption}
       </Text>
       <Text style={[{fontFamily: 'Montserrat_Regular', color: Colors.grey}]}>
-        11:18 AM
+        {data?.createdAt && extractTimeFromFirestoreTimestamp(data?.createdAt)}
       </Text>
     </View>
   );

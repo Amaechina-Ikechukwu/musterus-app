@@ -52,7 +52,7 @@ function SignIn({navigation, appState, route, setgroup}) {
           }}>
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate('Dashboard');
+              navigation.navigate('create group');
             }}
             style={{
               justifyContent: 'center',

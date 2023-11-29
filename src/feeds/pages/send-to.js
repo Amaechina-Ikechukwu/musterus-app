@@ -41,6 +41,7 @@ import {
 import {db} from '../../../firebase';
 import {sendmessage} from '../../messaging/apis/sendDM';
 import {initializechat} from '../../messaging/apis/initializechat';
+import {suggestsusers} from '../../muster-points/apis/SuggestedUsers';
 const {height, width} = Dimensions.get('window');
 const Colors = Color();
 const removePassword = data => {
@@ -75,61 +76,32 @@ function MuterCards({route, appState, disp_surprise}) {
       );
     }
   };
-  const usersRef = collection(db, 'profile');
+
   const handleInputChange = async event => {
-    const newValue = event; // Convert to lowercase
-    setData(newValue);
+    const newValue = event.toLowerCase(); // Convert to lowercase
+    setData(event);
     try {
-      const q = query(usersRef);
-      const querySnapshot = await getDocs(q);
+      const filteredUsers = searchedUsers.filter(user => {
+        const lowerCaseFirstname = user.firstname.toLowerCase();
+        const lowerCaseLastname = user.lastname.toLowerCase();
+        return (
+          lowerCaseFirstname.includes(newValue) ||
+          lowerCaseLastname.includes(newValue)
+        );
+      });
 
-      const usersData = await Promise.all(
-        querySnapshot.docs.map(async doc => {
-          const userData = doc.data();
-          const {firstname, lastname} = userData;
-          const lowerCaseFirstname = firstname;
-          const lowerCaseLastname = lastname;
-          if (
-            lowerCaseFirstname.includes(newValue) ||
-            lowerCaseLastname.includes(newValue)
-          ) {
-            const result = await amifollwoing(User?.mykey, doc.id);
-            if (doc.id !== User?.mykey && result.message === true) {
-              const newData = removePassword(userData);
-              return {id: doc.id, ...newData};
-            }
-          }
-          return null;
-        }),
-      );
-
-      const filteredUsersData = usersData.filter(Boolean); // Remove null values
-      setSearchedUsers(filteredUsersData);
+      setSearchedUsers(filteredUsers);
     } catch (error) {
       console.error('Error searching users:', error);
+      setSearchedUsers([]); // Set to an empty array in case of an error
     }
   };
 
   const initializeuser = async () => {
     try {
-      const q = query(usersRef);
-      const querySnapshot = await getDocs(q);
+      const result = await suggestsusers(User?.mykey); // Remove null values
 
-      const usersData = await Promise.all(
-        querySnapshot.docs.map(async doc => {
-          const userData = doc.data();
-          const result = await amifollwoing(User?.mykey, doc.id);
-
-          if (doc.id !== User?.mykey || result.message === true) {
-            const newData = removePassword(userData);
-            return {id: doc.id, ...newData};
-          }
-          return null;
-        }),
-      );
-
-      const filteredUsersData = usersData.filter(Boolean); // Remove null values
-      setSearchedUsers(filteredUsersData);
+      setSearchedUsers(result || []); // Set an empty array if result is null
     } catch (error) {
       console.error('Error initializing users:', error);
     }
@@ -139,7 +111,7 @@ function MuterCards({route, appState, disp_surprise}) {
     initializeuser();
   }, []);
 
-  useEffect(() => {}, [searchedUsers]);
+  useEffect(() => {}, [searchedUsers, message]);
 
   return (
     <>

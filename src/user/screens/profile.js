@@ -20,10 +20,8 @@ import {Style} from '../../../assets/styles';
 import {TouchableOpacity} from 'react-native';
 import UserPostFlatlist from '../models/UserPostFlatlist';
 import {PrimaryButton} from '../../components/buttons/primary';
+import {setMyProfile} from '../../redux';
 const ProfileHeader = ({Profile, user, mykey, postlength}) => {
-  useEffect(() => {
-    console.log(Profile);
-  }, [Profile]);
   const emptyimage =
     'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
   return (
@@ -41,8 +39,8 @@ const ProfileHeader = ({Profile, user, mykey, postlength}) => {
           }}>
           <Image
             style={{
-              width: 65,
-              height: 65,
+              width: 100,
+              height: 100,
               borderRadius: 65,
             }}
             src={Profile?.user?.photourl || emptyimage}
@@ -127,7 +125,7 @@ const ProfileHeader = ({Profile, user, mykey, postlength}) => {
 
 const Colors = Color();
 
-const Profile = ({route, appState, setMyProfile}) => {
+const Profile = ({route, appState, setmyprofile}) => {
   const User = appState?.User;
   const Profile = appState?.Profile;
   const navigation = useNavigation();
@@ -139,7 +137,7 @@ const Profile = ({route, appState, setMyProfile}) => {
   const getProfile = async () => {
     const result = await usersfullprofile(user);
     setProfileData(result);
-    setMyProfile(result);
+    setmyprofile(result);
   };
 
   const getUserPosts = async () => {
@@ -158,13 +156,11 @@ const Profile = ({route, appState, setMyProfile}) => {
   }
 
   const isCurrentUser = user === User?.mykey;
-  const pageTitle = isCurrentUser
-    ? 'Your Profile'
-    : `${profileData?.user?.firstname}'s Profile`;
+  const pageTitle = `Profile`;
 
   return (
     <>
-      <HeaderComponent page={pageTitle} />
+      <HeaderComponent page={pageTitle} navigation={navigation} />
       <SafeAreaView
         style={{
           flex: 1,
@@ -183,7 +179,7 @@ const Profile = ({route, appState, setMyProfile}) => {
               navigation={navigation}
               Header={
                 <ProfileHeader
-                  Profile={profileData}
+                  Profile={isCurrentUser ? Profile : profileData}
                   user={user}
                   mykey={User?.mykey}
                   postlength={userPosts.length}
@@ -208,7 +204,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    setMyProfile: userData => dispatch(setMyProfile(userData)),
+    setmyprofile: userData => dispatch(setMyProfile(userData)),
   };
 };
 
