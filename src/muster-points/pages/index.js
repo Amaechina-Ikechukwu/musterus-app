@@ -27,6 +27,8 @@ import UsersFlatlist from './UsersFlatlist';
 import {db} from '../../../firebase';
 import {collection, onSnapshot, orderBy, query} from 'firebase/firestore';
 import {usersprofile} from '../../user/apis/firebaseprofile';
+import {usefriends} from '../apis/UserFriends';
+import {suggestsusers} from '../apis/SuggestedUsers';
 
 const {height, width} = Dimensions.get('window');
 const Colors = Color();
@@ -42,40 +44,18 @@ function Profile({route, appState, disp_surprise}) {
   const [data, setData] = useState('');
   const [followingData, setfollowingData] = useState('');
   const [component, setcomponent] = useState('SUGGESTION');
-  const suggestedUsers = () => {
-    const currentUserID = User?.mykey; // Assuming this represents the current user's ID
-    const q = query(collection(db, 'profile'));
-    const unsubscribe = onSnapshot(q, querySnapshot => {
-      let users = [];
-      querySnapshot.forEach(doc => {
-        const userID = doc.id;
-        if (userID !== currentUserID) {
-          users.push({id: userID, ...doc.data()});
-        }
-      });
+  const suggestedUsers = async () => {
+    const result = await suggestsusers(User?.mykey);
 
-      setData(users);
-    });
+    setData(result);
   };
-
-  const friends = () => {
-    const q = query(collection(db, 'profile', User?.mykey, 'following'));
-
-    const unsubscribe = onSnapshot(q, querySnapshot => {
-      let userProfiles = []; // To store user profiles with associated IDs
-      querySnapshot.forEach(doc => {
-        const userId = doc.id;
-
-        fetchUserProfiles(userId)
-          .then(profile => {
-            // Include user ID in the user profile object
-            const userProfileWithId = {...profile, id: userId};
-            userProfiles.push(userProfileWithId);
-            setfollowingData([...userProfiles]); // Update the state with profiles including IDs
-          })
-          .catch(error => {});
-      });
-    });
+  const gotoprofile = item => {
+    console.log({item});
+    navigation.navigate('Profile', {user: item});
+  };
+  const friends = async () => {
+    const result = await usefriends(User?.mykey);
+    setfollowingData(result.userfriends);
   };
 
   const initizeUsers = async () => {
@@ -94,7 +74,7 @@ function Profile({route, appState, disp_surprise}) {
   return (
     <>
       <BottomTab page="MusterPoint" navigation={navigation} />
-      <Header />
+      <Header navigation={navigation} />
       <SafeAreaView
         style={{
           flex: 1,
@@ -185,6 +165,7 @@ function Profile({route, appState, disp_surprise}) {
           </View>
           <View style={{height: '100%', width: '100%'}}>
             <UsersFlatlist
+              gotoprofile={gotoprofile}
               navigation={navigation}
               data={component == 'SUGGESTION' ? data : followingData}
               component={component}

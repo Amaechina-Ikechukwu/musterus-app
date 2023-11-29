@@ -5,15 +5,14 @@ const api = axios.create({
   baseURL: 'https://musterus-api.onrender.com', // Replace with your API base URL
 });
 
-export const usersfullprofile = async token => {
+export const AllGroups = async token => {
   try {
-    const response = await api.get('/profile/full', {
+    const response = await api.get('/groups', {
       headers: {
         Authorization: `Bearer ${token}`, // Add the Bearer token in the headers
       },
     });
-
-    return response.data.userprofile;
+    return response.data;
   } catch (error) {
     throw error;
   }

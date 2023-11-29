@@ -40,6 +40,7 @@ import {fetchFcmToken} from '../../utilities/fcntoken';
 import {BackIcon} from '../../../assets/icons/auth-icons';
 import {OutlinedInput} from '../../components/inputs';
 import {login} from '../apis/login';
+import {mylogin} from '../apis/mylogin';
 // import RNPaystack from 'react-native-paystack';
 
 const Colors = Color();
@@ -67,11 +68,11 @@ function SignIn({navigation, disp_Login, setUser, route}) {
   }, [setDate]);
   const loginUser = async () => {
     try {
-      const result = await login(email, password);
+      const result = await mylogin(email, password);
       console.log(result);
       setUser(result);
-      // navigation.replace('Dashboard', {screen: 'FEEDS'});
-      // logged();
+      navigation.replace('Dashboard', {screen: 'FEEDS'});
+      logged();
     } catch (err) {
       Alert.alert('Error Signing');
     }

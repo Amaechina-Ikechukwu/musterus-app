@@ -44,7 +44,7 @@ const Drawer = createDrawerNavigator();
 
 export default function ProfileStack({navigation, route}) {
   const [isOnoarded, setOnboarded] = useState();
-  const {close} = route.params;
+  const {close, user} = route.params;
 
   Onborded().then(res => {
     if (res == 1) {
@@ -53,6 +53,7 @@ export default function ProfileStack({navigation, route}) {
       setOnboarded(false);
     }
   });
+
   return (
     <Drawer.Navigator
       drawerContent={props => (
@@ -68,6 +69,7 @@ export default function ProfileStack({navigation, route}) {
         },
       }}>
       <Drawer.Screen
+        initialParams={{user: user}}
         name="Home"
         component={profile}
         options={{

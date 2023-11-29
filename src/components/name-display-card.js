@@ -19,13 +19,10 @@ export function NameDisplayCard({
   component,
   conversationId,
   sendACard,
+  goto,
 }) {
-  const [following, setFollowing] = useState();
-  const followinguser = async () => {
-    const result = await amifollwoing(user, item.id);
+  const [following, setFollowing] = useState(item?.isFollowing);
 
-    setFollowing(result?.message);
-  };
   const followUser = async () => {
     const result = await followuser(user, item.id);
 
@@ -33,9 +30,7 @@ export function NameDisplayCard({
   };
   const emptyimage =
     'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
-  useEffect(() => {
-    followinguser();
-  }, []);
+  useEffect(() => {}, []);
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -48,11 +43,7 @@ export function NameDisplayCard({
             }}>
             <TouchableOpacity
               onPress={() => {
-                if (!link) {
-                  navigation.navigate('Profile');
-                } else {
-                  navigation.navigate('Chat', {screen: link});
-                }
+                navigation.navigate('Profile', {user: item?.id});
               }}>
               <Text style={styles.username}>
                 {item?.firstname + ' ' + item?.lastname}
@@ -160,7 +151,7 @@ export function NameDisplayCard({
 }
 
 const styles = StyleSheet.create({
-  container: {width: '100%'},
+  container: {width: '100%', height: 40, marginBottom: 5},
   header: {
     flexDirection: 'row',
     alignItems: 'center',

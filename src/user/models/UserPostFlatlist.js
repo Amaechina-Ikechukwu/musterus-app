@@ -8,20 +8,13 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from 'react-native';
-import {setGroup, setVisitID} from '../../redux';
+import {setGroup, setPosts} from '../../redux';
 import {connect} from 'react-redux';
-import {NameDisplayCard} from '../../components/name-display-card';
+
 import {FlashList} from '@shopify/flash-list';
-const UsersFlatlist = ({
-  appState,
-  data,
-  navigation,
-  component,
-  conversationId,
-  sendACard,
-  gotoprofile,
-  setvisitid,
-}) => {
+import {SendACard} from '../components/SendACard';
+import {FeedCard} from '../../events/components/feed-card';
+const UserPostFlatlist = ({appState, data, navigation, Header}) => {
   const {User} = appState;
   const [showMessage, setShowMessage] = useState(false);
 
@@ -31,32 +24,25 @@ const UsersFlatlist = ({
     }, 7000); // 7 seconds
 
     return () => clearTimeout(timer);
-  }, [component]);
-  const go = item => {
-    gotoprofile(item);
-  };
+  }, []);
+
   const renderItem = ({item}) => {
     return (
-      <View style={{marginBottom: 10}}>
-        <NameDisplayCard
-          user={User?.mykey}
-          navigation={navigation}
-          component={component}
-          item={item}
-          conversationId={conversationId}
-          sendACard={sendACard}
-          goto={() => go(item?.id)}
-        />
+      <View>
+        <FeedCard navigation={navigation} item={item} />
       </View>
     );
   };
 
   return (
-    <FlashList
+    <FlatList
       data={data}
       renderItem={renderItem}
-      keyExtractor={item => item.id}
-      disableAutoLayout
+      // onRefresh={() => fetchposts()}
+      initialNumToRender={8}
+      keyExtractor={item => item.postid}
+      contentContainerStyle={{gap: 20}}
+      ListHeaderComponent={Header}
       estimatedItemSize={200}
       ListEmptyComponent={
         <View
@@ -68,9 +54,7 @@ const UsersFlatlist = ({
             marginTop: 20,
           }}>
           {showMessage ? (
-            <Text>
-              No {component == 'FRIENDS' ? 'friends added' : 'Suggestions'} yet
-            </Text>
+            <Text>No posts yet</Text>
           ) : (
             <ActivityIndicator size={'large'} />
           )}
@@ -109,9 +93,8 @@ const mapStateToProps = state => {
 };
 const mapDispatchToProps = (dispatch, encoded) => {
   return {
-    setgroup: payload => dispatch(setGroup(payload)),
-    setvisitid: payload => dispatch(setVisitID(payload)),
+    setpost: payload => dispatch(setPosts(payload)),
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(UsersFlatlist);
+export default connect(mapStateToProps, mapDispatchToProps)(UserPostFlatlist);

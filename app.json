@@ -1,4 +1,14 @@
 {
   "name": "musterus",
-  "displayName": "Musterus"
+  "displayName": "Musterus",
+  "expo": {
+    "splash": {
+      "image": "./assets/splash.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "711dcf56-820d-4c3c-8313-760d9f860e7f"
+      }
+    }
+  }
 }

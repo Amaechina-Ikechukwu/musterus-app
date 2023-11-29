@@ -63,7 +63,7 @@ function SignIn({navigation, appState, route, setgroup}) {
           </TouchableOpacity>
         </View>
 
-        <Header page="Group Message" />
+        <Header page="Group Message" navigation={navigation} />
         <BottomTab page="Group" navigation={navigation} />
         <SafeAreaView style={styles.container}>
           <StatusBar
@@ -105,7 +105,7 @@ function SignIn({navigation, appState, route, setgroup}) {
       </>
     );
   }
-  useEffect(() => {}, [Groups]);
+
   return (
     <>
       <View
@@ -138,7 +138,7 @@ function SignIn({navigation, appState, route, setgroup}) {
         </TouchableOpacity>
       </View>
 
-      <Header page="Group Message" />
+      <Header page="Group Message" navigation={navigation} />
       <BottomTab page="Group" navigation={navigation} />
       <SafeAreaView style={styles.container}>
         <StatusBar

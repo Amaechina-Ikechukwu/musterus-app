@@ -53,7 +53,7 @@ function HomeStack({appState, setgroups}) {
   useEffect(() => {
     getGroups();
   }, []);
-  useEffect(() => {}, [data]);
+  useEffect(() => {}, []);
 
   return (
     <Stack.Navigator

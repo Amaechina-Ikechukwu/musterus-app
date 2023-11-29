@@ -20,23 +20,25 @@ const getUserid = (uid, data) => {
   return data.filter(id => id !== uid)[0];
 };
 function extractTimeFromFirestoreTimestamp(timestampObj) {
-  const {seconds, nanoseconds} = timestampObj;
-  const milliseconds = seconds * 1000 + nanoseconds / 1000000;
+  if (timestampObj) {
+    const {seconds, nanoseconds} = timestampObj;
+    const milliseconds = seconds * 1000 + nanoseconds / 1000000;
 
-  // Create a Date object using the milliseconds value
-  const date = new Date(milliseconds);
+    // Create a Date object using the milliseconds value
+    const date = new Date(milliseconds);
 
-  // Extract hours, minutes, and seconds from the Date object
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  const second = date.getSeconds();
+    // Extract hours, minutes, and seconds from the Date object
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const second = date.getSeconds();
 
-  // Format the time to desired format (example: hh:mm:ss)
-  const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes
-    .toString()
-    .padStart(2, '0')}`;
+    // Format the time to desired format (example: hh:mm:ss)
+    const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes
+      .toString()
+      .padStart(2, '0')}`;
 
-  return formattedTime;
+    return formattedTime;
+  }
 }
 export function ChatMessagingHeads({
   dot,
@@ -49,7 +51,7 @@ export function ChatMessagingHeads({
 }) {
   const friendid = getUserid(user, dmData?.participants);
   const [data, setData] = useState([]);
-  const [friendData, setFriendData] = useState();
+  const [friendData, setFriendData] = useState(dmData?.friendinfo);
   const getFriendProfile = async () => {
     try {
       const result = await usersprofile(friendid);
@@ -62,29 +64,32 @@ export function ChatMessagingHeads({
       );
     }
   };
+  // useEffect(() => {
+
+  //   getFriendProfile();
+  // }, []);
   useEffect(() => {
-    getFriendProfile();
-  }, []);
-  useEffect(() => {
-    const q = query(
-      collection(db, 'direct_messages', dmData?.conversationId, 'messages'),
-      orderBy('sent', 'desc'), // Order by 'sent' field in descending order (latest first)
-      limit(1), // Limit the query to retrieve only the latest chat message
-    );
-    const unsubscribe = onSnapshot(q, querySnapshot => {
-      let chats = null;
-      querySnapshot.forEach(doc => {
-        chats = {id: doc.id, ...doc.data()};
+    if (dmData?.conversationId) {
+      const q = query(
+        collection(db, 'direct_messages', dmData?.conversationId, 'messages'),
+        orderBy('sent', 'desc'), // Order by 'sent' field in descending order (latest first)
+        limit(1), // Limit the query to retrieve only the latest chat message
+      );
+      const unsubscribe = onSnapshot(q, querySnapshot => {
+        let chats = null;
+        querySnapshot.forEach(doc => {
+          chats = {id: doc.id, ...doc.data()};
+        });
+
+        setData(chats);
       });
 
-      setData(chats);
-    });
-
-    // Cleanup: Unsubscribe from real-time updates when component unmounts
-    return () => {
-      unsubscribe();
-    };
-  }, []); // Ensure db and gdata.groupid are dependencies if they change
+      // Cleanup: Unsubscribe from real-time updates when component unmounts
+      return () => {
+        unsubscribe();
+      };
+    }
+  }, [dmData?.conversationId]); // Ensure db and gdata.groupid are dependencies if they change
   const emptyimage =
     'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
   if (!friendData || Object.keys(friendData).length === 0) {
@@ -147,7 +152,8 @@ export function ChatMessagingHeads({
                 padding: 4,
                 marginTop: 5,
               }}>
-              {extractTimeFromFirestoreTimestamp(data?.sent)}
+              {extractTimeFromFirestoreTimestamp(data?.sent) &&
+                extractTimeFromFirestoreTimestamp(data?.sent)}
             </Text>
           </View>
         </View>

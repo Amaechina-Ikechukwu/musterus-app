@@ -77,41 +77,6 @@ function HelloFriday({appState, navigate}) {
               flex: 1,
               // backgroundColor:"red"
             }}>
-            <View
-              style={{
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginTop: 70,
-              }}>
-              <TouchableOpacity
-                onPress={() => {
-                  // navigation.navigate("Profile")
-                }}>
-                <Image
-                  style={{
-                    width: 55,
-                    height: 55,
-                    borderRadius: 65,
-                  }}
-                  src={ImgUrl}
-                  resizeMode={'cover'}
-                />
-              </TouchableOpacity>
-
-              <Text
-                style={[
-                  Style.bolder,
-                  {
-                    marginTop: 10,
-                    marginBottom: 10,
-                    fontSize: 19,
-                    color: Colors.light,
-                  },
-                ]}>
-                Princess Dala
-              </Text>
-            </View>
-
             <View>
               <Divider
                 style={{
@@ -189,10 +154,6 @@ function HelloFriday({appState, navigate}) {
               {/* <Help and suport /> */}
               <TouchableOpacity
                 android_ripple={{color: Colors.secondary}}
-                onPress={() => {
-                  navigation.navigate('Edit profile');
-                  closeDrawer();
-                }}
                 style={{
                   paddingHorizontal: 12,
                   paddingVertical: 17,
@@ -220,10 +181,6 @@ function HelloFriday({appState, navigate}) {
               {/*Terms */}
               <TouchableOpacity
                 android_ripple={{color: Colors.secondary}}
-                onPress={() => {
-                  navigation.navigate('Edit profile');
-                  closeDrawer();
-                }}
                 style={{
                   paddingHorizontal: 12,
                   paddingVertical: 17,
@@ -251,10 +208,6 @@ function HelloFriday({appState, navigate}) {
               {/* Privacy policy */}
               <TouchableOpacity
                 android_ripple={{color: Colors.secondary}}
-                onPress={() => {
-                  navigation.navigate('Edit profile');
-                  closeDrawer();
-                }}
                 style={{
                   paddingHorizontal: 12,
                   paddingVertical: 17,

@@ -5,6 +5,7 @@ import {
   View,
   Image,
   Text,
+  Alert,
 } from 'react-native';
 import {TextInput} from 'react-native-paper';
 import {Divider, Avatar} from 'react-native-paper';
@@ -25,28 +26,34 @@ import {PrimaryButton} from '../../components/buttons/primary';
 import {FeedCard} from '../../events/components/feed-card';
 import {ThreeDots} from '../../events/components/icons';
 import {OutlinedInput} from '../../components/inputs';
-import {editprofile} from '../apis/editprofile';
+import {editprofile, updateprofile} from '../apis/editprofile';
 
 const {height, width} = Dimensions.get('window');
 const Colors = Color();
 let ImgUrl =
   'https://scontent.flos1-2.fna.fbcdn.net/v/t39.30808-6/311838830_3341516792834673_1624830650213567335_n.jpg?_nc_cat=100&cb=99be929b-59f725be&ccb=1-7&_nc_sid=09cbfe&_nc_eui2=AeG2I4ezOTyJWd1Q6SaGyWtTt0TqlRk4Rf63ROqVGThF_hMhAEUxrZPmz-YfwDVqi9XSOwJeMBUHJjjW2mK1cXwG&_nc_ohc=tMcuz-iePZwAX-IlhsR&_nc_zt=23&_nc_ht=scontent.flos1-2.fna&oh=00_AfAvDZURMf1osfZvCjNmFOAq3WF5xqNQrwbghpiwEBotoQ&oe=64D287F2';
 function Profile({route, appState, disp_surprise}) {
-  const User = appState.User;
+  const {User, Profile} = appState;
   const navigation = useNavigation();
   const [imageUri, setImageUri] = useState(null);
-  const [name, setName] = useState('');
-  const [username, setUsername] = useState('');
-  const [bio, setBio] = useState('');
+  const [firstname, setFirstname] = useState(Profile?.user?.firstname);
+  const [lastname, setLastname] = useState(Profile?.user?.lastname);
+  const [username, setUsername] = useState(Profile?.user?.username);
+  const [bio, setBio] = useState(Profile?.user?.bio);
   const editProfile = async () => {
-    const result = await editprofile(
-      User.mykey,
-      User.mskl,
-      name,
-      username,
-      bio,
-    );
-    console.log(result);
+    try {
+      await updateprofile(User?.mykey, firstname, lastname, username, bio).then(
+        () => {
+          Alert.alert('Updating profile', 'Profile Updated');
+          navigation.pop();
+        },
+      );
+    } catch (err) {
+      Alert.alert(
+        'Error updating profile',
+        'Unfortunately, your profile can not be updated at this time',
+      );
+    }
   };
   useEffect(() => {}, []);
 
@@ -153,11 +160,8 @@ function Profile({route, appState, disp_surprise}) {
               ]}>
               Name
             </Text>
-            <OutlinedInput
-              value={name}
-              setData={setName}
-              // ...other props
-            />
+            <OutlinedInput value={firstname} setData={setFirstname} />
+            <OutlinedInput value={lastname} setData={setLastname} />
 
             <Text
               style={[
@@ -172,12 +176,7 @@ function Profile({route, appState, disp_surprise}) {
               Username
             </Text>
 
-            <OutlinedInput
-              value={username}
-              setData={setUsername}
-
-              // ...other props
-            />
+            <OutlinedInput value={username} setData={setUsername} />
 
             <View
               style={{

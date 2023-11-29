@@ -56,7 +56,7 @@ const PostFlatlist = ({
   };
 
   return (
-    <FlashList
+    <FlatList
       ListHeaderComponent={<SendACard navigation={navigation} />}
       data={data}
       renderItem={renderItem}

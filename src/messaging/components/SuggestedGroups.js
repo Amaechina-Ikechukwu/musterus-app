@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   FlatList,
   Text,
@@ -12,13 +12,25 @@ import {MessagingHeads} from './messageHeads';
 import {setGroup} from '../../redux';
 import {connect} from 'react-redux';
 import {FlashList} from '@shopify/flash-list';
-import SuggestedGroups from './SuggestedGroups';
-const GroupsList = ({appState, groupsData, navigation, mykey, setgroup}) => {
+import {Style} from '../../../assets/styles';
+import {AllGroups} from '../apis/allgroups';
+const SuggestedGroupsList = ({
+  appState,
+  groupsData,
+  navigation,
+  mykey,
+  setgroup,
+}) => {
+  const [data, setData] = useState();
+  const {User} = appState;
   const getGroups = async () => {
-    const result = await MyGroups(User.mykey);
+    const result = await AllGroups(User.mykey);
+    console.log(result?.groups);
     setData(result?.groups);
-    // setgroups(result?.groups);
   };
+  useEffect(() => {
+    getGroups();
+  }, []);
   const renderItem = ({item}) => {
     return (
       <View>
@@ -28,14 +40,20 @@ const GroupsList = ({appState, groupsData, navigation, mykey, setgroup}) => {
       </View>
     );
   };
-
+  if (!data || (data && data.length == 0)) {
+    return null;
+  }
   return (
     <FlatList
       data={groupsData}
       renderItem={renderItem}
+      ListHeaderComponent={
+        <View>
+          <Text style={Style.Text}>Suggested Groups</Text>
+        </View>
+      }
       estimatedItemSize={200}
       keyExtractor={item => item.groupID}
-      ListFooterComponent={<SuggestedGroups />}
       ListEmptyComponent={
         <View style={{flex: 1, justifyContent: 'center'}}>
           <ActivityIndicator size={'large'} />
@@ -78,4 +96,7 @@ const mapDispatchToProps = (dispatch, encoded) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(GroupsList);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(SuggestedGroupsList);

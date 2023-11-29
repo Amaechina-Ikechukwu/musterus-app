@@ -4,31 +4,18 @@ const api = axios.create({
   baseURL: 'https://musterus-api.onrender.com', // Replace with your API base URL
 });
 
-export const updateprofile = async (
-  token,
-  firstname,
-  lastname,
-  username,
-  bio,
-  birthdate,
-) => {
+export const suggestsusers = async token => {
   try {
-    const response = await api.post(
-      '/profile/update',
-      {
-        firstname, // Correct spelling here
-        lastname,
-        username,
-        bio,
-        birthdate,
-      },
+    const response = await api.get(
+      '/profile/suggestedfriends',
+
       {
         headers: {
           Authorization: `Bearer ${token}`, // Include the Bearer token in the request headers
         },
       },
     );
-    return response.data;
+    return response.data?.userfriends;
   } catch (error) {
     throw error;
   }

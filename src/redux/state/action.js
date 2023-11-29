@@ -141,3 +141,7 @@ export const setPost = post => ({
   type: 'POST',
   payload: post,
 });
+export const setVisitID = id => ({
+  type: 'VISITID',
+  payload: id,
+});

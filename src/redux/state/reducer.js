@@ -37,6 +37,7 @@ const initialState = {
   Posts: null,
   Post: null,
   Chatlist: null,
+  VisitID: null,
 };
 
 const reducer = (state = initialState, action) => {
@@ -124,6 +125,11 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         Chatlist: action.payload,
+      };
+    case 'VISITID':
+      return {
+        ...state,
+        VisitID: action.payload,
       };
     case 'GROUP MESSAGES':
       const {key, chats} = action.payload;

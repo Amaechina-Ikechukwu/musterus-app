@@ -1,56 +1,170 @@
+import React, {useEffect, useState} from 'react';
 import {
-  StyleSheet,
-  Dimensions,
-  StatusBar,
   View,
-  Image,
   Text,
+  Image,
+  StyleSheet,
+  StatusBar,
   ActivityIndicator,
 } from 'react-native';
-import {Divider, Avatar} from 'react-native-paper';
-import React, {useEffect, useLayoutEffect, useState} from 'react';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {ScrollView} from 'react-native-gesture-handler';
-import {Color} from '../../components/theme';
 import {connect} from 'react-redux';
-import {surprise_state, setMyProfile} from '../../redux';
 import {useNavigation} from '@react-navigation/native';
-import {AppStatusBar} from '../../components/status-bar';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {Color} from '../../components/theme';
 import {HeaderComponent} from '../../components/header';
 import {BackIcon} from '../../../assets/icons/auth-icons';
-import {LabelTexts} from '../../events/components/texts';
-import {TouchableOpacity} from '@gorhom/bottom-sheet';
-import {Style} from '../../../assets/styles';
-import {PrimaryButton} from '../../components/buttons/primary';
-import {FeedCard} from '../../events/components/feed-card';
-import {ThreeDots} from '../../events/components/icons';
-import {StaticImage} from '../../utilities';
-import {profile} from '../apis/profile';
 
-const {height, width} = Dimensions.get('window');
+import {usersfullprofile} from '../apis/profile';
+import {myposts} from '../apis/myposts';
+import {Style} from '../../../assets/styles';
+import {TouchableOpacity} from 'react-native';
+import UserPostFlatlist from '../models/UserPostFlatlist';
+import {PrimaryButton} from '../../components/buttons/primary';
+const ProfileHeader = ({Profile, user, mykey, postlength}) => {
+  useEffect(() => {
+    console.log(Profile);
+  }, [Profile]);
+  const emptyimage =
+    'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
+  return (
+    <View>
+      <View
+        style={{
+          // backgroundColor: "red",
+          marginTop: 10,
+          alignItems: 'center',
+          padding: 10,
+        }}>
+        <TouchableOpacity
+          onPress={() => {
+            // navigation.navigate("Profile")
+          }}>
+          <Image
+            style={{
+              width: 65,
+              height: 65,
+              borderRadius: 65,
+            }}
+            src={Profile?.user?.photourl || emptyimage}
+            resizeMode={'cover'}
+          />
+        </TouchableOpacity>
+
+        <Text
+          style={[
+            Style.bolder,
+            {
+              marginTop: 10,
+              marginBottom: 10,
+            },
+          ]}>
+          {Profile?.user?.firstname + ' ' + Profile?.user?.lastname}
+        </Text>
+
+        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+          <Text
+            style={[
+              Style.TinyText,
+              {
+                margin: 10,
+              },
+            ]}>
+            {postlength} post
+          </Text>
+
+          <Text
+            style={[
+              Style.TinyText,
+              {
+                margin: 10,
+              },
+            ]}>
+            {Profile?.followingCount} following
+          </Text>
+
+          <Text
+            style={[
+              Style.TinyText,
+              {
+                margin: 10,
+              },
+            ]}>
+            {Profile?.followersCount} followers
+          </Text>
+        </View>
+        <Text
+          style={[
+            Style.TinyText,
+            {
+              margin: 10,
+              textAlign: 'center',
+            },
+          ]}>
+          {Profile?.user?.bio}
+        </Text>
+        {user && user !== mykey && (
+          <View
+            style={{
+              // backgroundColor: "red",
+              // height: 20
+              width: '100%',
+              marginTop: 15,
+            }}>
+            <PrimaryButton title="Messages" style={{width: '100%'}} />
+            <PrimaryButton
+              title="Muster"
+              style={{
+                width: '100%',
+                marginTop: 10,
+              }}
+            />
+          </View>
+        )}
+      </View>
+    </View>
+  );
+};
+
 const Colors = Color();
-function Profile({route, appState, setMyProfile}) {
+
+const Profile = ({route, appState, setMyProfile}) => {
   const User = appState?.User;
   const Profile = appState?.Profile;
-  const userProfile = Profile?.MyProfile;
   const navigation = useNavigation();
-  const [imageUri, setImageUri] = useState(null);
-  const getProfile = async () => {
-    const result = await profile(User.mykey, User.mskl);
+  const user = route?.params?.user || User?.mykey;
 
+  const [profileData, setProfileData] = useState(null);
+  const [userPosts, setUserPosts] = useState([]);
+
+  const getProfile = async () => {
+    const result = await usersfullprofile(user);
+    setProfileData(result);
     setMyProfile(result);
   };
-  useLayoutEffect(() => {
+
+  const getUserPosts = async () => {
+    const result = await myposts(user);
+    setUserPosts(result);
+  };
+
+  useEffect(() => {
     getProfile();
-  }, []);
+    getUserPosts();
+  }, [user]);
   useEffect(() => {}, [Profile]);
-  if (Profile == null) {
+
+  if (profileData === null) {
     return <ActivityIndicator />;
   }
 
+  const isCurrentUser = user === User?.mykey;
+  const pageTitle = isCurrentUser
+    ? 'Your Profile'
+    : `${profileData?.user?.firstname}'s Profile`;
+
   return (
     <>
-      <HeaderComponent page="Profile" />
+      <HeaderComponent page={pageTitle} />
       <SafeAreaView
         style={{
           flex: 1,
@@ -58,174 +172,33 @@ function Profile({route, appState, setMyProfile}) {
           paddingTop: 100,
           // padding: 20
         }}>
-        <AppStatusBar StatusBar={StatusBar} useState={useState} />
-
-        <ScrollView>
-          <View
-            style={{
-              flexDirection: 'row',
-              padding: 10,
-              // backgroundColor: "red"
-            }}>
-            <View
-              style={{
-                flex: 1,
-                flexDirection: 'row',
-                // backgroundColor: "blue"
-              }}>
-              <BackIcon />
-              <LabelTexts style={{marginLeft: 15}} text="Profile" />
-            </View>
-
-            <View
-              style={{
-                flex: 1,
-                flexDirection: 'row',
-                // backgroundColor: "blue",
-                justifyContent: 'flex-end',
-              }}>
-              {/* <TouchableOpacity style={{
-                                // backgroundColor: "green", 
-                                flex: 1,
-                                width: 100,
-                                justifyContent: "center",
-                                alignItems: "flex-end",
-                                paddingRight:15
-                            }}>
-                                <ThreeDots />
-                            </TouchableOpacity> */}
-            </View>
+        <StatusBar barStyle="light-content" />
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <BackIcon />
+            <Text style={styles.headerText}>{pageTitle}</Text>
           </View>
-
-          <View
-            style={{
-              // backgroundColor: "red",
-              marginTop: 10,
-              alignItems: 'center',
-              padding: 10,
-            }}>
-            <TouchableOpacity
-              onPress={() => {
-                // navigation.navigate("Profile")
-              }}>
-              <Image
-                style={{
-                  width: 65,
-                  height: 65,
-                  borderRadius: 65,
-                }}
-                src={StaticImage}
-                resizeMode={'cover'}
-              />
-            </TouchableOpacity>
-
-            <Text
-              style={[
-                Style.bolder,
-                {
-                  marginTop: 10,
-                  marginBottom: 10,
-                },
-              ]}>
-              {userProfile?.firstname + ' ' + userProfile?.lastname}
-            </Text>
-
-            <View
-              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text
-                style={[
-                  Style.TinyText,
-                  {
-                    margin: 10,
-                  },
-                ]}>
-                {Profile?.MyPosts?.length} post
-              </Text>
-
-              <Text
-                style={[
-                  Style.TinyText,
-                  {
-                    margin: 10,
-                  },
-                ]}>
-                {Profile?.MyFriends?.length} following
-              </Text>
-
-              <Text
-                style={[
-                  Style.TinyText,
-                  {
-                    margin: 10,
-                  },
-                ]}>
-                {Profile?.MyFollowers?.length} followers
-              </Text>
-            </View>
-            <Text
-              style={[
-                Style.TinyText,
-                {
-                  margin: 10,
-                  textAlign: 'center',
-                },
-              ]}>
-              I believe that a lot of how you look is to do with how you feel
-              about yourself and your life
-            </Text>
-
-            <View
-              style={{
-                // backgroundColor: "red",
-                // height: 20
-                width: '100%',
-                marginTop: 15,
-              }}>
-              <PrimaryButton title="Messages" style={{width: '100%'}} />
-              <PrimaryButton
-                title="Muster"
-                style={{
-                  width: '100%',
-                  marginTop: 10,
-                }}
-              />
-            </View>
-
-            <View
-              style={{
-                marginTop: 20,
-                paddingHorizontal: 10,
-              }}>
-              <View
-                style={{
-                  padding: 15,
-                }}>
-                <Text
-                  style={{
-                    borderBottomWidth: 2.6,
-                    borderBottomColor: Colors.primary,
-                    width: 58,
-                    paddingBottom: 9,
-                    color: Colors.grey,
-                    fontWeight: 500,
-                    fontSize: 15,
-                  }}>
-                  My posts
-                </Text>
-              </View>
-              <FeedCard image />
-              <FeedCard />
-              <FeedCard image />
-              <FeedCard />
-              <FeedCard image />
-              <FeedCard />
-            </View>
+          <View style={styles.profileContainer}>
+            <UserPostFlatlist
+              navigation={navigation}
+              Header={
+                <ProfileHeader
+                  Profile={profileData}
+                  user={user}
+                  mykey={User?.mykey}
+                  postlength={userPosts.length}
+                  navigation={navigation}
+                />
+              }
+              userData={Profile?.user}
+              data={userPosts}
+            />
           </View>
-        </ScrollView>
+        </View>
       </SafeAreaView>
     </>
   );
-}
+};
 
 const mapStateToProps = state => {
   return {
@@ -233,9 +206,8 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = (dispatch, encoded) => {
+const mapDispatchToProps = dispatch => {
   return {
-    disp_surprise: payload => dispatch(surprise_state(payload)),
     setMyProfile: userData => dispatch(setMyProfile(userData)),
   };
 };
@@ -243,21 +215,19 @@ const mapDispatchToProps = (dispatch, encoded) => {
 export default connect(mapStateToProps, mapDispatchToProps)(Profile);
 
 const styles = StyleSheet.create({
-  imageBackground: {
+  container: {
     flex: 1,
-    resizeMode: 'cover',
-    // backgroundColor:"red"
+    paddingTop: 20,
+    paddingHorizontal: 10,
   },
-  overlay: {
-    flex: 1,
-    backgroundColor: Colors.light, // red color with 50% transparency
-    opacity: 0.8,
-    marginTop: -20,
+  header: {
+    flexDirection: 'row',
+    padding: 10,
   },
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    // marginTop: 22,
+  headerText: {
+    marginLeft: 15,
+  },
+  profileContainer: {
+    marginTop: 20,
   },
 });

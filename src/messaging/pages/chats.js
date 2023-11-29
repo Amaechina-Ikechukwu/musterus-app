@@ -41,7 +41,7 @@ function SignIn({navigation, appState, setchatlist}) {
   return (
     <>
       <BottomTab page="Chat" navigation={navigation} />
-      <Header page="Chat" />
+      <Header page="Chat" navigation={navigation} />
       <SafeAreaView style={styles.container}>
         <StatusBar
           animated={true}

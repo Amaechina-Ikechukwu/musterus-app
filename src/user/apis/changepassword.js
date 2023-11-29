@@ -1,21 +1,22 @@
-// api.js
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://www.musterus.com', // Replace with your API base URL
+  baseURL: 'https://musterus-api.onrender.com', // Replace with your API base URL
 });
 
-export const changepassword = async (
-  mykey,
-  mskl,
-  newpassword,
-  repassword,
-  reminderHint,
-  reminderanswer,
-) => {
+export const changepassword = async (token, oldpassword, newpassword) => {
   try {
-    const response = await api.get(
-      `/ws/profile/changepassword?mykey=${mykey}&mskl=${mskl}&password=${newpassword}&repassword=${repassword}&reminderhint=${reminderHint}&reminderanswer=${reminderanswer}`,
+    const response = await api.post(
+      '/auth/change',
+      {
+        oldpassword,
+        newpassword,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the Bearer token in the request headers
+        },
+      },
     );
     return response.data;
   } catch (error) {

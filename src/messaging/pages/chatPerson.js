@@ -66,7 +66,7 @@ function SignIn({navigation, appState, route, setchatlist}) {
           showHideTransition={statusBarTransition}
           hidden={hidden}
         />
-        <Header page="Chat" />
+        <Header page="Chat" navigation={navigation} />
         <ChatHead navigation={navigation} page="PERSON" />
         <View style={{flex: 1, width: '100%', height: '100%'}}>
           <View style={{width: '100%', height: '100%'}}>
