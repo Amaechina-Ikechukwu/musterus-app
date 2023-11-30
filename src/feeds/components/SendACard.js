@@ -1,5 +1,12 @@
 import React from 'react';
-import {View, ScrollView, Image, StyleSheet, Text} from 'react-native';
+import {
+  View,
+  ScrollView,
+  Image,
+  StyleSheet,
+  Text,
+  ImageBackground,
+} from 'react-native';
 import {Style} from '../../../assets/styles';
 import {Color} from '../../components/theme';
 import {TouchableOpacity} from 'react-native-gesture-handler';
@@ -10,33 +17,48 @@ const Colors = Color();
 export function SendACard({navigation}) {
   return (
     <View style={styles.container}>
-      <Text
-        style={[
-          Style.LabelText,
-          {
-            paddingVertical: 15,
-            paddingHorizontal: 10,
-            color: '#204624',
-            fontWeight: 400,
-          },
-        ]}>
-        Send A Card
-      </Text>
       <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
         <View style={styles.imagesContainer}>
           <TouchableOpacity
             onPress={() => {
               navigation.navigate('MuterCards');
-            }}
-            style={styles.imageWrapper}>
-            <View style={styles.imageContainer}>
-              <Image
-                style={styles.image}
-                source={{
-                  uri: 'https://images.pexels.com/photos/6675835/pexels-photo-6675835.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-                }}
-              />
-            </View>
+            }}>
+            <ImageBackground
+              style={{
+                width: '100%',
+                height: '100%',
+                width: 100,
+                height: 150,
+                borderRadius: 10,
+                overflow: 'hidden',
+                justifyContent: 'flex-end',
+              }}
+              source={{
+                uri: 'https://images.pexels.com/photos/6675835/pexels-photo-6675835.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+              }}>
+              <View
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  backgroundColor: 'rgba(0,0,0,0.5)',
+                  padding: 5,
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                }}>
+                <Text
+                  style={[
+                    Style.boldText,
+                    {
+                      color: 'white',
+                      fontWeight: 400,
+                      textAlign: 'center',
+                      fontSize: 14,
+                    },
+                  ]}>
+                  Send card to anyone
+                </Text>
+              </View>
+            </ImageBackground>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -45,16 +67,14 @@ export function SendACard({navigation}) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 4,
-  },
+  container: {},
   imagesContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
   },
   imageWrapper: {
     width: IMAGE_WIDTH,
     height: IMAGE_HEIGHT,
-    marginHorizontal: 5,
   },
   imageContainer: {
     alignItems: 'center',

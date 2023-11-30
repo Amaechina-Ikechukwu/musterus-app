@@ -8,7 +8,14 @@ import {MaterialCommunityIcons} from '@expo/vector-icons';
 import {useEffect} from 'react';
 
 let Colors = Color();
-export function Header({page, navigation, groupname, groupid}) {
+export function Header({
+  page,
+  navigation,
+  groupname,
+  groupid,
+  profile,
+  groupphoto,
+}) {
   return (
     <>
       <View
@@ -75,7 +82,7 @@ export function Header({page, navigation, groupname, groupid}) {
                 height: 30,
                 borderRadius: 30,
               }}
-              src={StaticImage}
+              source={{uri: profile?.user?.photourl || groupphoto}}
               resizeMode={'cover'}
             />
           </TouchableOpacity>
@@ -84,7 +91,7 @@ export function Header({page, navigation, groupname, groupid}) {
               color: Colors.light,
               fontSize: 11,
             }}>
-            @aminigbo
+            {'@' + profile?.user?.username}
           </Text>
         </View>
       </View>

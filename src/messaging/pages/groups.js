@@ -19,7 +19,7 @@ const Colors = Color();
 function SignIn({navigation, appState, route, setgroup}) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const {User, Groups} = appState;
+  const {User, Groups, Profile} = appState;
 
   const STYLES = ['default', 'dark-content', 'light-content'];
   const TRANSITIONS = ['fade', 'slide', 'none'];
@@ -63,7 +63,12 @@ function SignIn({navigation, appState, route, setgroup}) {
           </TouchableOpacity>
         </View>
 
-        <Header page="Group Message" navigation={navigation} />
+        <Header
+          page="Group Message"
+          navigation={navigation}
+          profile={Profile}
+          user={User?.mykey}
+        />
         <BottomTab page="Group" navigation={navigation} />
         <SafeAreaView style={styles.container}>
           <StatusBar
@@ -138,7 +143,12 @@ function SignIn({navigation, appState, route, setgroup}) {
         </TouchableOpacity>
       </View>
 
-      <Header page="Group Message" navigation={navigation} />
+      <Header
+        page="Group Message"
+        navigation={navigation}
+        profile={Profile}
+        user={User?.mykey}
+      />
       <BottomTab page="Group" navigation={navigation} />
       <SafeAreaView style={styles.container}>
         <StatusBar

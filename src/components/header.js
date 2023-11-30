@@ -7,6 +7,7 @@ import {
   PlusIcon,
   SearchIcon,
 } from '../events/components/icons';
+import {useEffect} from 'react';
 
 let ImgUrl =
   'https://scontent.fabb1-2.fna.fbcdn.net/v/t39.30808-6/324293849_3370804233196602_134225334160101172_n.jpg?_nc_cat=105&cb=99be929b-59f725be&ccb=1-7&_nc_sid=be3454&_nc_eui2=AeHadWpDKaZmTwsY24VIN19Srl1RPqtckHSuXVE-q1yQdH9o_yt1WuoQps5qnC42voWOdi1D4OlIYaq39e7I1Ht6&_nc_ohc=K3fXPsmAaa0AX-QqmYs&_nc_zt=23&_nc_ht=scontent.fabb1-2.fna&oh=00_AfBawaPypJwhLdAEc4K91wS6y2OfCsPbIDv4rwW0QBKSFw&oe=64D92A6E';
@@ -16,8 +17,13 @@ export function HeaderComponent({
   navigation,
   page,
   search,
-  image,
+  profile,
+  user,
+  group,
 }) {
+  useEffect(() => {
+    console.log(user, group, page);
+  }, [page]);
   return (
     <>
       <View
@@ -68,11 +74,10 @@ export function HeaderComponent({
               <SearchIcon />
             </TouchableOpacity>
           )}
-
-          {page != 'Profile' && (
+          {page !== 'chat group' && (
             <TouchableOpacity
               onPress={() => {
-                navigation.navigate('Profile');
+                navigation.navigate('chat group');
               }}>
               <Image
                 style={{
@@ -80,11 +85,28 @@ export function HeaderComponent({
                   height: 30,
                   borderRadius: 30,
                 }}
-                src={ImgUrl}
+                src={group?.photourl}
                 resizeMode={'cover'}
               />
             </TouchableOpacity>
           )}
+          {page != 'Profile' ||
+            (page != 'chat group' && (
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate('Profile', {user: user});
+                }}>
+                <Image
+                  style={{
+                    width: 30,
+                    height: 30,
+                    borderRadius: 30,
+                  }}
+                  src={profile?.user?.photourl}
+                  resizeMode={'cover'}
+                />
+              </TouchableOpacity>
+            ))}
 
           {page == 'Profile' && <OpenDrawerIcon />}
         </View>

@@ -14,6 +14,7 @@ import {NameDisplayCard} from '../../components/name-display-card';
 import {FeedCard} from '../components/feed-card';
 import {FlashList} from '@shopify/flash-list';
 import {SendACard} from '../components/SendACard';
+import BirthdayView from '../components/BirthdayView';
 const PostFlatlist = ({
   appState,
   data,
@@ -57,7 +58,18 @@ const PostFlatlist = ({
 
   return (
     <FlatList
-      ListHeaderComponent={<SendACard navigation={navigation} />}
+      ListHeaderComponent={
+        <View
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'center',
+          }}>
+          <BirthdayView user={User?.mykey} navigation={navigation} />
+          <SendACard navigation={navigation} />
+        </View>
+      }
+      ListHeaderComponentStyle={{display: 'flex', flexDirection: 'row'}}
       data={data}
       renderItem={renderItem}
       // onRefresh={() => fetchposts()}

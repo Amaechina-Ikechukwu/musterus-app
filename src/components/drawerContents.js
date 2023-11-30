@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import {Divider, Avatar} from 'react-native-paper';
 import {Color} from './theme';
-import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {useNavigation, DrawerActions} from '@react-navigation/native';
 import {
   faAdd,

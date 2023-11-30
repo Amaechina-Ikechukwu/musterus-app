@@ -38,7 +38,7 @@ const fetchUserProfiles = async userId => {
   return profile;
 };
 function Profile({route, appState, disp_surprise}) {
-  const User = appState.User;
+  const {User, Profile} = appState;
   const navigation = useNavigation();
   const [imageUri, setImageUri] = useState(null);
   const [data, setData] = useState('');
@@ -50,7 +50,6 @@ function Profile({route, appState, disp_surprise}) {
     setData(result);
   };
   const gotoprofile = item => {
-    console.log({item});
     navigation.navigate('Profile', {user: item});
   };
   const friends = async () => {
@@ -74,7 +73,7 @@ function Profile({route, appState, disp_surprise}) {
   return (
     <>
       <BottomTab page="MusterPoint" navigation={navigation} />
-      <Header navigation={navigation} />
+      <Header navigation={navigation} profile={Profile} user={User?.mykey} />
       <SafeAreaView
         style={{
           flex: 1,

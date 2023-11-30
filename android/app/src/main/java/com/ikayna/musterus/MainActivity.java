@@ -1,4 +1,4 @@
-package com.musterus;
+package com.ikayna.musterus;
 import expo.modules.ReactActivityDelegateWrapper;
 import android.os.Bundle; // here
 import org.devio.rn.splashscreen.SplashScreen; // here

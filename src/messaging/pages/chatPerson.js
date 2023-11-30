@@ -16,6 +16,7 @@ import {ChatInput} from '../components/chatInput';
 import {ChatMessages} from '../components/chatmessages';
 import {sendmessage} from '../apis/sendDM';
 import {initializechat} from '../apis/initializechat';
+import {usersfullprofile} from '../../user/apis/profile';
 
 const Colors = Color();
 
@@ -24,9 +25,17 @@ function SignIn({navigation, appState, route, setchatlist}) {
   const [loading, setLoading] = useState(false);
   const {friendid} = route?.params;
   const {User} = appState;
+  const getProfile = async () => {
+    const result = await usersfullprofile(friendid);
+    setData(result);
+  };
   useEffect(() => {
     initializechat(User?.mykey, friendid);
+    getProfile();
   }, []);
+  useEffect(() => {
+    console.log(data);
+  }, [data]);
 
   const STYLES = ['default', 'dark-content', 'light-content'];
   const TRANSITIONS = ['fade', 'slide', 'none'];
@@ -66,7 +75,12 @@ function SignIn({navigation, appState, route, setchatlist}) {
           showHideTransition={statusBarTransition}
           hidden={hidden}
         />
-        <Header page="Chat" navigation={navigation} />
+        <Header
+          page="Chat"
+          navigation={navigation}
+          profile={data}
+          user={friendid}
+        />
         <ChatHead navigation={navigation} page="PERSON" />
         <View style={{flex: 1, width: '100%', height: '100%'}}>
           <View style={{width: '100%', height: '100%'}}>

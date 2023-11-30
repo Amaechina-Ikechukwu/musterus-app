@@ -12,7 +12,7 @@ import {setGroup, setPosts} from '../../redux';
 import {connect} from 'react-redux';
 
 import {FlashList} from '@shopify/flash-list';
-import {SendACard} from '../components/SendACard';
+
 import {FeedCard} from '../../events/components/feed-card';
 const UserPostFlatlist = ({appState, data, navigation, Header}) => {
   const {User} = appState;

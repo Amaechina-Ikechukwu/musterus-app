@@ -71,6 +71,7 @@ function SignIn({navigation, appState, route, setgroupmessages}) {
           page="chat group"
           groupname={group?.data?.name}
           groupid={groupid}
+          groupphoto={group?.data?.photourl}
           navigation={navigation}
         />
         <ChatHead navigation={navigation} />

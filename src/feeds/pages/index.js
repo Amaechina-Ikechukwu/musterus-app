@@ -33,14 +33,14 @@ import {SendACard} from '../components/SendACard';
 
 const Colors = Color();
 
-function SignIn({navigation, appState, setposts}) {
+function SignIn({navigation, appState, setposts, setmyprofile}) {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState('');
   const [CreatePost, showCreatePost] = useState(false);
   const [pickImage, setpickImage] = useState(false);
   const {mykey, mskl} = appState.User;
-  const {Posts} = appState;
+  const {Posts, Profile} = appState;
   const [posts, setPosts] = useState([]);
   const [postToView, setPostToView] = useState();
 
@@ -74,10 +74,16 @@ function SignIn({navigation, appState, setposts}) {
     const result = await getposts(mykey);
     setposts(result.data);
   };
+  const getProfile = async () => {
+    const result = await usersfullprofile(user);
+
+    setmyprofile(result);
+  };
   useEffect(() => {
     getHomeFeed();
+    getProfile();
   }, []);
-  useEffect(() => {}, [posts]);
+  useEffect(() => {}, [posts, Profile]);
 
   return (
     <>
@@ -92,7 +98,11 @@ function SignIn({navigation, appState, setposts}) {
         />
       )}
 
-      <FeedHeader showCreatePost={showCreatePost} navigation={navigation} />
+      <FeedHeader
+        showCreatePost={showCreatePost}
+        image={Profile?.user?.photourl}
+        navigation={navigation}
+      />
       <BottomTab page="Home" navigation={navigation} />
       <SafeAreaView style={styles.container}>
         <StatusBar
@@ -167,6 +177,7 @@ const mapDispatchToProps = (dispatch, encoded) => {
     disp_Login: payload => dispatch(user_state(payload)),
     disp_surprise: payload => dispatch(surprise_state(payload)),
     setposts: payload => dispatch(setPosts(payload)),
+    setmyprofile: userData => dispatch(setMyProfile(userData)),
   };
 };
 

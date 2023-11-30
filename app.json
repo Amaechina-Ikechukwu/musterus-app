@@ -9,6 +9,9 @@
       "eas": {
         "projectId": "711dcf56-820d-4c3c-8313-760d9f860e7f"
       }
+    },
+    "android": {
+      "package": "com.ikayna.musterus"
     }
   }
 }
