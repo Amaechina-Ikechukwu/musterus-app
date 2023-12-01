@@ -13,6 +13,7 @@ import {MessagingHeads} from '../components/messageHeads';
 import {MyGroups} from '../apis/groups';
 import {Style} from '../../../assets/styles';
 import GroupsList from '../components/groupflatlist';
+import SuggestedGroups from '../components/SuggestedGroups';
 
 const Colors = Color();
 
@@ -78,34 +79,17 @@ function SignIn({navigation, appState, route, setgroup}) {
             showHideTransition={statusBarTransition}
             hidden={hidden}
           />
-          <ScrollView>
-            <View
-              style={{
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <View
-                style={{
-                  marginBottom: 80,
-                  marginTop: 80,
-                  // marginHorizontal: 15
-                }}>
-                <Text
-                  style={[
-                    Style.Text,
-                    {
-                      marginTop: 10,
-                      marginBottom: 10,
-                    },
-                  ]}>
-                  You have to groups yet
-                </Text>
-              </View>
-            </View>
-          </ScrollView>
+
+          <View
+            style={{
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginTop: 100,
+            }}>
+            <SuggestedGroups navigation={navigation} />
+          </View>
         </SafeAreaView>
       </>
     );

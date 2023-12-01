@@ -21,6 +21,7 @@ const UsersFlatlist = ({
   sendACard,
   gotoprofile,
   setvisitid,
+  count,
 }) => {
   const {User} = appState;
   const [showMessage, setShowMessage] = useState(false);
@@ -46,6 +47,7 @@ const UsersFlatlist = ({
           conversationId={conversationId}
           sendACard={sendACard}
           goto={() => go(item?.id)}
+          count={count && count}
         />
       </View>
     );

@@ -21,9 +21,7 @@ export function HeaderComponent({
   user,
   group,
 }) {
-  useEffect(() => {
-    console.log(user, group, page);
-  }, [page]);
+  useEffect(() => {}, [page]);
   return (
     <>
       <View

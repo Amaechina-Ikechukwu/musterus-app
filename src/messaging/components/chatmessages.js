@@ -1,5 +1,12 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {View, Text, FlatList, StyleSheet, TextInput} from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TextInput,
+  Dimensions,
+} from 'react-native';
 import {Style} from '../../../assets/styles';
 import {
   onSnapshot,
@@ -14,7 +21,7 @@ import {usersprofile} from '../../user/apis/firebaseprofile';
 import {ActivityIndicator} from 'react-native';
 import {initializechat} from '../apis/initializechat';
 import {Image} from 'react-native';
-
+const {width} = Dimensions.get('screen');
 function extractTimeFromFirestoreTimestamp(timestampObj) {
   const {seconds, nanoseconds} = timestampObj;
   const milliseconds = seconds * 1000 + nanoseconds / 1000000;
@@ -82,8 +89,8 @@ export const ChatMessages = ({page, user, route}) => {
             {item?.mediaurl && (
               <Image
                 source={{uri: item?.mediaurl}}
-                style={{width: 400, height: 200, borderRadius: 10}}
-                resizeMode="contain"
+                style={{width: '100%', height: 200, borderRadius: 10}}
+                resizeMode="cover"
               />
             )}
           </View>
@@ -156,7 +163,8 @@ const styles = StyleSheet.create({
     // borderRadius: 8,
     padding: 8,
     marginBottom: 11,
-    maxWidth: '70%',
+    maxWidth: width * 0.7,
+    minWidth: width * 0.6,
     // flexDirection:"row"
   },
   sentBubble: {

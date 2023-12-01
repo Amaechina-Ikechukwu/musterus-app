@@ -1,202 +1,275 @@
 import {
-    StyleSheet,
-    View,
-    Text,
-    Pressable, Alert,
-    Image, Dimensions, ImageBackground,
+  StyleSheet,
+  Dimensions,
+  StatusBar,
+  View,
+  Image,
+  Text,
+  Alert,
 } from 'react-native';
-import { Divider, Avatar } from 'react-native-paper';
-import React, { useEffect, useState } from 'react';
-import Header from '../../components/header2';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScrollView } from 'react-native-gesture-handler';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faAdd, faAngleUp, faAngleLeft, faAngleRight, faBasketShopping, faCheck, faCheckDouble, faGifts, faLocationDot, faTree, faTreeCity, faTvAlt, faVideo, faArrowRight, faArrowLeft, faArrowUp, faArrowDown, faUser, faCheckSquare, faUserAlt, faGlobeAfrica, faPhoneAlt, faMessage, faEnvelope, faDotCircle, faBriefcase, faPeopleArrows, faMoneyBill, faQrcode, faSquare }
-    from '@fortawesome/free-solid-svg-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { isAuth } from '../../controllers/auth/authController';
-import { Color } from '../../components/theme';
-import { Loader } from '../../components/loader';
-import { BackIcon, CartIcon, HomeIcon, OpenDrawer } from '../../components/icons';
-import { faYoutube } from '@fortawesome/free-brands-svg-icons';
-import { connect } from "react-redux";
-import {
-    SelectedState, 
-} from "../../redux";
-import { useNavigation, DrawerActions } from '@react-navigation/native';
-import { FetchGifts } from '../../controllers/items/itemsControllers';
-import { NoItems } from '../../utilities/404';
-import { PrimaryButton, SecondaryButton } from '../../components/buttons/primary';
-import { Details } from '../compnents/details-list';
-import { Certificates } from '../../components/certification/cert-list';
-import { HistoryCard } from '../components/history-cards';
-import FloatingButton from '../../components/buttons/FloatingBtn';
-import { AllStates } from '../../utilities/data';
-import { Style } from '../../../assets/styles';
+import {TextInput} from 'react-native-paper';
+import * as ImagePicker from 'expo-image-picker';
+import React, {useEffect, useState} from 'react';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {ScrollView} from 'react-native-gesture-handler';
+import {Color} from '../../components/theme';
+import {connect} from 'react-redux';
+import {setMyProfile, surprise_state, user_state} from '../../redux';
+import {useNavigation} from '@react-navigation/native';
+import {AppStatusBar} from '../../components/status-bar';
+import {HeaderComponent} from '../../components/header';
+import {BackIcon} from '../../../assets/icons/auth-icons';
+import {LabelTexts} from '../../events/components/texts';
+import {TouchableOpacity} from '@gorhom/bottom-sheet';
+import {Style} from '../../../assets/styles';
+import {PrimaryButton} from '../../components/buttons/primary';
 
+import {getDownloadURL, getStorage, ref, uploadBytes} from 'firebase/storage';
+import {usersfullprofile} from '../../user/apis/profile';
+import {storage} from '../../../firebase';
+import {updateprofile} from '../../user/apis/editprofile';
 
-const { height, width } = Dimensions.get('window');
-const Colors = Color()
+const Colors = Color();
 
-function SelectState({ route, appState, disp_state }) {
-    const [userState, setUserState] = useState()
-    const User = appState.User;
-    const navigation = useNavigation();
-    const GetUser = () => {
-        if (User == undefined) {
-            isAuth().then(res => {
-                console.log(res)
-                if (res == false) return navigation.pop()
-                setUserState(res)
-            })
-        } else {
-            setUserState(User)
-        }
+function AddProfilePicture({route, appState, setmyprofile}) {
+  const {User, Profile} = appState;
+  const navigation = useNavigation();
+  const [image, setImage] = useState(null);
+  const [formData, setFormData] = useState({
+    firstname: Profile?.user?.firstname,
+    lastname: Profile?.user?.lastname,
+    username: Profile?.user?.username,
+    bio: Profile?.user?.bio,
+    photourl: Profile?.user?.photourl,
+  });
+
+  const handleInputChange = (name, value) => {
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+  const inputFields = [
+    {name: 'firstname', label: 'Firstname'},
+    {name: 'lastname', label: 'Lastname'},
+    {name: 'username', label: 'Username'},
+    {name: 'bio', label: 'Bio'},
+    // Add more input field configurations as needed
+  ];
+  const getProfile = async () => {
+    const result = await usersfullprofile(User?.mykey);
+
+    setmyprofile(result);
+  };
+  const pickImage = async () => {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      Alert.alert('Permission to access camera roll is required!');
+      return;
     }
-    const AllSurprises = appState.SurpriseState;
-    useEffect(() => {
-        // console.log(AllSurprises.length)
-        console.log("Sellect")
-        // GetUser()
-        // if (route.params && route.params != undefined) {
-        //     console.log(route.params)
-        //     let routeParams = route.params.data
-        // } else {
-        //     console.log("No params")
-        // }
-    }, [setUserState])
 
-    const [pick, setPick] = useState()
-    return (
-        <>
-            {console.log(appState.User_State)}
-            <SafeAreaView>
-                <ScrollView>
+    const result = await ImagePicker.launchImageLibraryAsync();
+    if (!result.cancelled) {
+      setImage(result.uri);
+    }
+  };
 
-                    <View style={{
-                        borderRadius: 7,
-                        flexDirection: "column",
-                        // backgroundColor:"red",
-                        display: "flex",
-                        flex: 1,
-                        justifyContent: "space-between",
-                        alignContent: "space-around",
-                        marginBottom: 10,
-                        // padding: 7
-                        // alignItems: "center"
+  // Function to upload image to Firebase Storage
 
-                    }} >
+  const uploadImageToFirebase = async () => {
+    try {
+      const response = await fetch(image);
+      const blob = await response.blob();
 
+      const storageRef = ref(
+        storage,
+        `profilephotos/${User?.mykey}/${image.split('/').pop()}`,
+      );
 
+      // Uploading image to Firebase Storage
+      await uploadBytes(storageRef, blob); // Use uploadBytes method to upload the image blob
 
-                        {/* <Divider style={{ marginBottom: 10, }} /> */}
+      const downloadURL = await getDownloadURL(storageRef); // Get the download URL
+      setFormData({
+        ...formData,
+        photourl: downloadURL,
+      });
+      return downloadURL;
+    } catch (error) {
+      console.error('Error uploading image: ', error);
+    }
+  };
+  useEffect(() => {}, [formData.photourl]);
+  const editProfile = async () => {
+    try {
+      let imageUrl = ''; // Renamed to avoid conflict with url from uploadImageToFirebase
+      if (image) {
+        imageUrl = await uploadImageToFirebase(); // Assigning the result to imageUrl
+      }
 
-                        {
-                            AllStates.map((e, key) => {
-                                return <Pressable
-                                    key={key}
-                                    onPress={() => {
-                                        navigation.navigate('Finance', { screen: 'Save-fellowship' })
-                                        disp_state(e.label)
-                                        // console.log(appState.User_State)
-                                        console.log(e)
-                                        // await AsyncStorage.setItem("STATE", JSON.stringify(e))
-                                        setPick(key)
-                                    }}
-                                    style={{
-                                        // // display: "flex",
-                                        padding: 12,
-                                        borderRadius: 5,
-                                        // marginBottom: 10,
-                                        // // flex:1,
-                                        // borderColor: "red",
-                                        // // borderWidth: 2,
+      const {firstname, lastname, username, bio} = formData;
 
-                                        display: "flex",
-                                        flexDirection: "row",
-                                        justifyContent: "space-between",
-                                        // marginTop: 3,
-                                        zIndex: 2000,
-                                        width: "100%",
-                                        backgroundColor: Colors.light
+      await updateprofile(
+        User?.mykey,
+        firstname,
+        lastname,
+        username,
+        bio,
+        imageUrl, // Pass imageUrl instead of url
+      ).then(async () => {
+        Alert.alert('Add Profile Pciture', 'Profile picture has been added');
+        await getProfile();
+        navigation.navigate('Follow-Users');
+      });
+    } catch (err) {
+      Alert.alert(
+        'Error updating profile',
+        'Unfortunately, your profile cannot be updated at this time',
+      );
+    }
+  };
 
+  const emptyimage =
+    'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
+  return (
+    <>
+      <HeaderComponent page="Profile" />
+      <SafeAreaView
+        style={{
+          flex: 1,
+          backgroundColor: Colors.background,
+          paddingTop: 80,
+          // padding: 20
+        }}>
+        <AppStatusBar StatusBar={StatusBar} useState={useState} />
 
-                                    }}
-                                >
-                                    <View style={{ flex: 5 }} >
-                                        <View style={{
-                                            display: "flex",
-                                            flexDirection: "row",
-                                            justifyContent: "flex-start",
-                                        }} >
-                                            <Text style={[Style.boldText, {}]} >
-                                                Brotherhood Of The Cross And Star {e.label}
+        <ScrollView>
+          <View
+            style={{
+              flexDirection: 'row',
+              padding: 10,
+              // backgroundColor: "red"
+            }}>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                // backgroundColor: "blue"
+              }}>
+              <BackIcon />
+              <LabelTexts
+                style={{marginLeft: 15}}
+                text="Add Your Profile Picture"
+              />
+            </View>
 
-                                            </Text>
-                                            {/* <FontAwesomeIcon style={{
-                                                flex: 1,
-                                                color: Colors.primary,
-                                                marginLeft: 10
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                // backgroundColor: "blue",
+                justifyContent: 'flex-end',
+              }}></View>
+          </View>
 
-                                            }} size={15} icon={faCheckCircle} /> */}
-                                        </View>
-                                        <Text style={[Style.Text, { marginTop: 10 }]}>
-                                            {e.label}
-                                        </Text>
-                                        <Divider style={{ marginTop: 15, marginBottom: -15 }} />
-                                    </View>
+          <View
+            style={{
+              // backgroundColor: "red",
+              marginTop: 10,
+              // alignItems: "center",
+              padding: 15,
+            }}>
+            <View
+              style={{
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 10,
+              }}>
+              <TouchableOpacity
+                onPress={pickImage}
+                style={styles.circularButton}>
+                {image ? (
+                  <Image
+                    source={{uri: image || data.photourl}}
+                    style={styles.circularImage}
+                  />
+                ) : (
+                  <Text style={styles.buttonText}>Choose Photo</Text>
+                )}
+              </TouchableOpacity>
+            </View>
 
-
-                                    {pick == key ?
-                                        <FontAwesomeIcon style={{
-                                            marginLeft: 10,
-                                            color: Colors.primary,
-                                        }} size={20} icon={faCheckSquare} /> :
-                                        <FontAwesomeIcon style={{
-                                            marginLeft: 10,
-                                            color: Colors.lightgrey,
-                                        }} size={20} icon={faSquare} />}
-                                </Pressable>
-                            })
-                        }
-                    </View>
-                </ScrollView>
-            </SafeAreaView >
-        </>
-    )
+            <View
+              style={{
+                // backgroundColor: "red",
+                // height: 20
+                width: '100%',
+                marginTop: 70,
+              }}>
+              <PrimaryButton
+                title="Add Photo"
+                style={{width: '100%'}}
+                callBack={() => {
+                  editProfile();
+                }}
+              />
+            </View>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </>
+  );
 }
 
-
-
-const mapStateToProps = (state) => {
-    return {
-        appState: state.user,
-    };
+const mapStateToProps = state => {
+  return {
+    appState: state.user,
+  };
 };
-
 
 const mapDispatchToProps = (dispatch, encoded) => {
-    return {
-        disp_state: (payload) => dispatch(SelectedState(payload)),
-    };
+  return {
+    disp_surprise: payload => dispatch(surprise_state(payload)),
+    setmyprofile: userData => dispatch(setMyProfile(userData)),
+  };
 };
 
-
-export default connect(mapStateToProps, mapDispatchToProps)(SelectState);
-
-
-
+export default connect(mapStateToProps, mapDispatchToProps)(AddProfilePicture);
 
 const styles = StyleSheet.create({
-    imageBackground: {
-        flex: 1,
-        resizeMode: 'cover',
-        // backgroundColor:"red"
-    },
-    overlay: {
-        flex: 1,
-        backgroundColor: Colors.light, // red color with 50% transparency
-        opacity: 0.8,
-        marginTop: -20
-    },
+  imageBackground: {
+    flex: 1,
+    resizeMode: 'cover',
+    // backgroundColor:"red"
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: Colors.light, // red color with 50% transparency
+    opacity: 0.8,
+    marginTop: -20,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    // marginTop: 22,
+  },
+  circularButton: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: 'lightgray',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  circularImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
 });

@@ -69,13 +69,14 @@ function SignIn({navigation, disp_Login, setUser, route}) {
   const loginUser = async () => {
     try {
       const result = await mylogin(email, password);
-      console.log(result);
-      setUser(result);
-      navigation.replace('Dashboard', {screen: 'FEEDS'});
-      logged();
-    } catch (err) {
-      Alert.alert('Error Signing');
-    }
+      if (result) {
+        setUser(result);
+        navigation.replace('Dashboard', {screen: 'FEEDS'});
+        logged();
+      } else {
+        Alert.alert('Login', 'Please ensure your login details are correct');
+      }
+    } catch (err) {}
   };
   useEffect(() => {}, [email, password]);
 

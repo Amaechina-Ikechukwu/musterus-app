@@ -65,6 +65,7 @@ function SignIn({navigation, disp_Login, appState, setUser, route}) {
     email: '',
     password: '',
     confirmPassword: '',
+    birtdate: new Date(),
   });
   const {logged} = route.params;
   const [loading, setLoading] = useState(false);
@@ -72,18 +73,43 @@ function SignIn({navigation, disp_Login, appState, setUser, route}) {
   const onInputChange = (name, value) => {
     setData({...data, [name]: value});
   };
-  const onDateChange = (event, selectedDate) => {
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
-    setShowDatePicker(false);
-    setData({...data, date: currentDate});
+    setShowDatePicker(Platform.OS === 'ios'); // Close the picker on iOS after selection
+    setData({...data, birtdate: currentDate});
   };
 
-  useEffect(() => {
-    fetchFcmToken(setFcmoken);
-  }, [setDate]);
+  const showDatepicker = () => {
+    setShowDatePicker(true);
+  };
+  const formatDate = inputDate => {
+    const year = inputDate.getFullYear();
+    const month =
+      inputDate.getMonth() + 1 < 10
+        ? `0${inputDate.getMonth() + 1}`
+        : inputDate.getMonth() + 1;
+    const day =
+      inputDate.getDate() < 10
+        ? `0${inputDate.getDate()}`
+        : inputDate.getDate();
+    return `${year}-${month}-${day}`;
+  };
+
+  // useEffect(() => {
+
+  // }, [data]);
   const signupUser = async () => {
-    const {username, firstname, lastname, email, password, confirmPassword} =
-      data;
+    const {
+      username,
+      firstname,
+      lastname,
+      email,
+      password,
+      confirmPassword,
+      birtdate,
+    } = data;
 
     try {
       if (password !== confirmPassword) {
@@ -95,13 +121,13 @@ function SignIn({navigation, disp_Login, appState, setUser, route}) {
           lastname,
           email,
           password,
+          birtdate,
         );
-        console.log(result);
+
         setUser(result);
-        logged();
+        navigation.navigate('Add-Photo');
       }
     } catch (err) {
-      console.log(err);
       Alert.alert('Error Signing');
     }
   };
@@ -186,6 +212,7 @@ function SignIn({navigation, disp_Login, appState, setUser, route}) {
                 setData={value => onInputChange('email', value)}
                 placeholder="Enter your email"
               />
+
               <OutlinedInput
                 data={data.username}
                 setData={value => onInputChange('username', value)}
@@ -201,7 +228,28 @@ function SignIn({navigation, disp_Login, appState, setUser, route}) {
                 setData={value => onInputChange('confirmPassword', value)}
                 placeholder="Confirm Password"
               />
-
+              <View style={{marginBottom: 20}}>
+                <TouchableOpacity
+                  style={{flexDirection: 'row', alignItems: 'center'}}
+                  onPress={showDatepicker}>
+                  <Text style={[Style.Text]}>
+                    {`Click to add your date of birth: `}
+                  </Text>
+                  <Text style={[Style.boldText]}>
+                    {` ${formatDate(data.birtdate)}`}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              {showDatePicker && (
+                <DateTimePicker
+                  testID="dateTimePicker"
+                  value={data.birtdate}
+                  mode="date"
+                  is24Hour={true}
+                  display="default"
+                  onChange={onChange}
+                />
+              )}
               <PrimaryButton
                 loading={loading}
                 style={{

@@ -20,12 +20,13 @@ export function NameDisplayCard({
   conversationId,
   sendACard,
   goto,
+  count,
 }) {
   const [following, setFollowing] = useState(item?.isFollowing);
 
   const followUser = async () => {
     const result = await followuser(user, item.id);
-
+    count && count();
     setFollowing(result?.message == 'added');
   };
   const emptyimage =
@@ -54,7 +55,8 @@ export function NameDisplayCard({
 
           {component == 'SUGGESTION' ||
           component == 'SEARCH' ||
-          component == 'SENDCARD' ? (
+          component == 'SENDCARD' ||
+          component == 'FollowUsers' ? (
             !following ? (
               <>
                 <View

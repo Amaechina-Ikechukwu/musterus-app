@@ -64,10 +64,9 @@ export function ChatMessagingHeads({
       );
     }
   };
-  // useEffect(() => {
-
-  //   getFriendProfile();
-  // }, []);
+  useEffect(() => {
+    getFriendProfile();
+  }, []);
   useEffect(() => {
     if (dmData?.conversationId) {
       const q = query(
@@ -113,6 +112,7 @@ export function ChatMessagingHeads({
           // borderTopWidth: 0,
           borderRightWidth: 0,
           borderColor: Colors.inputOutline,
+          borderBottomWidth: 0.5,
         },
       ]}>
       <View style={styles.header}>

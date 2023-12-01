@@ -33,9 +33,7 @@ function SignIn({navigation, appState, route, setchatlist}) {
     initializechat(User?.mykey, friendid);
     getProfile();
   }, []);
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
+  useEffect(() => {}, [data]);
 
   const STYLES = ['default', 'dark-content', 'light-content'];
   const TRANSITIONS = ['fade', 'slide', 'none'];
@@ -79,7 +77,7 @@ function SignIn({navigation, appState, route, setchatlist}) {
           page="Chat"
           navigation={navigation}
           profile={data}
-          user={friendid}
+          user={User.mykey}
         />
         <ChatHead navigation={navigation} page="PERSON" />
         <View style={{flex: 1, width: '100%', height: '100%'}}>

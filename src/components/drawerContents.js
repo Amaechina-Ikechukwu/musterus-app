@@ -11,6 +11,7 @@ import {
 import {Divider, Avatar} from 'react-native-paper';
 import {Color} from './theme';
 import {useNavigation, DrawerActions} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   faAdd,
   faBookBible,
@@ -60,10 +61,21 @@ function HelloFriday({appState, navigate}) {
   const closeDrawer = () => navigation.dispatch(DrawerActions.closeDrawer());
   const [auth, setAuth] = useState();
   const {mykey} = appState.User;
+  async function clearAsyncStorage() {
+    try {
+      const keys = await AsyncStorage.getAllKeys();
 
+      // Iterate through all keys and remove their values
+      await AsyncStorage.multiRemove(keys);
+
+      console.log('AsyncStorage cleared successfully.');
+    } catch (error) {
+      console.error('Error clearing AsyncStorage:', error);
+    }
+  }
   const forlogOut = async () => {
     // Ensure mykey is defined correctly or passed as a parameter
-    logout(mykey);
+    clearAsyncStorage();
     navigate();
   };
 

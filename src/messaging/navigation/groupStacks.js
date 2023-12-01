@@ -13,6 +13,7 @@ import editgroup from '../pages/editgroup';
 import {MyGroups} from '../apis/groups';
 import {setGroups} from '../../redux';
 import creategroup from '../pages/creategroup';
+import SingleGroupInfo from '../pages/SingleGroupInfo';
 
 const headerColor = '#fffdfb';
 const navTheme = DefaultTheme;
@@ -44,7 +45,7 @@ const transition = {
 const Stack = createStackNavigator();
 
 function HomeStack({appState, setgroups}) {
-  const User = appState.User;
+  const {User, Groups} = appState;
   const [data, setData] = useState([]);
   const getGroups = async () => {
     const result = await MyGroups(User.mykey);
@@ -54,7 +55,7 @@ function HomeStack({appState, setgroups}) {
   useEffect(() => {
     getGroups();
   }, []);
-  useEffect(() => {}, []);
+  useEffect(() => {}, [Groups]);
 
   return (
     <Stack.Navigator
@@ -81,6 +82,13 @@ function HomeStack({appState, setgroups}) {
       <Stack.Screen
         name="chat group"
         component={chatgroup}
+        options={{
+          header: () => null,
+        }}
+      />
+      <Stack.Screen
+        name="group info"
+        component={SingleGroupInfo}
         options={{
           header: () => null,
         }}

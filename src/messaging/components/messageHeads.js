@@ -64,6 +64,7 @@ export function MessagingHeads({
           // borderTopWidth: 0,
           borderRightWidth: 0,
           borderColor: Colors.inputOutline,
+          borderBottomWidth: 0.5,
         },
       ]}>
       <View style={styles.header}>
@@ -91,7 +92,7 @@ export function MessagingHeads({
                 : data?.message}
             </Text>
           </View>
-          <View
+          {/* <View
             style={{
               flex: 0.6,
               // backgroundColor: "red",
@@ -120,7 +121,7 @@ export function MessagingHeads({
               }}>
               99
             </Text>
-          </View>
+          </View> */}
         </View>
       </View>
     </TouchableOpacity>

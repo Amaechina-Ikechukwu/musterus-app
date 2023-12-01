@@ -7,37 +7,51 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
-import {MessagingHeads} from './messageHeads';
-import {setGroup} from '../../redux';
+
+import {setGroup, setGroups} from '../../redux';
 import {connect} from 'react-redux';
-import {FlashList} from '@shopify/flash-list';
-import {Style} from '../../../assets/styles';
+
 import {AllGroups} from '../apis/allgroups';
+
+import {Color} from '../../components/theme';
+import {joingroup} from '../apis/updategroup copy';
+import {MyGroups} from '../apis/groups';
+import {SuggestionHeader} from './SuggestionHeader';
+const {width} = Dimensions.get('screen');
 const SuggestedGroupsList = ({
   appState,
   groupsData,
   navigation,
   mykey,
-  setgroup,
+  setgroups,
 }) => {
   const [data, setData] = useState();
+
   const {User} = appState;
   const getGroups = async () => {
     const result = await AllGroups(User.mykey);
-    console.log(result?.groups);
+
     setData(result?.groups);
   };
+
   useEffect(() => {
     getGroups();
   }, []);
-  const renderItem = ({item}) => {
+
+  const renderItem = ({item, index}) => {
     return (
-      <View>
-        <TouchableOpacity onPress={() => setgroup(item)}>
-          <MessagingHeads navigation={navigation} gdata={item} user={mykey} />
-        </TouchableOpacity>
-      </View>
+      <SuggestionHeader
+        navigation={navigation}
+        item={item}
+        index={index}
+        appState={appState}
+        setgroups={setgroups}
+        groupsData={groupsData}
+        mykey={User?.mykey}
+        getGroups={getGroups}
+      />
     );
   };
   if (!data || (data && data.length == 0)) {
@@ -45,15 +59,16 @@ const SuggestedGroupsList = ({
   }
   return (
     <FlatList
-      data={groupsData}
+      data={data}
       renderItem={renderItem}
+      contentContainerStyle={{gap: 10, padding: 10}}
+      ListHeaderComponentStyle={{marginBottom: 10}}
       ListHeaderComponent={
         <View>
-          <Text style={Style.Text}>Suggested Groups</Text>
+          <Text>Suggested Groups</Text>
         </View>
       }
-      estimatedItemSize={200}
-      keyExtractor={item => item.groupID}
+      keyExtractor={(item, index) => item.groupId + index}
       ListEmptyComponent={
         <View style={{flex: 1, justifyContent: 'center'}}>
           <ActivityIndicator size={'large'} />
@@ -63,28 +78,6 @@ const SuggestedGroupsList = ({
   );
 };
 
-const styles = StyleSheet.create({
-  groupContainer: {
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
-  groupName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  groupDescription: {
-    fontSize: 16,
-    color: '#666',
-  },
-  groupImage: {
-    width: 100,
-    height: 100,
-    marginTop: 10,
-    borderRadius: 50,
-  },
-});
-
 const mapStateToProps = state => {
   return {
     appState: state.user,
@@ -92,7 +85,7 @@ const mapStateToProps = state => {
 };
 const mapDispatchToProps = (dispatch, encoded) => {
   return {
-    setgroup: payload => dispatch(setGroup(payload)),
+    setgroups: payload => dispatch(setGroups(payload)),
   };
 };
 

@@ -42,20 +42,37 @@ function App() {
     async function fetchData() {
       try {
         const value = await AsyncStorage.getItem('persist:user');
-        if (value !== null) {
+
+        const parsedValue = JSON.parse(value);
+
+        if (parsedValue && parsedValue.User !== null) {
           setSignedIn(true);
         } else {
           setSignedIn(false);
         }
       } catch (e) {
-        console.log({e});
+        setSignedIn(false);
+        console.error(e);
       }
 
       SplashScreen?.hide();
     }
 
     fetchData();
-  }, []);
+  }, [signedIn]);
+
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     const keys = await AsyncStorage.getAllKeys();
+  //     // Iterate through all keys and remove their values
+  //     await AsyncStorage.multiRemove(keys);
+
+  //     console.log('AsyncStorage cleared successfully.');
+  //     setSignedIn(false);
+  //   }
+
+  //   fetchData();
+  // }, []);
   let [fontsLoaded, fontError] = useFonts({
     Montserrat_Regular,
     Montserrat,
@@ -87,7 +104,7 @@ function App() {
                   backgroundColor: headerColor,
                 },
               })}>
-              {signedIn ? (
+              {signedIn == true ? (
                 <>
                   <Stack.Screen
                     name="Dashboard"

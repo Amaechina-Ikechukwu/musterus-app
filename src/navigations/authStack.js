@@ -12,6 +12,7 @@ import Add_details from '../user/screens/reset-pwd';
 import {HelloFriday} from '../components/drawerContents';
 import Signin from '../auth/pages/signin';
 import Signup from '../auth/pages/signup';
+import AddProfilePicture from '../auth/pages/add-photo';
 import Getstarted from '../auth/pages/get-started';
 import SendOTP from '../auth/pages/add-email';
 import EnterOTP from '../auth/pages/enter-otp';
@@ -19,6 +20,7 @@ import ResetPWD from '../auth/pages/reset-pwd';
 import Logout from '../auth/pages/logout';
 
 import {Color} from '../components/theme';
+import followusers from '../auth/pages/followusers';
 
 const headerColor = '#fffdfb';
 const navTheme = DefaultTheme;
@@ -100,9 +102,15 @@ export default function AuthStack({appState, route}) {
         options={{header: () => null}}
       />
       <Stack.Screen
-        name="Add-details"
-        component={Add_details}
-        options={{header: () => null, title: 'Update Profile'}}
+        name="Add-Photo"
+        component={AddProfilePicture}
+        options={{header: () => null}}
+      />
+      <Stack.Screen
+        name="Follow-Users"
+        component={followusers}
+        options={{header: () => null}}
+        initialParams={{logged: () => logged()}}
       />
       <Stack.Screen
         name="Enter OTP"

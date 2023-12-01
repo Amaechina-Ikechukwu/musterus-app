@@ -17,7 +17,7 @@ import {Logo} from '../../components/icons';
 import {PrimaryButton} from '../../components/buttons/primary';
 import {Color} from '../../components/theme';
 import {connect} from 'react-redux';
-import {setPosts, surprise_state, user_state} from '../../redux';
+import {setMyProfile, setPosts, surprise_state, user_state} from '../../redux';
 
 import {FeedHeader} from '../components/feed-header';
 import {UpcomingBirthdays} from '../components/upcoming-birthdays';
@@ -29,6 +29,7 @@ import {StaticImage} from '../../utilities';
 import {getposts, home} from '../apis/home';
 import PostFlatlist from '../models/PostFlatlist';
 import {SendACard} from '../components/SendACard';
+import {usersfullprofile} from '../../user/apis/profile';
 // import RNPaystack from 'react-native-paystack';
 
 const Colors = Color();
@@ -39,7 +40,7 @@ function SignIn({navigation, appState, setposts, setmyprofile}) {
   const [data, setData] = useState('');
   const [CreatePost, showCreatePost] = useState(false);
   const [pickImage, setpickImage] = useState(false);
-  const {mykey, mskl} = appState.User;
+  const {mykey, mskl} = appState?.User;
   const {Posts, Profile} = appState;
   const [posts, setPosts] = useState([]);
   const [postToView, setPostToView] = useState();
@@ -75,7 +76,7 @@ function SignIn({navigation, appState, setposts, setmyprofile}) {
     setposts(result.data);
   };
   const getProfile = async () => {
-    const result = await usersfullprofile(user);
+    const result = await usersfullprofile(mykey);
 
     setmyprofile(result);
   };

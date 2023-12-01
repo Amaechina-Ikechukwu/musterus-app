@@ -11,6 +11,7 @@ export const signup = async (
   lastname,
   email,
   password,
+  birthdate,
 ) => {
   try {
     const response = await api.post('/auth/signup', {
@@ -19,6 +20,7 @@ export const signup = async (
       lastname,
       email,
       password,
+      birthdate,
     });
     return response.data;
   } catch (error) {

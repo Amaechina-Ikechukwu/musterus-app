@@ -16,6 +16,9 @@ export function Header({
   profile,
   groupphoto,
 }) {
+  const emptyimage =
+    'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
+  const group = {groupid, groupname, groupphoto};
   return (
     <>
       <View
@@ -50,7 +53,7 @@ export function Header({
                 fontSize: 16,
                 marginTop: 6,
               }}>
-              {groupname}
+              {'Group Messaging'}
             </Text>
           )}
         </View>
@@ -74,7 +77,9 @@ export function Header({
           }}>
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate('Profile');
+              page == 'chat group'
+                ? navigation.navigate('group info', {group: group})
+                : navigation.navigate('Profile');
             }}>
             <Image
               style={{
@@ -82,7 +87,9 @@ export function Header({
                 height: 30,
                 borderRadius: 30,
               }}
-              source={{uri: profile?.user?.photourl || groupphoto}}
+              source={{
+                uri: profile?.user?.photourl || groupphoto || emptyimage,
+              }}
               resizeMode={'cover'}
             />
           </TouchableOpacity>
@@ -91,7 +98,9 @@ export function Header({
               color: Colors.light,
               fontSize: 11,
             }}>
-            {'@' + profile?.user?.username}
+            {profile?.user?.username
+              ? '@' + profile?.user?.username
+              : profile?.user?.firstname || groupname}
           </Text>
         </View>
       </View>
