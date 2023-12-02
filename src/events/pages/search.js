@@ -211,13 +211,14 @@ function Profile({route, appState, disp_surprise}) {
               ]}>
               Try typing a keyword or username
             </Text>
-
-            <UsersFlatlist
-              data={searchedUsers}
-              navigation={navigation}
-              component={'SEARCH'}
-              conversationId={makeconvid}
-            />
+            <View style={{height: '100%', width: '100%'}}>
+              <UsersFlatlist
+                data={searchedUsers}
+                navigation={navigation}
+                component={'SEARCH'}
+                conversationId={makeconvid}
+              />
+            </View>
           </View>
         </SafeAreaView>
       </>

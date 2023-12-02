@@ -6,6 +6,7 @@ import {LabelTexts} from '../../events/components/texts';
 import {StaticImage} from '../../utilities';
 import {MaterialCommunityIcons} from '@expo/vector-icons';
 import {useEffect} from 'react';
+import {PlusIcon} from '../../feeds/components/icons';
 
 let Colors = Color();
 export function Header({
@@ -15,6 +16,7 @@ export function Header({
   groupid,
   profile,
   groupphoto,
+  isadmin,
 }) {
   const emptyimage =
     'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
@@ -46,7 +48,7 @@ export function Header({
           <TouchableOpacity>
             <Logo />
           </TouchableOpacity>
-          {page && (
+          {page == 'chat group' && (
             <Text
               style={{
                 color: Colors.light,
@@ -58,14 +60,31 @@ export function Header({
           )}
         </View>
         {page == 'chat group' && (
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('update group', {
-                groupid: groupid,
-              });
+          <View
+            style={{
+              flexDirection: 'row-reverse',
+              alignItems: 'center',
+              gap: 25,
             }}>
-            <MaterialCommunityIcons name="pencil" size={24} color="white" />
-          </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate('update group', {
+                  groupid: groupid,
+                });
+              }}>
+              <MaterialCommunityIcons name="pencil" size={24} color="white" />
+            </TouchableOpacity>
+            {isadmin && (
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate('addusertogroup', {
+                    groupid: groupid,
+                  });
+                }}>
+                <PlusIcon />
+              </TouchableOpacity>
+            )}
+          </View>
         )}
         <View
           style={{

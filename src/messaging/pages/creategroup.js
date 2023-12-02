@@ -15,16 +15,17 @@ import {updategroup} from '../apis/updategroup';
 import {Image} from 'react-native';
 import {storage} from '../../../firebase';
 import {creategroup} from '../apis/creategroup';
+import {usefriends} from '../../muster-points/apis/UserFriends';
 
 const Colors = Color();
 
 function CreateGroup({navigation, appState, route, setgroups}) {
-  const [loading, setLoading] = useState(false);
+  const [friend, setFriends] = useState();
   const {User, Group} = appState;
   const [data, setData] = useState({
-    name: Group?.data?.name,
-    description: Group?.data?.description,
-    photourl: Group?.data?.photourl,
+    name: '',
+    description: '',
+    photourl: '',
   });
   const [image, setImage] = useState(null);
 
@@ -73,15 +74,19 @@ function CreateGroup({navigation, appState, route, setgroups}) {
   const updateGroup = async () => {
     try {
       // Upload image before updating group data
+      let photo;
       if (image) {
-        await uploadImageToFirebase();
+        photo = await uploadImageToFirebase();
       }
       const {name, description, photourl} = data;
       const token = User?.mykey;
       // Update group data
-      await creategroup(token, name, description, photourl);
+      await creategroup(token, name, description, photo);
       await getGroups();
-      Alert.alert('Your group has been created');
+      Alert.alert(
+        'Your group has been created',
+        "Enter the group, click on '+' icon to add your friends",
+      );
       navigation.goBack();
     } catch (err) {
       console.log(err);
@@ -96,25 +101,12 @@ function CreateGroup({navigation, appState, route, setgroups}) {
     TRANSITIONS[0],
   );
 
-  // const updateGroup = async () => {
-  //   try {
-  //     // Renamed the function to updateUserGroup
-  //     const {name, description, photourl} = data;
-  //     const token = User?.mykey;
-  //     // Assuming this is the function that updates the group data
-  //     await updategroup(name, description, photourl, groupid, token);
-  //     await getGroups();
-  //     navigation.goBack(); // Changed from navigate(-1) to goBack()
-  //   } catch (err) {
-  //     console.log(err);
-  //     Alert.alert('Error updating group');
-  //   }
-  // };
   const onInputChange = (name, value) => {
     setData({...data, [name]: value});
   };
   const [modalVisible, setModalVisible] = useState(false);
   useEffect(() => {}, [data]);
+
   return (
     <>
       <Header page="Group Message" />
@@ -184,6 +176,7 @@ function CreateGroup({navigation, appState, route, setgroups}) {
                   setData={value => onInputChange('description', value)}
                   placeholder="Enter your description"
                 />
+
                 <TouchableOpacity
                   android_ripple={{color: 'white'}}
                   onPress={() => updateGroup()}

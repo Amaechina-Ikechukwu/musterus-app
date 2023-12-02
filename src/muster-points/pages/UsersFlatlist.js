@@ -22,6 +22,7 @@ const UsersFlatlist = ({
   gotoprofile,
   setvisitid,
   count,
+  Header,
 }) => {
   const {User} = appState;
   const [showMessage, setShowMessage] = useState(false);
@@ -58,6 +59,7 @@ const UsersFlatlist = ({
       data={data}
       renderItem={renderItem}
       keyExtractor={item => item.id}
+      ListHeaderComponent={Header && Header}
       disableAutoLayout
       estimatedItemSize={200}
       ListEmptyComponent={

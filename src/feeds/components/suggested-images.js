@@ -35,7 +35,7 @@ export function SuggestedImages({data, setpickImage, image, chooseimage}) {
             style={{marginHorizontal: 10}}>
             <AddPhoto />
           </TouchableOpacity>
-          {Array.from({length: 10}, (_, index) => (
+          {/* {Array.from({length: 10}, (_, index) => (
             <TouchableOpacity
               onPress={() => {
                 setpickImage(true);
@@ -46,7 +46,7 @@ export function SuggestedImages({data, setpickImage, image, chooseimage}) {
                 <Image style={styles.image} src={StaticImage} />
               </View>
             </TouchableOpacity>
-          ))}
+          ))} */}
         </View>
       </ScrollView>
     </View>

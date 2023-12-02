@@ -21,9 +21,39 @@ import {TouchableOpacity} from 'react-native';
 import UserPostFlatlist from '../models/UserPostFlatlist';
 import {PrimaryButton} from '../../components/buttons/primary';
 import {setMyProfile} from '../../redux';
-const ProfileHeader = ({Profile, user, mykey, postlength}) => {
-  const emptyimage =
-    'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
+import {amifollwoing} from '../../muster-points/apis/amifollowing';
+import {followuser} from '../../muster-points/apis/followuser';
+const emptyimage =
+  'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
+const ProfileHeader = ({Profile, user, mykey, postlength, navigation}) => {
+  const [following, setFollowing] = useState(Boolean);
+
+  const isUserFollowing = async () => {
+    const result = await amifollwoing(mykey, user);
+
+    setFollowing(result?.message);
+  };
+  const makeconvid = friend => {
+    const conversationId = [mykey, user].sort().join('_');
+
+    navigation.navigate('Chat', {
+      screen: 'chat person',
+      params: {
+        conversationId: conversationId,
+        friendid: user,
+        friend: Profile?.user,
+      },
+    });
+  };
+  const followUser = async () => {
+    const result = await followuser(mykey, user);
+
+    setFollowing(result?.message == 'added');
+  };
+  useEffect(() => {
+    isUserFollowing();
+  }, []);
+
   return (
     <View>
       <View
@@ -108,12 +138,22 @@ const ProfileHeader = ({Profile, user, mykey, postlength}) => {
               width: '100%',
               marginTop: 15,
             }}>
-            <PrimaryButton title="Messages" style={{width: '100%'}} />
             <PrimaryButton
-              title="Muster"
+              callBack={() => {
+                makeconvid();
+              }}
+              title="Messages"
+              style={{width: '100%'}}
+            />
+            <PrimaryButton
+              callBack={() => {
+                !following && followUser();
+              }}
+              title={following ? 'Following' : 'Muster'}
               style={{
                 width: '100%',
                 marginTop: 10,
+                backgroundColor: following ? Colors.lightgrey : Colors.primary,
               }}
             />
           </View>

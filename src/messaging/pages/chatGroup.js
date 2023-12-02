@@ -20,6 +20,7 @@ import {ChatHead} from '../components/chatHeads';
 import {ChatScreen, SentMessage} from '../components/mesages';
 import {ChatInput} from '../components/chatInput';
 import {sendgroupmessage} from '../apis/sendgroupmessage';
+import {fullgroupinfo} from '../apis/groupinfo';
 
 const Colors = Color();
 
@@ -28,7 +29,15 @@ function SignIn({navigation, appState, route, setgroupmessages}) {
   const [loading, setLoading] = useState(false);
   const user = appState.User;
   const group = appState.Group;
+  const getGroupInfo = async () => {
+    const result = await fullgroupinfo(user?.mykey, group?.groupID);
 
+    setData(result.data.group);
+  };
+
+  useEffect(() => {
+    getGroupInfo();
+  }, []);
   const {groupid, groupname} = route.params;
   useEffect(() => {}, [group]);
   const STYLES = ['default', 'dark-content', 'light-content'];
@@ -73,6 +82,7 @@ function SignIn({navigation, appState, route, setgroupmessages}) {
           groupid={groupid}
           groupphoto={group?.data?.photourl}
           navigation={navigation}
+          isadmin={data?.admin == user?.mykey}
         />
         <ChatHead navigation={navigation} />
 

@@ -29,9 +29,18 @@ export function NameDisplayCard({
     count && count();
     setFollowing(result?.message == 'added');
   };
+  const isUserFollowing = async () => {
+    const result = await amifollwoing(user, item.id);
+
+    setFollowing(result?.message);
+  };
   const emptyimage =
     'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
-  useEffect(() => {}, []);
+  useEffect(() => {
+    if (!item?.isFollowing) {
+      isUserFollowing();
+    }
+  }, []);
   return (
     <View style={styles.container}>
       <View style={styles.header}>

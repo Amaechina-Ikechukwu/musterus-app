@@ -63,7 +63,7 @@ function EditGroup({navigation, appState, route, setgroups}) {
       await uploadBytes(storageRef, blob); // Use uploadBytes method to upload the image blob
 
       const downloadURL = await getDownloadURL(storageRef); // Get the download URL
-
+      return downloadURL;
       setData({...data, photourl: downloadURL}); // Update group data with the downloadURL
     } catch (error) {
       console.error('Error uploading image: ', error);
@@ -73,13 +73,14 @@ function EditGroup({navigation, appState, route, setgroups}) {
   const updateGroup = async () => {
     try {
       // Upload image before updating group data
+      let photo;
       if (image) {
-        await uploadImageToFirebase();
+        photo = await uploadImageToFirebase();
       }
       const {name, description, photourl} = data;
       const token = User?.mykey;
       // Update group data
-      await updategroup(name, description, photourl, groupid, token);
+      await updategroup(name, description, photo, groupid, token);
       await getGroups();
       navigation.goBack();
     } catch (err) {

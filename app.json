@@ -3,7 +3,8 @@
   "displayName": "Musterus",
   "expo": {
     "splash": {
-      "image": "./assets/splash.png"
+      "image": "./assets/splash.png",
+      "icon": "./assets/appicon.jpg"
     },
     "extra": {
       "eas": {

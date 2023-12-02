@@ -94,7 +94,7 @@ const GroupInfo = ({route, appState, setmyprofile}) => {
 
   const getGroupInfo = async () => {
     const result = await fullgroupinfo(User?.mykey, group?.groupid);
-    console.log(result.data.group);
+
     setGroupData(result.data);
   };
 
@@ -123,17 +123,16 @@ const GroupInfo = ({route, appState, setmyprofile}) => {
             <Text style={styles.headerText}>{'Group Info'}</Text>
           </View>
           <View style={styles.profileContainer}>
-            <ProfileHeader
-              groupinfo={groupData}
-              mykey={User?.mykey}
-              navigation={navigation}
-            />
             <UsersFlatlist
               navigation={navigation}
-              //   Header={
-
-              //   }
-              //   userData={Profile?.user}
+              Header={
+                <ProfileHeader
+                  groupinfo={groupData}
+                  mykey={User?.mykey}
+                  navigation={navigation}
+                />
+              }
+              // userData={Profile?.user}
               data={groupData?.members}
             />
           </View>
@@ -172,5 +171,7 @@ const styles = StyleSheet.create({
   },
   profileContainer: {
     marginTop: 20,
+    height: '100%',
+    width: '100%',
   },
 });
