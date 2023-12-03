@@ -182,9 +182,9 @@ export function FeedCard({
             {numberOfComments}
           </Text>
         </TouchableOpacity>
-        <View style={{flexDirection: 'row'}}>
+        {/* <View style={{flexDirection: 'row'}}>
           <ShareIcon />
-        </View>
+        </View> */}
       </View>
       <Text style={[styles.content, {fontFamily: 'Montserrat_light'}]}>
         {data?.caption}

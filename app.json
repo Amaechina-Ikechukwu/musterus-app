@@ -4,7 +4,7 @@
   "expo": {
     "splash": {
       "image": "./assets/splash.png",
-      "icon": "./assets/appicon.jpg"
+      "icon": "./assets/appicon.png"
     },
     "extra": {
       "eas": {

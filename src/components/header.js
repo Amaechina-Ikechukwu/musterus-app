@@ -20,6 +20,7 @@ export function HeaderComponent({
   profile,
   user,
   group,
+  mykey,
 }) {
   useEffect(() => {}, [page]);
   return (
@@ -106,7 +107,7 @@ export function HeaderComponent({
               </TouchableOpacity>
             ))}
 
-          {page == 'Profile' && <OpenDrawerIcon />}
+          {page == 'Profile' && mykey == user && <OpenDrawerIcon />}
         </View>
       </View>
     </>

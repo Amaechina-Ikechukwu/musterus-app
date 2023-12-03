@@ -200,7 +200,12 @@ const Profile = ({route, appState, setmyprofile}) => {
 
   return (
     <>
-      <HeaderComponent page={pageTitle} navigation={navigation} />
+      <HeaderComponent
+        page={pageTitle}
+        user={user}
+        mykey={User?.mykey}
+        navigation={navigation}
+      />
       <SafeAreaView
         style={{
           flex: 1,
