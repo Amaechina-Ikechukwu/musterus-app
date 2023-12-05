@@ -224,7 +224,6 @@ function Profile({route, appState, disp_surprise}) {
       </>
     );
   } catch (err) {
-    console.log(err);
     return (
       <View
         style={{

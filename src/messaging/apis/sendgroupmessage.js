@@ -4,13 +4,14 @@ const api = axios.create({
   baseURL: 'https://musterus-api.onrender.com', // Replace with your API base URL
 });
 
-export const sendgroupmessage = async (groupid, message, token) => {
+export const sendgroupmessage = async (groupid, message, token, mediaurl) => {
   try {
     const response = await api.post(
       '/groups/message',
       {
         groupid,
         message,
+        mediaurl,
       },
       {
         headers: {

@@ -82,9 +82,7 @@ function BirthdayWish({route, appState, disp_surprise}) {
       );
     }
   };
-  useEffect(() => {
-    console.log(user);
-  }, []);
+  useEffect(() => {}, []);
   return (
     <>
       <SafeAreaView

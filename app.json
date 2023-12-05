@@ -4,7 +4,7 @@
   "expo": {
     "splash": {
       "image": "./assets/splash.png",
-      "icon": "./assets/appicon.png"
+      "icon": "./assets/icon.png"
     },
     "extra": {
       "eas": {
@@ -12,7 +12,21 @@
       }
     },
     "android": {
-      "package": "com.ikayna.musterus"
-    }
+      "package": "com.ikayna.musterus",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "plugins": [
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow Musterus to access your photos.",
+          "savePhotosPermission": "Allow Musterus to save photos.",
+          "isAccessMediaLocationEnabled": true
+        }
+      ]
+    ]
   }
 }

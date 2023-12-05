@@ -70,7 +70,6 @@ function SignIn({navigation, disp_Login, setUser, route}) {
     try {
       const result = await mylogin(email, password);
       if (result) {
-        console.log(result);
         setUser(result);
         navigation.replace('Dashboard', {screen: 'FEEDS'});
         logged();

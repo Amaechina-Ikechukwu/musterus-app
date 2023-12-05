@@ -13,7 +13,7 @@ import {
   orderBy,
   limit,
 } from 'firebase/firestore';
-import {db} from '../../../firebase';
+import {db, storage} from '../../../firebase';
 import {Header} from '../components/header';
 import {MessagingHeads} from '../components/messageHeads';
 import {ChatHead} from '../components/chatHeads';
@@ -21,7 +21,8 @@ import {ChatScreen, SentMessage} from '../components/mesages';
 import {ChatInput} from '../components/chatInput';
 import {sendgroupmessage} from '../apis/sendgroupmessage';
 import {fullgroupinfo} from '../apis/groupinfo';
-
+import {getDownloadURL, ref, uploadBytesResumable} from 'firebase/storage';
+import * as ImagePicker from 'expo-image-picker';
 const Colors = Color();
 
 function SignIn({navigation, appState, route, setgroupmessages}) {
@@ -50,23 +51,106 @@ function SignIn({navigation, appState, route, setgroupmessages}) {
 
   const [tempmessage, setTempMessage] = useState('');
   const [message, setMessage] = useState('');
-  const [modalVisible, setModalVisible] = useState(false);
+  const [isSending, setIsSending] = useState('');
   const sendMessage = async () => {
+    setIsSending('Uploading');
+    let url = '';
+    if (image) {
+      url = await uploadImageToFirebase();
+    }
+    setIsSending('Uploaded');
     try {
       setTempMessage(message);
       setMessage('');
-      await sendgroupmessage(groupid, message, user?.mykey);
+      await sendgroupmessage(groupid, message, user?.mykey, url);
+      setIsSending('');
+      setImage();
     } catch {
       setMessage(tempmessage);
       setTempMessage(message);
     }
   };
+  const [pickImage, setpickImage] = useState(false);
+  const [image, setImage] = useState(null);
+  const [recentImages, setRecentImages] = useState([]);
+  const ChooseImage = async () => {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      Alert.alert('Permission to access camera roll is required!');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      // Use "canceled" instead of "cancelled"
+      setImage(result.assets[0].uri);
+      setpickImage(true);
+    }
+  };
+
+  // Function to upload image to Firebase Storage
+
+  useEffect(() => {}, [uploadProgress]);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [downloadURL, setDownloadURL] = useState('');
+
+  const uploadImageToFirebase = () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const response = await fetch(image);
+        const blob = await response.blob();
+
+        const storageRef = ref(
+          storage,
+          `groupchatschats/${groupid}/${image.split('/').pop()}`,
+        );
+        const uploadTask = uploadBytesResumable(storageRef, blob);
+
+        uploadTask.on(
+          'state_changed',
+          snapshot => {
+            const progress = Math.floor(
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100,
+            );
+            setUploadProgress(progress);
+          },
+          error => {
+            reject(error);
+          },
+          async () => {
+            try {
+              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+
+              setDownloadURL(downloadURL);
+              resolve(downloadURL);
+            } catch (downloadError) {
+              console.error('Error getting download URL: ', downloadError);
+              reject(downloadError);
+            }
+          },
+        );
+      } catch (error) {
+        console.error('Error uploading image: ', error);
+        reject(error);
+      }
+    });
+  };
+
   return (
     <>
       <ChatInput
         message={message}
         setMessage={setMessage}
         sendMessage={() => sendMessage()}
+        image={image}
+        ChooseImage={ChooseImage}
+        isSending={isSending}
       />
       <SafeAreaView style={styles.container}>
         <StatusBar

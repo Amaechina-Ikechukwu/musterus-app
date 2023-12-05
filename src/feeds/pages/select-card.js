@@ -38,9 +38,7 @@ function MuterCards({route, appState, disp_surprise}) {
   const [imageUri, setImageUri] = useState(null);
   const [data, setData] = useState('');
   const {selected} = route?.params;
-  useEffect(() => {
-    console.log('Account page');
-  }, []);
+  useEffect(() => {}, []);
   const selectedHoliday = holidaysImages.find(
     holiday => holiday.title === selected,
   );

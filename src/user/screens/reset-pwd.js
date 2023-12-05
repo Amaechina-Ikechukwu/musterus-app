@@ -50,7 +50,6 @@ function Profile({route, appState, disp_surprise}) {
       reminderHint,
       reminderAnswer,
     );
-    console.log(result);
   };
   useEffect(() => {}, []);
 

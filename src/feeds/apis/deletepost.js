@@ -4,10 +4,10 @@ const api = axios.create({
   baseURL: 'https://musterus-api.onrender.com', // Replace with your API base URL
 });
 
-export const unlikepost = async (token, postid) => {
+export const deletepost = async (token, postid) => {
   try {
     const response = await api.post(
-      '/home/unlikepost',
+      '/home/deletepost',
       {
         postid,
       },

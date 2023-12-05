@@ -127,7 +127,6 @@ function SignIn({navigation, appState, setposts}) {
               (snapshot.bytesTransferred / snapshot.totalBytes) * 100,
             );
             setUploadProgress(progress);
-            console.log(progress);
           },
           error => {
             console.error('Error uploading image: ', error);
@@ -161,51 +160,25 @@ function SignIn({navigation, appState, setposts}) {
 
         if (url) {
           await createpost(token, data, url);
-          navigation.goBack();
         }
       } else {
         const token = User?.mykey;
         await createpost(token, data);
       }
     } catch (err) {
-      console.log(err);
       Alert.alert('Error creating post');
     }
   };
 
   const getHomeFeed = async () => {
-    const result = await getposts(User?.mykey);
-    setposts(result.data);
-    navigation.goBack();
+    setTimeout(async () => {
+      const result = await getposts(User?.mykey);
+      setposts(result.data);
+
+      navigation.goBack();
+    }, 3000);
   };
-  // const getRecentImages = async () => {
-  //   try {
-  //     const {status} = await MediaLibrary.requestPermissionsAsync();
-  //     if (status !== 'granted') {
-  //       console.log('Permission denied for accessing media library');
-  //       return;
-  //     }
 
-  //     const mediaAssets = await MediaLibrary.getAssetsAsync({
-  //       first: 10, // Fetching the first 10 assets
-  //       mediaType: MediaLibrary.MediaType.photo, // Fetch only photos
-  //       sortBy: [[MediaLibrary.SortBy.creationTime, false]], // Sort by creation time in descending order
-  //     });
-
-  //     // Extracting image URIs from mediaAssets
-  //     const imageUris = mediaAssets.assets.map(asset => asset.uri);
-
-  //     setRecentImages(imageUris);
-  //   } catch (error) {
-  //     console.error('Error fetching recent images:', error);
-  //     // Handle errors appropriately
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   console.log(recentImages);
-  //   getRecentImages();
-  // }, []);
   return (
     <>
       <CreatePostModal

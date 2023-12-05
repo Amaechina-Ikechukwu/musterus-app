@@ -1,21 +1,30 @@
-import React from 'react';
-import {View, Text, FlatList, StyleSheet, TextInput} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, Text, FlatList, StyleSheet, TextInput, Image} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Replace with the appropriate icon library
 import {CameraIcon, MicIcon, SmileIcon} from './icons';
 import {Color} from '../../components/theme';
 import {ShareIcon} from '../../events/components/icons';
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytes,
+  uploadBytesResumable,
+} from 'firebase/storage';
 
 const Colors = Color();
 
-export const ChatInput = ({message, setMessage, sendMessage}) => {
+export const ChatInput = ({
+  message,
+  setMessage,
+  sendMessage,
+  image,
+  ChooseImage,
+  isSending,
+}) => {
   const handleSend = () => {
     sendMessage();
-  };
-
-  const handleAudioRecording = () => {
-    // Implement audio recording logic here
-    console.log('Start audio recording');
   };
 
   return (
@@ -31,22 +40,32 @@ export const ChatInput = ({message, setMessage, sendMessage}) => {
           alignItems: 'flex-end',
           paddingHorizontal: 10,
         }}>
-        <TouchableOpacity
-          onPress={handleAudioRecording}
-          style={styles.audioButton}>
+        <TouchableOpacity style={styles.audioButton}>
           <SmileIcon />
         </TouchableOpacity>
+        <View style={{width: '75%', padding: 4, alignItems: 'flex-start'}}>
+          {image && (
+            <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
+              <Image
+                source={{uri: image}}
+                style={{height: 60, width: 100}}
+                resizeMode="contain"
+              />
+              <Text style={{color: Colors.lightgrey}}>{isSending}</Text>
+            </View>
+          )}
 
-        <TextInput
-          style={styles.input}
-          placeholder="Type a message..."
-          value={message}
-          onChangeText={setMessage}
-          placeholderTextColor={Colors.grey}
-          multiline
-        />
+          <TextInput
+            style={styles.input}
+            placeholder="Type a message..."
+            value={message}
+            onChangeText={setMessage}
+            placeholderTextColor={Colors.grey}
+            multiline
+          />
+        </View>
 
-        {message.length > 0 ? (
+        {message.length > 0 || image ? (
           <>
             <TouchableOpacity onPress={handleSend} style={styles.audioButton}>
               <ShareIcon />
@@ -55,7 +74,7 @@ export const ChatInput = ({message, setMessage, sendMessage}) => {
         ) : (
           <>
             <TouchableOpacity
-              onPress={handleAudioRecording}
+              onPress={() => ChooseImage()}
               style={styles.audioButton}>
               <CameraIcon />
             </TouchableOpacity>
@@ -63,7 +82,7 @@ export const ChatInput = ({message, setMessage, sendMessage}) => {
         )}
       </View>
 
-      {message.length < 1 && (
+      {message.length < 1 && !image && (
         <View
           style={{
             backgroundColor: Colors.primary,
@@ -110,6 +129,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     color: 'black',
     maxHeight: 90,
+    width: '100%',
   },
   sendButton: {
     padding: 10,

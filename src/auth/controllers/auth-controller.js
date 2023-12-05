@@ -50,7 +50,6 @@ export const LoginController = ({
         // console.log(response1)
         else {
           SaveSuggestedUser(response1.data[0]).then(res => {
-            console.log(res);
             if (res == true) {
               if (response1.data[0].password == 'RIVABAS') {
                 let payload = {
@@ -139,7 +138,6 @@ export const continueWithPwd = ({
             Fcmoken,
           },
         }).then(res => {
-          console.log(res, 'Pwd');
           if (res == true) {
             if (!User.meta.finance) {
               const payload = {
@@ -179,9 +177,7 @@ export const continueWithPwd = ({
               },
               user: User.phone,
             };
-            SaveTokenOnLogin(payload).then(res => {
-              console.log('saved token', Fcmoken);
-            });
+            SaveTokenOnLogin(payload).then(res => {});
             // ===
 
             navigation.replace('Accounts');

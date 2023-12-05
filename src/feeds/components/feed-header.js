@@ -42,6 +42,7 @@ export function FeedHeader({showCreatePost, navigation, image}) {
             // backgroundColor: "red",
             flexDirection: 'row',
             justifyContent: 'space-between',
+            alignItems: 'center',
           }}>
           <TouchableOpacity
             onPress={() => {

@@ -67,11 +67,7 @@ function HelloFriday({appState, navigate}) {
 
       // Iterate through all keys and remove their values
       await AsyncStorage.multiRemove(keys);
-
-      console.log('AsyncStorage cleared successfully.');
-    } catch (error) {
-      console.error('Error clearing AsyncStorage:', error);
-    }
+    } catch (error) {}
   }
   const forlogOut = async () => {
     // Ensure mykey is defined correctly or passed as a parameter

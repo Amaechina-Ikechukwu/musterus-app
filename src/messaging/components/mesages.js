@@ -1,5 +1,13 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {View, Text, FlatList, StyleSheet, TextInput} from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TextInput,
+  Image,
+  Dimensions,
+} from 'react-native';
 import {Style} from '../../../assets/styles';
 import {
   onSnapshot,
@@ -13,6 +21,7 @@ import {db} from '../../../firebase';
 import {usersprofile} from '../../user/apis/firebaseprofile';
 import {ActivityIndicator} from 'react-native';
 import {FlashList} from '@shopify/flash-list';
+const {width} = Dimensions.get('screen');
 const fetchUserProfiles = async messages => {
   const uniqueUserIds = [...new Set(messages.map(message => message.from))];
   const profiles = {};
@@ -105,6 +114,20 @@ export const ChatScreen = ({page, groupid, user}) => {
             styles.messageBubble,
             item.from == user.mykey ? styles.sentBubble : styles.receivedBubble,
           ]}>
+          <View>
+            {item?.mediaurl && (
+              <Image
+                source={{uri: item?.mediaurl}}
+                style={{
+                  width: '100%',
+                  height: 200,
+                  borderRadius: 10,
+                  backgroundColor: 'black',
+                }}
+                resizeMode="contain"
+              />
+            )}
+          </View>
           <Text
             style={[
               styles.messageText,
@@ -169,8 +192,8 @@ const styles = StyleSheet.create({
     // borderRadius: 8,
     padding: 8,
     marginBottom: 11,
-    maxWidth: '70%',
-    // flexDirection:"row"
+    maxWidth: width * 0.7,
+    minWidth: width * 0.5,
   },
   sentBubble: {
     alignSelf: 'flex-end',

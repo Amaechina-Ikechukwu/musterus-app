@@ -51,6 +51,7 @@ const PostFlatlist = ({
           loading={loading}
           setLoading={setLoading}
           setPost={() => setpost(item)}
+          fetchposts={fetchposts}
         />
       </View>
     );

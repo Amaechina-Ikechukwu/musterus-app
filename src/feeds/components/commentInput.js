@@ -11,7 +11,6 @@ const Colors = Color();
 export function CommentInput({message, setMessage, sendComment}) {
   const handleAudioRecording = () => {
     // Implement audio recording logic here
-    console.log('Start audio recording');
   };
 
   return (

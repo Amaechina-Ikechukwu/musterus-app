@@ -58,9 +58,7 @@ function FollowUsers({route, appState, setmyprofile, navigation}) {
   useEffect(() => {
     initizeUsers();
   }, []);
-  useEffect(() => {
-    console.log(count);
-  }, [data, count]);
+  useEffect(() => {}, [data, count]);
 
   const emptyimage =
     'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';

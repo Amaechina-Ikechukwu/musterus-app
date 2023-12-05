@@ -89,7 +89,7 @@ function CreateGroup({navigation, appState, route, setgroups}) {
       );
       navigation.goBack();
     } catch (err) {
-      console.log(err);
+     
       Alert.alert('Error updating group');
     }
   };
