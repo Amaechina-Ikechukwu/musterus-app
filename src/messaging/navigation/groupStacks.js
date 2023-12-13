@@ -15,6 +15,7 @@ import {setGroups} from '../../redux';
 import creategroup from '../pages/creategroup';
 import SingleGroupInfo from '../pages/SingleGroupInfo';
 import AddUserToGroup from '../components/AddUserToGroup';
+import {getgroups} from '../oldapis/groups/groups';
 
 const headerColor = '#fffdfb';
 const navTheme = DefaultTheme;
@@ -46,12 +47,13 @@ const transition = {
 const Stack = createStackNavigator();
 
 function HomeStack({appState, setgroups}) {
-  const {User, Groups} = appState;
+  const {User, Groups, Profile} = appState;
   const [data, setData] = useState([]);
   const getGroups = async () => {
-    const result = await MyGroups(User.mykey);
-    setData(result?.groups);
-    setgroups(result?.groups);
+    const result = await getgroups(User.mykey, User?.mskl, Profile.uid, 3);
+    console.log(JSON.stringify(result, null, 2));
+    // setData(result?.groups);
+    setgroups(result?.Groups);
   };
   useEffect(() => {
     getGroups();

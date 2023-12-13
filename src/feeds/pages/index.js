@@ -30,6 +30,7 @@ import {getposts, home} from '../apis/home';
 import PostFlatlist from '../models/PostFlatlist';
 import {SendACard} from '../components/SendACard';
 import {usersfullprofile} from '../../user/apis/profile';
+import {homepage} from '../oldapis/home';
 // import RNPaystack from 'react-native-paystack';
 
 const Colors = Color();
@@ -72,8 +73,10 @@ function SignIn({navigation, appState, setposts, setmyprofile}) {
   );
 
   const getHomeFeed = async () => {
-    const result = await getposts(mykey);
-    setposts(result.data);
+    const result = await homepage(mykey, mskl);
+    setmyprofile(result?.MyProfile);
+    console.log(JSON.stringify(result, null, 2));
+    // setposts(result.data);
   };
   const getProfile = async () => {
     const result = await usersfullprofile(mykey);
@@ -82,7 +85,7 @@ function SignIn({navigation, appState, setposts, setmyprofile}) {
   };
   useEffect(() => {
     getHomeFeed();
-    getProfile();
+    // getProfile();
   }, []);
   useEffect(() => {}, [posts, Profile]);
 

@@ -1,4 +1,11 @@
-import {StyleSheet, View, Text, StatusBar} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  StatusBar,
+  ImageBackground,
+  ActivityIndicator,
+} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {ScrollView, TouchableOpacity} from 'react-native-gesture-handler';
@@ -23,17 +30,37 @@ import {sendgroupmessage} from '../apis/sendgroupmessage';
 import {fullgroupinfo} from '../apis/groupinfo';
 import {getDownloadURL, ref, uploadBytesResumable} from 'firebase/storage';
 import * as ImagePicker from 'expo-image-picker';
+import {getgroupsview} from '../oldapis/groups/groupsview';
+import {Style} from '../../../assets/styles';
+import {PrimaryButton} from '../../components/buttons/primary';
+import {subscribetogroup} from '../oldapis/groups/subscribetogroup';
+import {getgroupsposts} from '../oldapis/groups/groupposts';
+import GroupFlatListComponent from '../components/GroupPostFlatlist';
 const Colors = Color();
 
 function SignIn({navigation, appState, route, setgroupmessages}) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isUserMember, setIsUserMember] = useState(false);
   const user = appState.User;
+  const {mykey, mskl} = user;
   const group = appState.Group;
+  const {Profile} = appState;
   const getGroupInfo = async () => {
-    const result = await fullgroupinfo(user?.mykey, group?.groupID);
-
-    setData(result.data.group);
+    const result = await getgroupsview(
+      user?.mykey,
+      user?.mskl,
+      group?.groupkey,
+    );
+    // console.log(JSON.stringify(result, null, 2));
+    // setData(result.data.group);
+    for (let index = 0; index < result?.Members.length; index++) {
+      const element = result?.Members[index];
+      if (element.profilekey === user.profilekey) {
+        setIsUserMember(true);
+        getGroupPost();
+      }
+    }
   };
 
   useEffect(() => {
@@ -94,64 +121,83 @@ function SignIn({navigation, appState, route, setgroupmessages}) {
     }
   };
 
-  // Function to upload image to Firebase Storage
+  const getGroupPost = async () => {
+    const result = await getgroupsposts(
+      mykey,
+      mskl,
+      Profile?.uid,
+      group?.groupkey,
+      0,
+    );
 
-  useEffect(() => {}, [uploadProgress]);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [downloadURL, setDownloadURL] = useState('');
-
-  const uploadImageToFirebase = () => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const response = await fetch(image);
-        const blob = await response.blob();
-
-        const storageRef = ref(
-          storage,
-          `groupchatschats/${groupid}/${image.split('/').pop()}`,
-        );
-        const uploadTask = uploadBytesResumable(storageRef, blob);
-
-        uploadTask.on(
-          'state_changed',
-          snapshot => {
-            const progress = Math.floor(
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100,
-            );
-            setUploadProgress(progress);
-          },
-          error => {
-            reject(error);
-          },
-          async () => {
-            try {
-              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-
-              setDownloadURL(downloadURL);
-              resolve(downloadURL);
-            } catch (downloadError) {
-              console.error('Error getting download URL: ', downloadError);
-              reject(downloadError);
-            }
-          },
-        );
-      } catch (error) {
-        console.error('Error uploading image: ', error);
-        reject(error);
-      }
-    });
+    setData(result.Posts);
   };
+  const subscribeToGroup = async () => {
+    const result = await subscribetogroup(
+      mykey,
+      mskl,
+      Profile?.uid,
+      group?.groupkey,
+    );
+
+    setIsUserMember(result.status == 1 || result.status == 0);
+    getGroupPost();
+  };
+  useEffect(() => {}, []);
+  if (isUserMember == false) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View
+          style={{
+            flex: 1,
+            width: '100%',
+            height: '100%',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <View
+            style={{
+              width: '80%',
+
+              backgroundColor: Colors.light,
+              padding: 10,
+              borderRadius: 5,
+              gap: 20,
+              paddingVertical: 20,
+            }}>
+            <Text
+              style={[
+                Style.boldText,
+                {fontSize: 20, color: Colors.primary, fontWeight: '700'},
+              ]}>
+              {group?.groupname}
+            </Text>
+            <Text style={Style.boldText2}>
+              Group Description: {group?.groupintro}
+            </Text>
+            <Text style={Style.Text}>
+              Group Owner: {group?.firstname + ' ' + group?.lastname}
+            </Text>
+            <Text style={Style.Text}>
+              Group Type: {group?.groupstatus == 1 ? 'Public' : 'Private'}
+            </Text>
+            <Text style={Style.Text}>Group Policy: {group?.grouppolicy}</Text>
+            <View style={{marginTop: 10}}>
+              <PrimaryButton
+                title={'Subscribe To Group'}
+                callBack={() => {
+                  subscribeToGroup();
+                }}
+              />
+            </View>
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <>
-      <ChatInput
-        message={message}
-        setMessage={setMessage}
-        sendMessage={() => sendMessage()}
-        image={image}
-        ChooseImage={ChooseImage}
-        isSending={isSending}
-      />
       <SafeAreaView style={styles.container}>
         <StatusBar
           animated={true}
@@ -162,11 +208,11 @@ function SignIn({navigation, appState, route, setgroupmessages}) {
         />
         <Header
           page="chat group"
-          groupname={group?.data?.name}
+          groupname={group?.groupname}
           groupid={groupid}
-          groupphoto={group?.data?.photourl}
+          groupphoto={group?.groupheader}
           navigation={navigation}
-          isadmin={data?.admin == user?.mykey}
+          isadmin={false}
         />
         <ChatHead navigation={navigation} />
 
@@ -177,7 +223,11 @@ function SignIn({navigation, appState, route, setgroupmessages}) {
               height: '100%',
               flex: 1,
             }}>
-            <ChatScreen groupid={groupid} page="GROUP" user={user} />
+            {data ? (
+              <GroupFlatListComponent data={data} />
+            ) : (
+              <ActivityIndicator />
+            )}
           </View>
         </View>
       </SafeAreaView>

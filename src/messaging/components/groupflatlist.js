@@ -14,11 +14,6 @@ import {connect} from 'react-redux';
 import {FlashList} from '@shopify/flash-list';
 import SuggestedGroups from './SuggestedGroups';
 const GroupsList = ({appState, groupsData, navigation, mykey, setgroup}) => {
-  const getGroups = async () => {
-    const result = await MyGroups(User.mykey);
-    setData(result?.groups);
-    // setgroups(result?.groups);
-  };
   const renderItem = ({item}) => {
     return (
       <View>
@@ -42,7 +37,7 @@ const GroupsList = ({appState, groupsData, navigation, mykey, setgroup}) => {
       data={groupsData}
       renderItem={renderItem}
       estimatedItemSize={200}
-      keyExtractor={item => item.groupID}
+      keyExtractor={item => item.groupkey}
       ListFooterComponent={<SuggestedGroups navigation={navigation} />}
       ListFooterComponentStyle={{marginTop: 20, alignItems: 'center', gap: 20}}
       ListEmptyComponent={

@@ -68,11 +68,15 @@ function SignIn({navigation, disp_Login, setUser, route}) {
   }, [setDate]);
   const loginUser = async () => {
     try {
-      const result = await mylogin(email, password);
+      const result = await login(email, password);
       if (result) {
-        setUser(result);
-        navigation.replace('Dashboard', {screen: 'FEEDS'});
-        logged();
+        if (result.err == undefined) {
+          setUser(result);
+          navigation.replace('Dashboard', {screen: 'FEEDS'});
+          logged();
+        } else {
+          Alert.alert('Login', 'Please ensure your login details are correct');
+        }
       } else {
         Alert.alert('Login', 'Please ensure your login details are correct');
       }

@@ -88,7 +88,7 @@ function SignIn({navigation, appState, route, setgroup}) {
               justifyContent: 'center',
               marginTop: 100,
             }}>
-            <SuggestedGroups navigation={navigation} />
+            <Text>No groups available</Text>
           </View>
         </SafeAreaView>
       </>

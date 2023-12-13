@@ -26,33 +26,13 @@ export function MessagingHeads({
   gdata,
 }) {
   const [data, setData] = useState([]);
-  const navigate = () => {};
-  useEffect(() => {
-    const q = query(
-      collection(db, 'groups', gdata.groupID, 'chats'),
-      orderBy('sent', 'desc'), // Order by 'sent' field in descending order (latest first)
-      limit(1), // Limit the query to retrieve only the latest chat message
-    );
-    const unsubscribe = onSnapshot(q, querySnapshot => {
-      let chats = null;
-      querySnapshot.forEach(doc => {
-        chats = {id: doc.id, ...doc.data()};
-      });
-      setData(chats);
-    });
-
-    // Cleanup: Unsubscribe from real-time updates when component unmounts
-    return () => {
-      unsubscribe();
-    };
-  }, []); // Ensure db and gdata.groupid are dependencies if they change
 
   return (
     <TouchableOpacity
       onPress={() => {
         navigation.navigate('chat group', {
-          groupid: gdata.groupID,
-          groupname: gdata.data.name,
+          groupid: gdata.groupkey,
+          groupname: gdata.groupname,
         });
       }}
       style={[
@@ -68,8 +48,8 @@ export function MessagingHeads({
         },
       ]}>
       <View style={styles.header}>
-        {gdata?.data?.photourl ? (
-          <Image style={styles.avatar} src={gdata?.data?.photourl} />
+        {gdata?.groupheader ? (
+          <Image style={styles.avatar} src={gdata?.groupheader} />
         ) : (
           <MaterialCommunityIcons
             name="account-group-outline"
@@ -85,43 +65,9 @@ export function MessagingHeads({
               flex: 1,
               // backgroundColor: "green"
             }}>
-            <Text style={styles.username}>{gdata?.data?.name}</Text>
-            <Text style={styles.usernameTag}>
-              {data && Object.entries(data).length == 0
-                ? 'Enter message'
-                : data?.message}
-            </Text>
+            <Text style={styles.username}>{gdata?.groupname}</Text>
+            <Text style={styles.usernameTag}>{gdata?.groupintro}</Text>
           </View>
-          {/* <View
-            style={{
-              flex: 0.6,
-              // backgroundColor: "red",
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginRight: 10,
-            }}>
-            <Text
-              style={{
-                color: Colors.grey,
-                fontSize: 11,
-              }}>
-              Now
-            </Text>
-            <Text
-              style={{
-                color: Colors.light,
-                fontSize: 11,
-                backgroundColor: Colors.primary,
-                borderRadius: 20,
-                height: 25,
-                width: 25,
-                textAlign: 'center',
-                padding: 4,
-                marginTop: 5,
-              }}>
-              99
-            </Text>
-          </View> */}
         </View>
       </View>
     </TouchableOpacity>

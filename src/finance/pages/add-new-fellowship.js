@@ -384,7 +384,7 @@ function AddNewFellowship({route, appState, disp_user, disp_Fellowship}) {
                       })
                       .catch(error => {
                         console.log(error);
-                        console.log('User===', User);
+
                         setloading(false);
                         alert('An error occured');
                       });
