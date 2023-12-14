@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   FlatList,
   View,
@@ -9,14 +9,12 @@ import {
 } from 'react-native';
 import {Style} from '../../../assets/styles';
 import {Avatar} from 'react-native-paper';
-import {useNavigation} from '@react-navigation/native';
+import {getgroupspostview} from '../oldapis/groups/groupspostview';
+import {connect} from 'react-redux';
 
 const PostItem = ({item}) => {
-  const navigation = useNavigation();
-  console.log(JSON.stringify(item, null, 2));
   return (
-    <TouchableOpacity
-      onPress={() => navigation.navigate('group post', {post: item})}>
+    <TouchableOpacity>
       <View style={styles.postContainer}>
         <View
           style={{
@@ -43,7 +41,23 @@ const PostItem = ({item}) => {
   );
 };
 
-const GroupFlatListComponent = ({data}) => {
+const GroupPostViewFlatListComponent = ({data, appState, route}) => {
+  const {User, Profile, Group} = appState;
+  const {mykey, mskl} = User;
+  const {post} = route?.params;
+  const getFullPostView = async () => {
+    const result = await getgroupspostview(
+      mykey,
+      mskl,
+      Profile.uid,
+      Group.groupkey,
+      post.grouppostid,
+    );
+    console.log(JSON.stringify(result, null, 2));
+  };
+  useEffect(() => {
+    getFullPostView();
+  }, []);
   return (
     <FlatList
       data={data}
@@ -74,5 +88,16 @@ const styles = StyleSheet.create({
     lineHeight: 30,
   },
 });
+const mapStateToProps = state => {
+  return {
+    appState: state.user,
+  };
+};
+const mapDispatchToProps = (dispatch, encoded) => {
+  return {};
+};
 
-export default GroupFlatListComponent;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(GroupPostViewFlatListComponent);

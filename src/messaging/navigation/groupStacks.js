@@ -16,6 +16,7 @@ import creategroup from '../pages/creategroup';
 import SingleGroupInfo from '../pages/SingleGroupInfo';
 import AddUserToGroup from '../components/AddUserToGroup';
 import {getgroups} from '../oldapis/groups/groups';
+import GroupPostViewFlatlist from '../components/GroupPostViewFlatlist';
 
 const headerColor = '#fffdfb';
 const navTheme = DefaultTheme;
@@ -85,6 +86,13 @@ function HomeStack({appState, setgroups}) {
       <Stack.Screen
         name="chat group"
         component={chatgroup}
+        options={{
+          header: () => null,
+        }}
+      />
+      <Stack.Screen
+        name="group post"
+        component={GroupPostViewFlatlist}
         options={{
           header: () => null,
         }}

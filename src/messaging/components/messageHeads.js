@@ -49,7 +49,10 @@ export function MessagingHeads({
       ]}>
       <View style={styles.header}>
         {gdata?.groupheader ? (
-          <Image style={styles.avatar} src={gdata?.groupheader} />
+          <Image
+            style={styles.avatar}
+            src={'https://www.musterus.com' + gdata?.groupheader}
+          />
         ) : (
           <MaterialCommunityIcons
             name="account-group-outline"

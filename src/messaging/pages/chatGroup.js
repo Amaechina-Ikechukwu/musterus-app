@@ -6,7 +6,7 @@ import {
   ImageBackground,
   ActivityIndicator,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useLayoutEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {ScrollView, TouchableOpacity} from 'react-native-gesture-handler';
 import {connect} from 'react-redux';
@@ -56,14 +56,15 @@ function SignIn({navigation, appState, route, setgroupmessages}) {
     // setData(result.data.group);
     for (let index = 0; index < result?.Members.length; index++) {
       const element = result?.Members[index];
-      if (element.profilekey === user.profilekey) {
+
+      if (element.profilekey === Profile.profilekey) {
         setIsUserMember(true);
         getGroupPost();
       }
     }
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     getGroupInfo();
   }, []);
   const {groupid, groupname} = route.params;
@@ -210,7 +211,7 @@ function SignIn({navigation, appState, route, setgroupmessages}) {
           page="chat group"
           groupname={group?.groupname}
           groupid={groupid}
-          groupphoto={group?.groupheader}
+          groupphoto={'https://www.musterus.com' + group?.groupheader}
           navigation={navigation}
           isadmin={false}
         />
