@@ -55,7 +55,7 @@ export function Header({
                 fontSize: 16,
                 marginTop: 6,
               }}>
-              {'Group Messaging'}
+              {'Group '}
             </Text>
           )}
         </View>
@@ -72,16 +72,16 @@ export function Header({
                   groupid: groupid,
                 });
               }}>
-              <MaterialCommunityIcons name="pencil" size={24} color="white" />
+              <MaterialCommunityIcons name="plus" size={24} color="white" />
             </TouchableOpacity>
-            {isadmin && (
+            {isadmin == true && (
               <TouchableOpacity
                 onPress={() => {
-                  navigation.navigate('addusertogroup', {
+                  navigation.navigate('update group', {
                     groupid: groupid,
                   });
                 }}>
-                <PlusIcon />
+                <MaterialCommunityIcons name="pencil" size={18} color="white" />
               </TouchableOpacity>
             )}
           </View>

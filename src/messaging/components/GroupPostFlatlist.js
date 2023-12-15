@@ -13,7 +13,6 @@ import {useNavigation} from '@react-navigation/native';
 
 const PostItem = ({item}) => {
   const navigation = useNavigation();
-  console.log(JSON.stringify(item, null, 2));
   return (
     <TouchableOpacity
       onPress={() => navigation.navigate('group post', {post: item})}>
@@ -29,12 +28,12 @@ const PostItem = ({item}) => {
             source={{uri: 'https://www.musterus.com' + item.avatar}}
             style={{width: 40, height: 40, borderRadius: 100}}
           />
-          <Text style={styles.author}>
+          <Text style={[styles.author, Style.boldText]}>
             {item.firstname + ' ' + item.lastname}
           </Text>
         </View>
 
-        <Text style={styles.content}>
+        <Text style={[styles.content, Style.Text]}>
           {item.postbody.replace(/<p>/gi, '').replace(/<\/p>/gi, '')}
         </Text>
         <Text style={styles.time}>{item.posttime}</Text>

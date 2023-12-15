@@ -1,4 +1,11 @@
-import {StyleSheet, View, Text, StatusBar} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  StatusBar,
+  Switch,
+  Dimensions,
+} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {ScrollView, TouchableOpacity} from 'react-native-gesture-handler';
@@ -14,16 +21,23 @@ import {Alert} from 'react-native';
 import {updategroup} from '../apis/updategroup';
 import {Image} from 'react-native';
 import {storage} from '../../../firebase';
-
+import {Style} from '../../../assets/styles';
+import {groupupdate} from '../oldapis/groups/groupupdate';
+const {width} = Dimensions.get('window');
 const Colors = Color();
 
 function EditGroup({navigation, appState, route, setgroups}) {
   const [loading, setLoading] = useState(false);
-  const {User, Group} = appState;
+  const {User, Group, Profile} = appState;
   const [data, setData] = useState({
-    name: Group?.data?.name,
-    description: Group?.data?.description,
-    photourl: Group?.data?.photourl,
+    name: Group?.groupname,
+    description: Group?.groupintro,
+    photourl: 'https://www.musterus.com' + Group?.photourl,
+    grouppolicy: Group?.grouppolicy,
+    category: Group?.catname,
+    website: Group?.website,
+    groupstatus: Group?.groupstatus,
+    moderated: Group?.moderated,
   });
   const [image, setImage] = useState(null);
 
@@ -49,27 +63,6 @@ function EditGroup({navigation, appState, route, setgroups}) {
 
   // Function to upload image to Firebase Storage
 
-  const uploadImageToFirebase = async () => {
-    try {
-      const response = await fetch(image);
-      const blob = await response.blob();
-
-      const storageRef = ref(
-        storage,
-        `groupPhotos/${groupid}/${image.split('/').pop()}`,
-      );
-
-      // Uploading image to Firebase Storage
-      await uploadBytes(storageRef, blob); // Use uploadBytes method to upload the image blob
-
-      const downloadURL = await getDownloadURL(storageRef); // Get the download URL
-      return downloadURL;
-      setData({...data, photourl: downloadURL}); // Update group data with the downloadURL
-    } catch (error) {
-      console.error('Error uploading image: ', error);
-    }
-  };
-
   const updateGroup = async () => {
     try {
       // Upload image before updating group data
@@ -77,12 +70,34 @@ function EditGroup({navigation, appState, route, setgroups}) {
       if (image) {
         photo = await uploadImageToFirebase();
       }
-      const {name, description, photourl} = data;
-      const token = User?.mykey;
+      const {
+        name,
+        category,
+        moderated,
+        groupstatus,
+        description,
+        grouppolicy,
+        website,
+      } = data;
+      const {mykey, mskl} = User;
       // Update group data
-      await updategroup(name, description, photo, groupid, token);
-      await getGroups();
-      navigation.goBack();
+      const result = await groupupdate(
+        mykey,
+        mskl,
+        Profile?.uid,
+        Group?.groupkey,
+        name,
+        category,
+        moderated,
+        groupstatus,
+        description,
+
+        grouppolicy,
+        website,
+      );
+      console.log(JSON.stringify(result, null, 2));
+      // await getGroups();
+      // navigation.goBack();
     } catch (err) {
       Alert.alert('Error updating group');
     }
@@ -95,25 +110,14 @@ function EditGroup({navigation, appState, route, setgroups}) {
     TRANSITIONS[0],
   );
 
-  // const updateGroup = async () => {
-  //   try {
-  //     // Renamed the function to updateUserGroup
-  //     const {name, description, photourl} = data;
-  //     const token = User?.mykey;
-  //     // Assuming this is the function that updates the group data
-  //     await updategroup(name, description, photourl, groupid, token);
-  //     await getGroups();
-  //     navigation.goBack(); // Changed from navigate(-1) to goBack()
-  //   } catch (err) {
-  //     console.log(err);
-  //     Alert.alert('Error updating group');
-  //   }
-  // };
   const onInputChange = (name, value) => {
     setData({...data, [name]: value});
   };
-  const [modalVisible, setModalVisible] = useState(false);
-  useEffect(() => {}, [data]);
+  const toggleSwitch = () =>
+    setData(prev => ({...prev, moderated: !data.moderated}));
+  useEffect(() => {
+    console.log(JSON.stringify(Group, null, 2));
+  }, [data]);
   return (
     <>
       <Header page="Group Message" />
@@ -149,6 +153,7 @@ function EditGroup({navigation, appState, route, setgroups}) {
               <View
                 style={{
                   width: '80%',
+                  gap: 20,
                 }}>
                 <View
                   style={{
@@ -174,45 +179,151 @@ function EditGroup({navigation, appState, route, setgroups}) {
                 </View>
 
                 <OutlinedInput
+                  style={{marginBottom: 0}}
                   data={data.name}
                   setData={value => onInputChange('name', value)}
                   placeholder="Enter new group name"
                 />
                 <OutlinedInput
+                  style={{marginBottom: 0}}
                   data={data.description}
                   setData={value => onInputChange('description', value)}
                   placeholder="Enter your description"
                 />
-                <TouchableOpacity
-                  android_ripple={{color: 'white'}}
-                  onPress={() => updateGroup()}
-                  style={[
-                    {
-                      backgroundColor: Colors.primary,
-                      height: 53,
-                      width: '100%',
-                      flexDirection: 'column',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      elevation: 2,
-                      borderRadius: 20,
-                      paddingHorizontal: 10,
-                      marginTop: 20,
-                    },
-                  ]}>
-                  <Text
-                    style={{
-                      textAlign: 'center',
-                      fontSize: 15,
-                      color: Colors.light,
-                    }}>
-                    Update Group
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}>
+                  <Text style={Style.Text}>Will this group be moderated?</Text>
+                  <Switch
+                    trackColor={{
+                      false: Colors.inactiveButton,
+                      true: Colors?.primary,
+                    }}
+                    thumbColor={data.moderated ? Colors.primary : '#f4f3f4'}
+                    ios_backgroundColor="#3e3e3e"
+                    onValueChange={toggleSwitch}
+                    value={data.moderated}
+                  />
+                </View>
+                <View style={{gap: 10}}>
+                  <Text style={Style.Text}>
+                    What type of group will this be
                   </Text>
-                </TouchableOpacity>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-around',
+                      alignItems: 'center',
+                    }}>
+                    <TouchableOpacity
+                      onPress={() =>
+                        setData(prev => ({...prev, groupstatus: 0}))
+                      }
+                      style={{
+                        padding: 20,
+                        borderRadius: 20,
+                        borderWidth: 1,
+                        height: 80,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor: data.groupstatus
+                          ? 'transparent'
+                          : Colors.primary,
+                      }}>
+                      <Text
+                        style={[
+                          Style.Text,
+                          {
+                            color: data.groupstatus
+                              ? Colors.textColor
+                              : Colors.light,
+                          },
+                        ]}>
+                        Public Group
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() =>
+                        setData(prev => ({...prev, groupstatus: 1}))
+                      }
+                      style={{
+                        padding: 20,
+                        borderRadius: 20,
+                        borderWidth: 1,
+                        height: 80,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor: data.groupstatus
+                          ? Colors.primary
+                          : 'transparent',
+                      }}>
+                      <Text
+                        style={[
+                          Style.Text,
+                          {
+                            color: data.groupstatus
+                              ? Colors.light
+                              : Colors.text,
+                          },
+                        ]}>
+                        Private Group
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                <OutlinedInput
+                  style={{marginBottom: 0}}
+                  data={data.category}
+                  setData={value => onInputChange('category', value)}
+                  placeholder="Enter group category"
+                />
+                <OutlinedInput
+                  style={{marginBottom: 0}}
+                  data={data.website}
+                  setData={value => onInputChange('website', value)}
+                  placeholder="Enter your group website"
+                />
               </View>
             </View>
           </View>
         </ScrollView>
+        <View
+          style={{
+            position: 'absolute',
+            bottom: 10,
+            width: '100%',
+            alignItems: 'center',
+          }}>
+          <TouchableOpacity
+            android_ripple={{color: 'white'}}
+            onPress={() => updateGroup()}
+            style={[
+              {
+                backgroundColor: Colors.primary,
+                height: 53,
+                width: width * 0.8,
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                elevation: 2,
+                borderRadius: 20,
+                paddingHorizontal: 10,
+                marginTop: 20,
+              },
+            ]}>
+            <Text
+              style={{
+                textAlign: 'center',
+                fontSize: 15,
+                color: Colors.light,
+              }}>
+              Update Group
+            </Text>
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
     </>
   );

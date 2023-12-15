@@ -41,7 +41,7 @@ const Colors = Color();
 function SignIn({navigation, appState, route, setgroupmessages}) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isUserMember, setIsUserMember] = useState(false);
+  const [isUserMember, setIsUserMember] = useState();
   const user = appState.User;
   const {mykey, mskl} = user;
   const group = appState.Group;
@@ -66,7 +66,7 @@ function SignIn({navigation, appState, route, setgroupmessages}) {
 
   useLayoutEffect(() => {
     getGroupInfo();
-  }, []);
+  }, [isUserMember]);
   const {groupid, groupname} = route.params;
   useEffect(() => {}, [group]);
   const STYLES = ['default', 'dark-content', 'light-content'];
@@ -144,7 +144,23 @@ function SignIn({navigation, appState, route, setgroupmessages}) {
     setIsUserMember(result.status == 1 || result.status == 0);
     getGroupPost();
   };
-  useEffect(() => {}, []);
+  useEffect(() => {
+    console.log(group.profilekey == Profile.profilekey);
+  }, []);
+  if (!isUserMember) {
+    <SafeAreaView style={styles.container}>
+      <View
+        style={{
+          flex: 1,
+          width: '100%',
+          height: '100%',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <ActivityIndicator />
+      </View>
+    </SafeAreaView>;
+  }
   if (isUserMember == false) {
     return (
       <SafeAreaView style={styles.container}>
@@ -213,7 +229,7 @@ function SignIn({navigation, appState, route, setgroupmessages}) {
           groupid={groupid}
           groupphoto={'https://www.musterus.com' + group?.groupheader}
           navigation={navigation}
-          isadmin={false}
+          isadmin={true}
         />
         <ChatHead navigation={navigation} />
 
