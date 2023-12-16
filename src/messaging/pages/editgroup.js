@@ -23,6 +23,7 @@ import {Image} from 'react-native';
 import {storage} from '../../../firebase';
 import {Style} from '../../../assets/styles';
 import {groupupdate} from '../oldapis/groups/groupupdate';
+import ImageUploadModal from '../components/ImageUploadModal';
 const {width} = Dimensions.get('window');
 const Colors = Color();
 
@@ -39,7 +40,7 @@ function EditGroup({navigation, appState, route, setgroups}) {
     groupstatus: Group?.groupstatus,
     moderated: Group?.moderated,
   });
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState(false);
 
   const {groupid} = route.params;
   const getGroups = async () => {
@@ -48,17 +49,7 @@ function EditGroup({navigation, appState, route, setgroups}) {
     setgroups(result?.groups);
   };
   const pickImage = async () => {
-    const permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (permissionResult.granted === false) {
-      Alert.alert('Permission to access camera roll is required!');
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync();
-    if (!result.cancelled) {
-      setImage(result.uri);
-    }
+    setImage(!image);
   };
 
   // Function to upload image to Firebase Storage
@@ -168,10 +159,7 @@ function EditGroup({navigation, appState, route, setgroups}) {
                     onPress={pickImage}
                     style={styles.circularButton}>
                     {image ? (
-                      <Image
-                        source={{uri: image || data.photourl}}
-                        style={styles.circularImage}
-                      />
+                      <View />
                     ) : (
                       <Text style={styles.buttonText}>Choose Photo</Text>
                     )}
@@ -325,6 +313,13 @@ function EditGroup({navigation, appState, route, setgroups}) {
           </TouchableOpacity>
         </View>
       </SafeAreaView>
+      <ImageUploadModal
+        modalVisible={image}
+        mykey={User?.mykey}
+        mskl={User?.mskl}
+        uid={Profile?.uid}
+        groupKey={Group?.groupkey}
+      />
     </>
   );
 }
