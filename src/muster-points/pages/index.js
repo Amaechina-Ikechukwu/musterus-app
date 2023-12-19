@@ -22,7 +22,7 @@ import {SearchIcon} from '../../events/components/icons';
 import {PrimaryButton} from '../../components/buttons/primary';
 import {NameDisplayCard} from '../../components/name-display-card';
 import {BottomTab} from '../../events/components/bottomTab';
-import {Header} from '../../messaging/components/header';
+import Header from '../../messaging/components/header';
 import UsersFlatlist from './UsersFlatlist';
 import {db} from '../../../firebase';
 import {collection, onSnapshot, orderBy, query} from 'firebase/firestore';

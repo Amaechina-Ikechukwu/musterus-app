@@ -1,4 +1,11 @@
-import {StyleSheet, View, Text, StatusBar} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  StatusBar,
+  Switch,
+  Dimensions,
+} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {ScrollView, TouchableOpacity} from 'react-native-gesture-handler';
@@ -14,62 +21,32 @@ import {Alert} from 'react-native';
 import {updategroup} from '../apis/updategroup';
 import {Image} from 'react-native';
 import {storage} from '../../../firebase';
-import {creategroup} from '../apis/creategroup';
-import {usefriends} from '../../muster-points/apis/UserFriends';
-
+import {Style} from '../../../assets/styles';
+import {groupupdate} from '../oldapis/groups/groupupdate';
+import ImageUploadModal from '../components/ImageUploadModal';
+import {groupcreate} from '../oldapis/groups/creategroup';
+import CategorySelector from '../components/GroupCategories';
+const {width} = Dimensions.get('window');
 const Colors = Color();
 
 function CreateGroup({navigation, appState, route, setgroups}) {
-  const [friend, setFriends] = useState();
-  const {User, Group} = appState;
+  const [select, setSelect] = useState(false);
+  const {User, Group, Profile} = appState;
   const [data, setData] = useState({
     name: '',
     description: '',
     photourl: '',
+    grouppolicy: '',
+    category: '',
+    website: '',
+    groupstatus: 0,
+    moderated: 0,
   });
-  const [image, setImage] = useState(null);
-
-  const getGroups = async () => {
-    const result = await MyGroups(User.mykey);
-    setData(result?.groups);
-    setgroups(result?.groups);
+  const [image, setImage] = useState(false);
+  const chooseCategory = cat => {
+    setData({...data, category: cat});
   };
-  const pickImage = async () => {
-    const permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (permissionResult.granted === false) {
-      Alert.alert('Permission to access camera roll is required!');
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync();
-    if (!result.cancelled) {
-      setImage(result.uri);
-    }
-  };
-
   // Function to upload image to Firebase Storage
-
-  const uploadImageToFirebase = async () => {
-    try {
-      const response = await fetch(image);
-      const blob = await response.blob();
-
-      const storageRef = ref(
-        storage,
-        `groupPhotos/${data.name}/${image.split('/').pop()}`,
-      );
-
-      // Uploading image to Firebase Storage
-      await uploadBytes(storageRef, blob); // Use uploadBytes method to upload the image blob
-
-      const downloadURL = await getDownloadURL(storageRef); // Get the download URL
-
-      setData({...data, photourl: downloadURL}); // Update group data with the downloadURL
-    } catch (error) {
-      console.error('Error uploading image: ', error);
-    }
-  };
 
   const updateGroup = async () => {
     try {
@@ -78,18 +55,34 @@ function CreateGroup({navigation, appState, route, setgroups}) {
       if (image) {
         photo = await uploadImageToFirebase();
       }
-      const {name, description, photourl} = data;
-      const token = User?.mykey;
+      const {
+        name,
+        category,
+        moderated,
+        groupstatus,
+        description,
+        grouppolicy,
+        website,
+      } = data;
+      const {mykey, mskl} = User;
       // Update group data
-      await creategroup(token, name, description, photo);
-      await getGroups();
-      Alert.alert(
-        'Your group has been created',
-        "Enter the group, click on '+' icon to add your friends",
+      const result = await groupcreate(
+        mykey,
+        mskl,
+        Profile?.uid,
+        0,
+        name,
+        category,
+        moderated,
+        groupstatus,
+        description,
+        grouppolicy,
+        website,
       );
-      navigation.goBack();
+      console.log(JSON.stringify(result, null, 2));
+      // await getGroups();
+      // navigation.goBack();
     } catch (err) {
-     
       Alert.alert('Error updating group');
     }
   };
@@ -104,12 +97,11 @@ function CreateGroup({navigation, appState, route, setgroups}) {
   const onInputChange = (name, value) => {
     setData({...data, [name]: value});
   };
-  const [modalVisible, setModalVisible] = useState(false);
+  const toggleSwitch = () =>
+    setData(prev => ({...prev, moderated: !data.moderated}));
   useEffect(() => {}, [data]);
-
   return (
     <>
-      <Header page="Group Message" />
       <SafeAreaView style={styles.container}>
         <StatusBar
           animated={true}
@@ -142,71 +134,170 @@ function CreateGroup({navigation, appState, route, setgroups}) {
               <View
                 style={{
                   width: '80%',
+                  height: '50%',
+                  gap: 20,
                 }}>
-                <View
-                  style={{
-                    width: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: 10,
-                  }}>
-                  <TouchableOpacity
-                    onPress={pickImage}
-                    style={styles.circularButton}>
-                    {image ? (
-                      <Image
-                        source={{uri: image || data.photourl}}
-                        style={styles.circularImage}
-                      />
-                    ) : (
-                      <Text style={styles.buttonText}>Choose Photo</Text>
-                    )}
-                  </TouchableOpacity>
-                </View>
-
                 <OutlinedInput
+                  style={{marginBottom: 0}}
                   data={data.name}
                   setData={value => onInputChange('name', value)}
                   placeholder="Enter new group name"
                 />
                 <OutlinedInput
+                  style={{marginBottom: 0}}
                   data={data.description}
                   setData={value => onInputChange('description', value)}
                   placeholder="Enter your description"
                 />
-
-                <TouchableOpacity
-                  android_ripple={{color: 'white'}}
-                  onPress={() => updateGroup()}
-                  style={[
-                    {
-                      backgroundColor: Colors.primary,
-                      height: 53,
-                      width: '100%',
-                      flexDirection: 'column',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      elevation: 2,
-                      borderRadius: 20,
-                      paddingHorizontal: 10,
-                      marginTop: 20,
-                    },
-                  ]}>
-                  <Text
-                    style={{
-                      textAlign: 'center',
-                      fontSize: 15,
-                      color: Colors.light,
-                    }}>
-                    Create Group
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}>
+                  <Text style={Style.Text}>Will this group be moderated?</Text>
+                  <Switch
+                    trackColor={{
+                      false: Colors.inactiveButton,
+                      true: Colors?.primary,
+                    }}
+                    thumbColor={data.moderated ? Colors.primary : '#f4f3f4'}
+                    ios_backgroundColor="#3e3e3e"
+                    onValueChange={toggleSwitch}
+                    value={data.moderated}
+                  />
+                </View>
+                <View style={{gap: 10}}>
+                  <Text style={Style.Text}>
+                    What type of group will this be
                   </Text>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-around',
+                      alignItems: 'center',
+                    }}>
+                    <TouchableOpacity
+                      onPress={() =>
+                        setData(prev => ({...prev, groupstatus: 0}))
+                      }
+                      style={{
+                        padding: 20,
+                        borderRadius: 20,
+                        borderWidth: 1,
+                        height: 80,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor: data.groupstatus
+                          ? 'transparent'
+                          : Colors.primary,
+                      }}>
+                      <Text
+                        style={[
+                          Style.Text,
+                          {
+                            color: data.groupstatus
+                              ? Colors.textColor
+                              : Colors.light,
+                          },
+                        ]}>
+                        Public Group
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() =>
+                        setData(prev => ({...prev, groupstatus: 1}))
+                      }
+                      style={{
+                        padding: 20,
+                        borderRadius: 20,
+                        borderWidth: 1,
+                        height: 80,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor: data.groupstatus
+                          ? Colors.primary
+                          : 'transparent',
+                      }}>
+                      <Text
+                        style={[
+                          Style.Text,
+                          {
+                            color: data.groupstatus
+                              ? Colors.light
+                              : Colors.text,
+                          },
+                        ]}>
+                        Private Group
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                <TouchableOpacity
+                  onPress={() => setSelect(!select)}
+                  style={{
+                    width: '100%',
+                    borderWidth: 1,
+                    borderRadius: 10,
+                    height: 50,
+                    padding: 10,
+                    justifyContent: 'center',
+                    borderColor: 'gray',
+                  }}>
+                  <Text>{data.category || 'Select a category'}</Text>
                 </TouchableOpacity>
+                {select && (
+                  <View style={{position: 'absolute', zIndex: 2}}>
+                    <CategorySelector
+                      onSelect={chooseCategory}
+                      onClose={() => setSelect(!select)}
+                    />
+                  </View>
+                )}
+                <OutlinedInput
+                  style={{marginBottom: 0}}
+                  data={data.website}
+                  setData={value => onInputChange('website', value)}
+                  placeholder="Enter your group website"
+                />
               </View>
             </View>
           </View>
         </ScrollView>
+        <View
+          style={{
+            position: 'absolute',
+            bottom: 10,
+            width: '100%',
+            alignItems: 'center',
+          }}>
+          <TouchableOpacity
+            android_ripple={{color: 'white'}}
+            onPress={() => updateGroup()}
+            style={[
+              {
+                backgroundColor: Colors.primary,
+                height: 53,
+                width: width * 0.8,
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                elevation: 2,
+                borderRadius: 20,
+                paddingHorizontal: 10,
+                marginTop: 20,
+              },
+            ]}>
+            <Text
+              style={{
+                textAlign: 'center',
+                fontSize: 15,
+                color: Colors.light,
+              }}>
+              Create Group
+            </Text>
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
     </>
   );

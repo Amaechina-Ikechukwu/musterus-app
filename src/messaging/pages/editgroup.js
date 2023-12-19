@@ -24,11 +24,13 @@ import {storage} from '../../../firebase';
 import {Style} from '../../../assets/styles';
 import {groupupdate} from '../oldapis/groups/groupupdate';
 import ImageUploadModal from '../components/ImageUploadModal';
+import {groupcreate} from '../oldapis/groups/creategroup';
+import CategorySelector from '../components/GroupCategories';
 const {width} = Dimensions.get('window');
 const Colors = Color();
 
 function EditGroup({navigation, appState, route, setgroups}) {
-  const [loading, setLoading] = useState(false);
+  const [select, setSelect] = useState(false);
   const {User, Group, Profile} = appState;
   const [data, setData] = useState({
     name: Group?.groupname,
@@ -72,17 +74,16 @@ function EditGroup({navigation, appState, route, setgroups}) {
       } = data;
       const {mykey, mskl} = User;
       // Update group data
-      const result = await groupupdate(
+      const result = await groupcreate(
         mykey,
         mskl,
         Profile?.uid,
-        Group?.groupkey,
+        groupid,
         name,
         category,
         moderated,
         groupstatus,
         description,
-
         grouppolicy,
         website,
       );
@@ -106,12 +107,12 @@ function EditGroup({navigation, appState, route, setgroups}) {
   };
   const toggleSwitch = () =>
     setData(prev => ({...prev, moderated: !data.moderated}));
-  useEffect(() => {
-    console.log(JSON.stringify(Group, null, 2));
-  }, [data]);
+  const chooseCategory = cat => {
+    setData({...data, category: cat});
+  };
+  useEffect(() => {}, [data]);
   return (
     <>
-      <Header page="Group Message" />
       <SafeAreaView style={styles.container}>
         <StatusBar
           animated={true}
@@ -262,12 +263,28 @@ function EditGroup({navigation, appState, route, setgroups}) {
                     </TouchableOpacity>
                   </View>
                 </View>
-                <OutlinedInput
-                  style={{marginBottom: 0}}
-                  data={data.category}
-                  setData={value => onInputChange('category', value)}
-                  placeholder="Enter group category"
-                />
+                <TouchableOpacity
+                  onPress={() => setSelect(!select)}
+                  style={{
+                    width: '100%',
+                    borderWidth: 1,
+                    borderRadius: 10,
+                    height: 50,
+                    padding: 10,
+                    justifyContent: 'center',
+                    borderColor: 'gray',
+                  }}>
+                  <Text>{data.category}</Text>
+                </TouchableOpacity>
+                {select && (
+                  <View style={{position: 'absolute'}}>
+                    <CategorySelector
+                      onSelect={chooseCategory}
+                      onClose={() => setSelect(!select)}
+                    />
+                  </View>
+                )}
+
                 <OutlinedInput
                   style={{marginBottom: 0}}
                   data={data.website}
@@ -319,6 +336,7 @@ function EditGroup({navigation, appState, route, setgroups}) {
         mskl={User?.mskl}
         uid={Profile?.uid}
         groupKey={Group?.groupkey}
+        onClose={() => setImage(false)}
       />
     </>
   );

@@ -23,7 +23,7 @@ import {OutlinedInput} from '../../components/inputs';
 import {FeedHeader} from '../components/feed-header';
 import {Style} from '../../../assets/styles';
 import {NameDisplayCard} from '../../components/name-display-card';
-import {Header} from '../../messaging/components/header';
+import Header from '../../messaging/components/header';
 import {CommentsComponent} from '../components/comments';
 import {CommentInput} from '../components/commentInput';
 import {ChatInput} from '../../messaging/components/chatInput';

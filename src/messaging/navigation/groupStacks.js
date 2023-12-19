@@ -17,6 +17,7 @@ import SingleGroupInfo from '../pages/SingleGroupInfo';
 import AddUserToGroup from '../components/AddUserToGroup';
 import {getgroups} from '../oldapis/groups/groups';
 import GroupPostViewFlatlist from '../components/GroupPostViewFlatlist';
+import CreateGroupPost from '../components/CreateGroupPost';
 
 const headerColor = '#fffdfb';
 const navTheme = DefaultTheme;
@@ -114,6 +115,13 @@ function HomeStack({appState, setgroups}) {
       <Stack.Screen
         name="create group"
         component={creategroup}
+        options={{
+          header: () => null,
+        }}
+      />
+      <Stack.Screen
+        name="create group post"
+        component={CreateGroupPost}
         options={{
           header: () => null,
         }}

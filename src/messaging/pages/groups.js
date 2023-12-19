@@ -5,7 +5,7 @@ import {ScrollView, TouchableOpacity} from 'react-native-gesture-handler';
 import {connect} from 'react-redux';
 import {setGroup, surprise_state, user_state} from '../../redux';
 import {Color} from '../../components/theme';
-import {Header, MessagingHeader} from '../components/header';
+import Header, {MessagingHeader} from '../components/header';
 import {DividerIcon, PlusIcon} from '../../events/components/icons';
 import {Divider, Avatar} from 'react-native-paper';
 import {BottomTab} from '../../events/components/bottomTab';

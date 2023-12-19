@@ -8,8 +8,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  SafeAreaView,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import {Color} from '../../components/theme';
 import {Style} from '../../../assets/styles';
@@ -17,56 +18,46 @@ import {OutlinedInput} from '../../components/inputs';
 import {FontAwesome} from '@expo/vector-icons';
 import axios from 'axios';
 import {imageupload} from '../oldapis/groups/imageupload';
+import {connect} from 'react-redux';
+import emptyimage from '../../../emptyimage';
+import {creategrouppost} from '../oldapis/groups/creategrouppost';
 const {width, height} = Dimensions.get('window');
 const Colors = Color();
-export default function ImageUploadModal({
-  modalVisible,
-  mykey,
-  mskl,
-  uid,
-  groupKey,
-  onClose,
-}) {
+function CreateGroupPost({appState, navigation}) {
   const [image, setImage] = useState(null);
   const [data, setData] = useState({
-    caption: '',
-    upsection: 'TYPE_GROUP_LOGO',
+    title: '',
+    status: 'Save as draft',
+    body: '',
   });
-  const pickImage = async () => {
-    const permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (permissionResult.granted === false) {
-      Alert.alert('Permission to access camera roll is required!');
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync();
-    if (!result.canceled) {
-      console.log(result.assets[0].uri);
-      setImage(result.assets[0].uri);
-    }
-  };
-  const uploadImage = async () => {
-    if (!image || !data.caption) {
+  const {User, Profile, Group} = appState;
+  const uploadPost = async () => {
+    if (data.body.length == 0 || data.title.length == 0) {
       Alert.alert(
-        'Error Uploading Group Image',
+        'Error Publishing Post',
         "Please ensure you've added necessary fields",
       );
     } else {
       try {
-        const response = await imageupload(
-          mykey,
-          mskl,
-          uid,
-          groupKey,
+        const response = await creategrouppost(
+          User?.mykey,
+          User?.mskl,
+          Profile?.uid,
+          Group?.groupkey,
           data,
           image,
         );
 
-        console.log(JSON.stringify(response.Group, null, 2));
+        console.log(
+          'Upload Response:',
+          JSON.stringify(response.Group, null, 2),
+        );
         // Handle the response accordingly
       } catch (error) {
-        Alert.alert('Error Uploading Group image', 'There seems to be an');
+        Alert.alert(
+          'Error Uploading Group Post',
+          'There seems to be an error publishing your post',
+        );
       }
     }
   };
@@ -76,91 +67,94 @@ export default function ImageUploadModal({
   };
 
   return (
-    <Modal
-      onRequestClose={onClose}
-      animationType="slide"
-      style={{
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-      transparent={true}
-      visible={modalVisible}>
+    <SafeAreaView>
       <View
-        onPress={onClose}
         style={{
-          flex: 1,
           alignItems: 'center',
           justifyContent: 'center',
           padding: 20,
           backgroundColor: 'rgba(0,0,0,0.5)',
           width: width,
+          height: height,
         }}>
-        <TouchableOpacity
-          onPress={onClose}
-          style={[
-            {
-              backgroundColor: Colors.lightgrey,
-
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              elevation: 2,
-              borderRadius: 20,
-              padding: 20,
-              marginBottom: 20,
-            },
-          ]}>
-          <FontAwesome name="close" />
-        </TouchableOpacity>
         <View
           style={{
             width: '100%',
             backgroundColor: Colors.light,
-            height: height * 0.8,
+            height: '100%',
             alignItems: 'center',
             justifyContent: 'center',
             padding: 20,
             borderRadius: 20,
           }}>
           <View
-            style={{gap: 20, alignItems: 'center', justifyContent: 'center'}}>
+            style={{
+              gap: 20,
+              alignItems: 'flex-start',
+              justifyContent: 'center',
+              height: '100%',
+            }}>
+            <View
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 3,
+              }}>
+              <Image
+                source={{
+                  uri:
+                    'https://www.musterus.com' + Profile.avatar || emptyimage,
+                }}
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 100,
+                  backgroundColor: Colors.lightgrey,
+                }}
+              />
+              <Text style={[styles.author, Style.boldText]}>
+                {Profile.firstname + ' ' + Profile.lastname}
+              </Text>
+            </View>
             <View
               style={{
                 width: '100%',
-                display: 'flex',
-                flexDirection: 'column',
+                height: '50%',
+                gap: 20,
                 alignItems: 'center',
                 justifyContent: 'center',
-                marginBottom: 10,
               }}>
-              <TouchableOpacity
-                onPress={pickImage}
-                style={styles.circularButton}>
-                {image ? (
-                  <Image
-                    source={{uri: image || data.photourl}}
-                    style={{width: '100%', height: 60}}
-                  />
-                ) : (
-                  <Text style={styles.buttonText}>Choose Photo</Text>
-                )}
-              </TouchableOpacity>
-            </View>
-            <View style={{gap: 10}}>
-              <Text style={Style.Text}>Use the Image as</Text>
+              <OutlinedInput
+                style={{marginBottom: 0, width: width * 0.8}}
+                data={data.title}
+                setData={value => onInputChange('title', value)}
+                placeholder="Post Title"
+              />
+
+              <OutlinedInput
+                style={{
+                  marginBottom: 0,
+                  width: width * 0.8,
+                  height: height * 0.2,
+                }}
+                data={data.body}
+                setData={value => onInputChange('body', value)}
+                placeholder="Enter post message"
+              />
               <View
                 style={{
-                  flexDirection: 'column',
+                  flexDirection: 'row',
                   justifyContent: 'space-around',
                   gap: 20,
                   alignItems: 'center',
                 }}>
                 <TouchableOpacity
                   onPress={() =>
-                    setData(prev => ({...prev, upsection: 'TYPE_GROUP_LOGO'}))
+                    setData(prev => ({...prev, status: 'Save as draft'}))
                   }
                   style={{
-                    width: width * 0.8,
+                    minWidth: 150,
                     padding: 20,
                     borderRadius: 20,
                     borderWidth: 1,
@@ -168,7 +162,7 @@ export default function ImageUploadModal({
                     justifyContent: 'center',
                     alignItems: 'center',
                     backgroundColor:
-                      data.upsection == 'TYPE_GROUP_LOGO'
+                      data.status == 'Save as draft'
                         ? Colors.primary
                         : 'transparent',
                   }}>
@@ -177,20 +171,20 @@ export default function ImageUploadModal({
                       Style.Text,
                       {
                         color:
-                          data.upsection == 'TYPE_GROUP_LOGO'
+                          data.status == 'Save as draft'
                             ? Colors.light
                             : Colors.textColor,
                       },
                     ]}>
-                    Group Logo
+                    Save As Draft
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() =>
-                    setData(prev => ({...prev, upsection: 'TYPE_GROUP_BG'}))
+                    setData(prev => ({...prev, status: 'Publish'}))
                   }
                   style={{
-                    width: width * 0.8,
+                    minWidth: 150,
                     padding: 20,
                     borderRadius: 20,
                     borderWidth: 1,
@@ -198,62 +192,20 @@ export default function ImageUploadModal({
                     justifyContent: 'center',
                     alignItems: 'center',
                     backgroundColor:
-                      data.upsection == 'TYPE_GROUP_BG'
-                        ? Colors.primary
-                        : 'transparent',
+                      data.status == 'Publish' ? Colors.primary : 'transparent',
                   }}>
                   <Text
                     style={[
                       Style.Text,
                       {
                         color:
-                          data.upsection == 'TYPE_GROUP_BG'
-                            ? Colors.light
-                            : Colors.text,
+                          data.status == 'Publish' ? Colors.light : Colors.text,
                       },
                     ]}>
-                    Group Background
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() =>
-                    setData(prev => ({...prev, upsection: 'TYPE_GROUP_HEADER'}))
-                  }
-                  style={{
-                    width: width * 0.8,
-                    padding: 20,
-                    borderRadius: 20,
-                    borderWidth: 1,
-                    height: 80,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    backgroundColor:
-                      data.upsection == 'TYPE_GROUP_HEADER'
-                        ? Colors.primary
-                        : 'transparent',
-                  }}>
-                  <Text
-                    style={[
-                      Style.Text,
-                      {
-                        color:
-                          data.upsection == 'TYPE_GROUP_HEADER'
-                            ? Colors.light
-                            : Colors.text,
-                      },
-                    ]}>
-                    Group Header
+                    Publish
                   </Text>
                 </TouchableOpacity>
               </View>
-            </View>
-            <View style={{width: '100%'}}>
-              <OutlinedInput
-                style={{marginBottom: 0, width: width * 0.8}}
-                data={data.caption}
-                setData={value => onInputChange('caption', value)}
-                placeholder="Enter image caption"
-              />
             </View>
           </View>
           <View
@@ -265,7 +217,7 @@ export default function ImageUploadModal({
             }}>
             <TouchableOpacity
               android_ripple={{color: 'white'}}
-              onPress={() => uploadImage()}
+              onPress={() => uploadPost()}
               style={[
                 {
                   backgroundColor: Colors.primary,
@@ -286,13 +238,13 @@ export default function ImageUploadModal({
                   fontSize: 15,
                   color: Colors.light,
                 }}>
-                Upload Image
+                Push Post To Group
               </Text>
             </TouchableOpacity>
           </View>
         </View>
       </View>
-    </Modal>
+    </SafeAreaView>
   );
 }
 
@@ -321,4 +273,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'black',
   },
+  author: {
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
 });
+const mapStateToProps = state => {
+  return {
+    appState: state.user,
+  };
+};
+const mapDispatchToProps = (dispatch, encoded) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(CreateGroupPost);

@@ -8,11 +8,11 @@ import {Color} from '../../components/theme';
 import {DividerIcon} from '../../events/components/icons';
 import {Divider, Avatar} from 'react-native-paper';
 import {BottomTab} from '../../events/components/bottomTab';
-import {Header} from '../components/header';
 import {MessagingHeads} from '../components/messageHeads';
 import {chatlist} from '../apis/chatlist';
 import {ChatMessagingHeads} from '../components/ChatMessageHead';
 import ChatFlatlist from '../components/ChatFlatlist';
+import Header from '../components/header';
 
 const Colors = Color();
 

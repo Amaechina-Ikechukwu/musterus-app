@@ -24,7 +24,7 @@ import {OutlinedInput} from '../../components/inputs';
 import {FeedHeader} from '../components/feed-header';
 import {Style} from '../../../assets/styles';
 import {NameDisplayCard} from '../../components/name-display-card';
-import {Header} from '../../messaging/components/header';
+import Header from '../../messaging/components/header';
 import {MusterCards, MusterCards2} from '../components/ustercards';
 import {amifollwoing} from '../../muster-points/apis/amifollowing';
 import UsersFlatlist from '../../muster-points/pages/UsersFlatlist';

@@ -7,7 +7,7 @@ import {surprise_state, user_state} from '../../redux';
 import {Divider, Avatar} from 'react-native-paper';
 import {BottomTab} from '../../events/components/bottomTab';
 import {Color} from '../../components/theme';
-import {Header} from '../../messaging/components/header';
+import Header from '../../messaging/components/header';
 import {NameDisplayCard} from '../../components/name-display-card';
 import {PeopleIcon} from '../../events/components/icons';
 import {Style} from '../../../assets/styles';
@@ -42,15 +42,6 @@ function SignIn({navigation, appState}) {
           showHideTransition={statusBarTransition}
           hidden={hidden}
         />
-
-        {/* <View style={{
-                    justifyContent: "center",
-                    alignItems:"center",
-                    flex:1
-                }} >
-                    <Nodata />
-                    <LabelTexts style={{marginTop:10}} text="There’s no notification, come back later" />
-                </View> */}
 
         <Header page="Notification" navigation={navigation} />
         <ScrollView></ScrollView>

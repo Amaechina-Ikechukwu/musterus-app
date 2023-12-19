@@ -1,4 +1,4 @@
-import {Text, View, ImageBackground, Image} from 'react-native';
+import {Text, View, ImageBackground, Image, StyleSheet} from 'react-native';
 import {ScrollView, TouchableOpacity} from 'react-native-gesture-handler';
 import {Logo} from '../../events/components/icons';
 import {Color} from '../../components/theme';
@@ -7,9 +7,10 @@ import {StaticImage} from '../../utilities';
 import {MaterialCommunityIcons} from '@expo/vector-icons';
 import {useEffect} from 'react';
 import {PlusIcon} from '../../feeds/components/icons';
+import {connect} from 'react-redux';
 
 let Colors = Color();
-export function Header({
+function Header({
   page,
   navigation,
   groupname,
@@ -17,10 +18,12 @@ export function Header({
   profile,
   groupphoto,
   isadmin,
+  appState,
 }) {
   const emptyimage =
     'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
   const group = {groupid, groupname, groupphoto};
+  const {Profile} = appState;
   return (
     <>
       <View
@@ -68,7 +71,7 @@ export function Header({
             }}>
             <TouchableOpacity
               onPress={() => {
-                navigation.navigate('update group', {
+                navigation.navigate('create group post', {
                   groupid: groupid,
                 });
               }}>
@@ -107,7 +110,9 @@ export function Header({
                 borderRadius: 30,
               }}
               source={{
-                uri: profile?.user?.photourl || groupphoto || emptyimage,
+                uri: Profile?.avatar
+                  ? `https://www.musterus.com${Profile?.avatar}`
+                  : groupphoto || emptyimage,
               }}
               resizeMode={'cover'}
             />
@@ -117,12 +122,19 @@ export function Header({
               color: Colors.light,
               fontSize: 11,
             }}>
-            {profile?.user?.username
-              ? '@' + profile?.user?.username
-              : profile?.user?.firstname || groupname}
+            {Profile?.username
+              ? '@' + Profile?.username
+              : Profile?.firstname || groupname}
           </Text>
         </View>
       </View>
     </>
   );
 }
+const mapStateToProps = state => {
+  return {
+    appState: state.user,
+  };
+};
+
+export default connect(mapStateToProps)(Header);
