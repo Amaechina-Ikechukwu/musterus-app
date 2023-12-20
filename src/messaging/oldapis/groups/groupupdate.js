@@ -18,11 +18,23 @@ export const groupupdate = async (
   grouppolicy,
   website,
 ) => {
+  console.log({
+    mykey,
+    mskl,
+    uid,
+    group,
+    groupname,
+    groupcategory,
+    moderated,
+    publicgroup,
+    groupintro,
+    grouppolicy,
+    website,
+  });
   try {
-    const url = `/ws/groups/update?mykey=${mykey}&mskl=${mskl}&uid=${uid}&group=${group}&groupname=${groupname}&groupcategory=${groupcategory}&moderated=${moderated}&publicgroup=${publicgroup}&groupintro=${groupintro}&grouppolicy=${grouppolicy}&website=${website}&sj=edit`;
+    const url = `/ws/groups/update?mykey=${mykey}&mskl=${mskl}&uid=${uid}&grid=${group}&groupname=${groupname}&groupcategory=${groupcategory}&moderated=${moderated}&publicgroup=${publicgroup}&groupintro=${groupintro}&grouppolicy=${grouppolicy}&website=${website}`;
 
     const response = await api.post(url);
-    console.log(JSON.stringify(response.data, null, 2));
     return response.data;
   } catch (error) {
     throw error;

@@ -20,6 +20,7 @@ import {PrimaryButton} from '../../components/buttons/primary';
 import {setMyProfile} from '../../redux';
 import {fullgroupinfo} from '../apis/groupinfo';
 import UsersFlatlist from '../../muster-points/pages/UsersFlatlist';
+import {getgroupsview} from '../oldapis/groups/groupsview';
 const ProfileHeader = ({groupinfo, user, mykey, postlength}) => {
   const emptyimage =
     'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
@@ -31,6 +32,7 @@ const ProfileHeader = ({groupinfo, user, mykey, postlength}) => {
           marginTop: 10,
           alignItems: 'center',
           padding: 10,
+          gap: 10,
         }}>
         <TouchableOpacity
           onPress={() => {
@@ -42,7 +44,9 @@ const ProfileHeader = ({groupinfo, user, mykey, postlength}) => {
               height: 100,
               borderRadius: 65,
             }}
-            src={groupinfo?.group.photourl || emptyimage}
+            src={
+              `https://www.musterus.com${groupinfo?.groupheader}` || emptyimage
+            }
             resizeMode={'cover'}
           />
         </TouchableOpacity>
@@ -55,30 +59,72 @@ const ProfileHeader = ({groupinfo, user, mykey, postlength}) => {
               marginBottom: 10,
             },
           ]}>
-          {groupinfo?.group.name}
+          {groupinfo?.groupname}
         </Text>
 
-        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+        <View
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 3,
+          }}>
+          <Image
+            source={{uri: 'https://www.musterus.com' + groupinfo?.avatar}}
+            style={{width: 40, height: 40, borderRadius: 100}}
+          />
+          <Text style={styles.author}>
+            {groupinfo?.firstname + ' ' + groupinfo?.lastname}
+          </Text>
+        </View>
+        <View
+          style={{
+            width: '100%',
+            backgroundColor: 'white',
+            borderRadius: 10,
+            padding: 10,
+          }}>
+          <Text
+            style={[
+              Style.boldText2,
+              {
+                margin: 5,
+                textAlign: 'center',
+              },
+            ]}>
+            {groupinfo?.groupintro}
+          </Text>
           <Text
             style={[
               Style.TinyText,
               {
-                margin: 10,
+                margin: 5,
+                textAlign: 'left',
               },
             ]}>
-            {groupinfo?.members?.length} Members
+            {'Category: ' + groupinfo?.catname}
+          </Text>
+          <Text
+            style={[
+              Style.TinyText,
+              {
+                margin: 5,
+                textAlign: 'left',
+              },
+            ]}>
+            {groupinfo?.publicgroup ? 'Private Group' : 'Public Group'}
+          </Text>
+          <Text
+            style={[
+              Style.TinyText,
+              {
+                margin: 5,
+                textAlign: 'left',
+              },
+            ]}>
+            {'Group Policy: ' + groupinfo?.grouppolicy}
           </Text>
         </View>
-        <Text
-          style={[
-            Style.TinyText,
-            {
-              margin: 10,
-              textAlign: 'center',
-            },
-          ]}>
-          {groupinfo?.group.description}
-        </Text>
       </View>
     </View>
   );
@@ -87,17 +133,20 @@ const ProfileHeader = ({groupinfo, user, mykey, postlength}) => {
 const Colors = Color();
 
 const GroupInfo = ({route, appState, setmyprofile}) => {
-  const {User, Profile} = appState;
+  const {User, Group} = appState;
   const [groupData, setGroupData] = useState();
   const navigation = useNavigation();
   const {group} = route?.params;
 
   const getGroupInfo = async () => {
-    const result = await fullgroupinfo(User?.mykey, group?.groupid);
-
-    setGroupData(result.data);
+    const result = await getgroupsview(
+      User?.mykey,
+      User?.mskl,
+      Group?.groupkey,
+    );
+    console.log(JSON.stringify(result, null, 2));
+    setGroupData(result.Members);
   };
-
   useEffect(() => {
     getGroupInfo();
   }, []);
@@ -127,13 +176,13 @@ const GroupInfo = ({route, appState, setmyprofile}) => {
               navigation={navigation}
               Header={
                 <ProfileHeader
-                  groupinfo={groupData}
+                  groupinfo={Group}
                   mykey={User?.mykey}
                   navigation={navigation}
                 />
               }
               // userData={Profile?.user}
-              data={groupData?.members}
+              data={groupData}
             />
           </View>
         </View>

@@ -30,7 +30,7 @@ export default function ImageUploadModal({
   const [image, setImage] = useState(null);
   const [data, setData] = useState({
     caption: '',
-    upsection: 'TYPE_GROUP_LOGO',
+    upsection: '50',
   });
   const pickImage = async () => {
     const permissionResult =
@@ -42,7 +42,6 @@ export default function ImageUploadModal({
 
     const result = await ImagePicker.launchImageLibraryAsync();
     if (!result.canceled) {
-      console.log(result.assets[0].uri);
       setImage(result.assets[0].uri);
     }
   };
@@ -66,7 +65,11 @@ export default function ImageUploadModal({
         console.log(JSON.stringify(response.Group, null, 2));
         // Handle the response accordingly
       } catch (error) {
-        Alert.alert('Error Uploading Group image', 'There seems to be an');
+        console.log(error);
+        Alert.alert(
+          'Error Uploading Group image',
+          'There seems to be an error uploading group image',
+        );
       }
     }
   };
@@ -156,9 +159,7 @@ export default function ImageUploadModal({
                   alignItems: 'center',
                 }}>
                 <TouchableOpacity
-                  onPress={() =>
-                    setData(prev => ({...prev, upsection: 'TYPE_GROUP_LOGO'}))
-                  }
+                  onPress={() => setData(prev => ({...prev, upsection: '50'}))}
                   style={{
                     width: width * 0.8,
                     padding: 20,
@@ -168,16 +169,14 @@ export default function ImageUploadModal({
                     justifyContent: 'center',
                     alignItems: 'center',
                     backgroundColor:
-                      data.upsection == 'TYPE_GROUP_LOGO'
-                        ? Colors.primary
-                        : 'transparent',
+                      data.upsection == '50' ? Colors.primary : 'transparent',
                   }}>
                   <Text
                     style={[
                       Style.Text,
                       {
                         color:
-                          data.upsection == 'TYPE_GROUP_LOGO'
+                          data.upsection == '50'
                             ? Colors.light
                             : Colors.textColor,
                       },
@@ -186,9 +185,7 @@ export default function ImageUploadModal({
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() =>
-                    setData(prev => ({...prev, upsection: 'TYPE_GROUP_BG'}))
-                  }
+                  onPress={() => setData(prev => ({...prev, upsection: '51'}))}
                   style={{
                     width: width * 0.8,
                     padding: 20,
@@ -198,27 +195,21 @@ export default function ImageUploadModal({
                     justifyContent: 'center',
                     alignItems: 'center',
                     backgroundColor:
-                      data.upsection == 'TYPE_GROUP_BG'
-                        ? Colors.primary
-                        : 'transparent',
+                      data.upsection == '51' ? Colors.primary : 'transparent',
                   }}>
                   <Text
                     style={[
                       Style.Text,
                       {
                         color:
-                          data.upsection == 'TYPE_GROUP_BG'
-                            ? Colors.light
-                            : Colors.text,
+                          data.upsection == '51' ? Colors.light : Colors.text,
                       },
                     ]}>
                     Group Background
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() =>
-                    setData(prev => ({...prev, upsection: 'TYPE_GROUP_HEADER'}))
-                  }
+                  onPress={() => setData(prev => ({...prev, upsection: '52'}))}
                   style={{
                     width: width * 0.8,
                     padding: 20,
@@ -228,18 +219,14 @@ export default function ImageUploadModal({
                     justifyContent: 'center',
                     alignItems: 'center',
                     backgroundColor:
-                      data.upsection == 'TYPE_GROUP_HEADER'
-                        ? Colors.primary
-                        : 'transparent',
+                      data.upsection == '52' ? Colors.primary : 'transparent',
                   }}>
                   <Text
                     style={[
                       Style.Text,
                       {
                         color:
-                          data.upsection == 'TYPE_GROUP_HEADER'
-                            ? Colors.light
-                            : Colors.text,
+                          data.upsection == '52' ? Colors.light : Colors.text,
                       },
                     ]}>
                     Group Header

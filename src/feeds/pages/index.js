@@ -75,7 +75,6 @@ function SignIn({navigation, appState, setposts, setmyprofile}) {
   const getHomeFeed = async () => {
     const result = await homepage(mykey, mskl);
     setmyprofile(result?.MyProfile);
-    console.log(JSON.stringify(result, null, 2));
     // setposts(result.data);
   };
   const getProfile = async () => {

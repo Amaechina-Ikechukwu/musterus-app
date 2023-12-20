@@ -95,7 +95,7 @@ const CategorySelector = ({onSelect, onClose}) => {
     setSelectedCategory(category);
     // Perform actions or state updates based on the selected category
     console.log('Selected category:', category);
-    onSelect(category.catname);
+    onSelect(category);
     onClose();
   };
 

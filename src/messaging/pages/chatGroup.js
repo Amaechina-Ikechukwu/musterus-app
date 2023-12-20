@@ -21,7 +21,7 @@ import {
   limit,
 } from 'firebase/firestore';
 import {db, storage} from '../../../firebase';
-import {Header} from '../components/header';
+import Header from '../components/header';
 import {MessagingHeads} from '../components/messageHeads';
 import {ChatHead} from '../components/chatHeads';
 import {ChatScreen, SentMessage} from '../components/mesages';
@@ -144,9 +144,7 @@ function SignIn({navigation, appState, route, setgroupmessages}) {
     setIsUserMember(result.status == 1 || result.status == 0);
     getGroupPost();
   };
-  useEffect(() => {
-    console.log(group.profilekey == Profile.profilekey);
-  }, []);
+  useEffect(() => {}, [group]);
   if (!isUserMember) {
     <SafeAreaView style={styles.container}>
       <View

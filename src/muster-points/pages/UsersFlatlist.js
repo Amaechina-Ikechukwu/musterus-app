@@ -47,7 +47,7 @@ const UsersFlatlist = ({
           item={item}
           conversationId={conversationId}
           sendACard={sendACard}
-          goto={() => go(item?.id)}
+          goto={() => go(item?.uid)}
           count={count && count}
         />
       </View>
@@ -58,7 +58,7 @@ const UsersFlatlist = ({
     <FlashList
       data={data}
       renderItem={renderItem}
-      keyExtractor={item => item.id}
+      keyExtractor={item => item.uid}
       ListHeaderComponent={Header && Header}
       disableAutoLayout
       estimatedItemSize={200}

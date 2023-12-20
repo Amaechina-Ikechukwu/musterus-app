@@ -23,6 +23,7 @@ import {PrimaryButton} from '../../components/buttons/primary';
 import {setMyProfile} from '../../redux';
 import {amifollwoing} from '../../muster-points/apis/amifollowing';
 import {followuser} from '../../muster-points/apis/followuser';
+import ProfileInformation from './ProfileInformaton';
 const emptyimage =
   'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
 const ProfileHeader = ({Profile, user, mykey, postlength, navigation}) => {
@@ -50,9 +51,7 @@ const ProfileHeader = ({Profile, user, mykey, postlength, navigation}) => {
 
     setFollowing(result?.message == 'added');
   };
-  useEffect(() => {
-    isUserFollowing();
-  }, []);
+  useEffect(() => {}, []);
 
   return (
     <View>
@@ -73,7 +72,7 @@ const ProfileHeader = ({Profile, user, mykey, postlength, navigation}) => {
               height: 100,
               borderRadius: 65,
             }}
-            src={Profile?.user?.photourl || emptyimage}
+            src={Profile?.avatar || emptyimage}
             resizeMode={'cover'}
           />
         </TouchableOpacity>
@@ -86,10 +85,10 @@ const ProfileHeader = ({Profile, user, mykey, postlength, navigation}) => {
               marginBottom: 10,
             },
           ]}>
-          {Profile?.user?.firstname + ' ' + Profile?.user?.lastname}
+          {Profile?.firstname + ' ' + Profile?.lastname}
         </Text>
 
-        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+        {/* <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
           <Text
             style={[
               Style.TinyText,
@@ -119,7 +118,7 @@ const ProfileHeader = ({Profile, user, mykey, postlength, navigation}) => {
             ]}>
             {Profile?.followersCount} followers
           </Text>
-        </View>
+        </View> */}
         <Text
           style={[
             Style.TinyText,
@@ -128,7 +127,7 @@ const ProfileHeader = ({Profile, user, mykey, postlength, navigation}) => {
               textAlign: 'center',
             },
           ]}>
-          {Profile?.user?.bio}
+          {Profile?.profileintro}
         </Text>
         {user && user !== mykey && (
           <View
@@ -174,24 +173,12 @@ const Profile = ({route, appState, setmyprofile}) => {
   const [profileData, setProfileData] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
 
-  const getProfile = async () => {
-    const result = await usersfullprofile(user);
-    setProfileData(result);
-    setmyprofile(result);
-  };
-
-  const getUserPosts = async () => {
-    const result = await myposts(user);
-    setUserPosts(result);
-  };
-
   useEffect(() => {
-    getProfile();
-    getUserPosts();
+    console.log(JSON.stringify(user, null, 2));
   }, [user]);
   useEffect(() => {}, [Profile]);
 
-  if (profileData === null) {
+  if (Profile === null) {
     return <ActivityIndicator />;
   }
 
@@ -220,20 +207,14 @@ const Profile = ({route, appState, setmyprofile}) => {
             <Text style={styles.headerText}>{pageTitle}</Text>
           </View>
           <View style={styles.profileContainer}>
-            <UserPostFlatlist
+            <ProfileHeader
+              Profile={Profile}
+              user={user}
+              mykey={User?.mykey}
+              postlength={userPosts.length}
               navigation={navigation}
-              Header={
-                <ProfileHeader
-                  Profile={isCurrentUser ? Profile : profileData}
-                  user={user}
-                  mykey={User?.mykey}
-                  postlength={userPosts.length}
-                  navigation={navigation}
-                />
-              }
-              userData={Profile?.user}
-              data={userPosts}
             />
+            <ProfileInformation profileData={Profile} />
           </View>
         </View>
       </SafeAreaView>

@@ -44,7 +44,10 @@ export function NameDisplayCard({
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Image style={styles.avatar} src={item?.photourl || emptyimage} />
+        <Image
+          style={styles.avatar}
+          src={`https://www.musterus.com${item?.avatar}` || emptyimage}
+        />
         <View style={[styles.headerInfo, {flexDirection: 'row'}]}>
           <View
             style={{

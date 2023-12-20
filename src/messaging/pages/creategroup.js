@@ -37,7 +37,7 @@ function CreateGroup({navigation, appState, route, setgroups}) {
     description: '',
     photourl: '',
     grouppolicy: '',
-    category: '',
+    category: {},
     website: '',
     groupstatus: 0,
     moderated: 0,
@@ -66,22 +66,25 @@ function CreateGroup({navigation, appState, route, setgroups}) {
       } = data;
       const {mykey, mskl} = User;
       // Update group data
-      const result = await groupcreate(
+      const result = await groupupdate(
         mykey,
         mskl,
         Profile?.uid,
         0,
         name,
-        category,
+        category.gcatrow,
         moderated,
         groupstatus,
         description,
         grouppolicy,
         website,
       );
-      console.log(JSON.stringify(result, null, 2));
-      // await getGroups();
-      // navigation.goBack();
+      if (result.message == 'group updated' && result.err == 0) {
+        Alert.alert(
+          'Group Created',
+          'Please wait for your group to be approved',
+        );
+      }
     } catch (err) {
       Alert.alert('Error updating group');
     }
@@ -244,7 +247,7 @@ function CreateGroup({navigation, appState, route, setgroups}) {
                     justifyContent: 'center',
                     borderColor: 'gray',
                   }}>
-                  <Text>{data.category || 'Select a category'}</Text>
+                  <Text>{data.category.catname || 'Select a category'}</Text>
                 </TouchableOpacity>
                 {select && (
                   <View style={{position: 'absolute', zIndex: 2}}>
@@ -254,6 +257,12 @@ function CreateGroup({navigation, appState, route, setgroups}) {
                     />
                   </View>
                 )}
+                <OutlinedInput
+                  style={{marginBottom: 0}}
+                  data={data.grouppolicy}
+                  setData={value => onInputChange('grouppolicy', value)}
+                  placeholder="Enter your group policy"
+                />
                 <OutlinedInput
                   style={{marginBottom: 0}}
                   data={data.website}

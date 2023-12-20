@@ -122,9 +122,11 @@ function Header({
               color: Colors.light,
               fontSize: 11,
             }}>
-            {Profile?.username
+            {page == 'chat group'
+              ? groupname
+              : Profile?.username
               ? '@' + Profile?.username
-              : Profile?.firstname || groupname}
+              : Profile?.firstname}
           </Text>
         </View>
       </View>

@@ -37,7 +37,7 @@ function EditGroup({navigation, appState, route, setgroups}) {
     description: Group?.groupintro,
     photourl: 'https://www.musterus.com' + Group?.photourl,
     grouppolicy: Group?.grouppolicy,
-    category: Group?.catname,
+    category: {catname: Group?.catname, gcatrow: Group?.groupcategory},
     website: Group?.website,
     groupstatus: Group?.groupstatus,
     moderated: Group?.moderated,
@@ -80,7 +80,7 @@ function EditGroup({navigation, appState, route, setgroups}) {
         Profile?.uid,
         groupid,
         name,
-        category,
+        category.gcatrow,
         moderated,
         groupstatus,
         description,
@@ -110,7 +110,9 @@ function EditGroup({navigation, appState, route, setgroups}) {
   const chooseCategory = cat => {
     setData({...data, category: cat});
   };
-  useEffect(() => {}, [data]);
+  useEffect(() => {
+    console.log(Group);
+  }, []);
   return (
     <>
       <SafeAreaView style={styles.container}>
@@ -274,7 +276,7 @@ function EditGroup({navigation, appState, route, setgroups}) {
                     justifyContent: 'center',
                     borderColor: 'gray',
                   }}>
-                  <Text>{data.category}</Text>
+                  <Text>{data.category.catname || Group?.catname}</Text>
                 </TouchableOpacity>
                 {select && (
                   <View style={{position: 'absolute'}}>
