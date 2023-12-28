@@ -250,7 +250,7 @@ function CreateGroup({navigation, appState, route, setgroups}) {
                   <Text>{data.category.catname || 'Select a category'}</Text>
                 </TouchableOpacity>
                 {select && (
-                  <View style={{position: 'absolute', zIndex: 2}}>
+                  <View style={{position: 'relative', zIndex: 2}}>
                     <CategorySelector
                       onSelect={chooseCategory}
                       onClose={() => setSelect(!select)}

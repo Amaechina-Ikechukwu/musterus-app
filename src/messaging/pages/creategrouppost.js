@@ -43,7 +43,7 @@ function EditGroup({navigation, appState, route, setgroups}) {
 
     const result = await ImagePicker.launchImageLibraryAsync();
     if (!result.cancelled) {
-      setImage(result.uri);
+      setImage(result.assets[0].uri);
     }
   };
 

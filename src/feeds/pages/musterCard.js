@@ -28,6 +28,7 @@ import {NameDisplayCard} from '../../components/name-display-card';
 import Header from '../../messaging/components/header';
 import {MusterCards, MusterCards2} from '../components/ustercards';
 import {holidaysImages} from '../controllers/Cards';
+import {events} from '../oldapis/events';
 
 const {height, width} = Dimensions.get('window');
 const Colors = Color();
@@ -36,7 +37,13 @@ function MuterCards({route, appState, disp_surprise}) {
   const navigation = useNavigation();
   const [imageUri, setImageUri] = useState(null);
   const [data, setData] = useState('');
-  useEffect(() => {}, []);
+  const getEvents = async () => {
+    const result = await events(User?.mykey, User?.mskl, 71, 0);
+    console.log(JSON.stringify(result, null, 2));
+  };
+  useEffect(() => {
+    getEvents();
+  }, []);
 
   return (
     <>

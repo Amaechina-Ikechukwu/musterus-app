@@ -5,10 +5,10 @@ const api = axios.create({
   baseURL: 'https://www.musterus.com', // Replace with your API base URL
 });
 
-export const sendDM = async (uid, touser, comment) => {
+export const followuser = async (mykey, mskl, friendID, memberkey) => {
   try {
-    const response = await api.post(
-      `/ws/api/messageSend?uid=${uid}&touser=${touser}&comment=${comment}`,
+    const response = await api.get(
+      `/ws/musterpoint?mykey=${mykey}&mskl=${mskl}&friendID=${friendID}&follow=follow&memberkey=${memberkey}`,
     );
     return response.data;
   } catch (error) {

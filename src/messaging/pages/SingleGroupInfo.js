@@ -144,7 +144,7 @@ const GroupInfo = ({route, appState, setmyprofile}) => {
       User?.mskl,
       Group?.groupkey,
     );
-    console.log(JSON.stringify(result, null, 2));
+
     setGroupData(result.Members);
   };
   useEffect(() => {

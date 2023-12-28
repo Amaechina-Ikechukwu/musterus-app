@@ -36,6 +36,7 @@ import {
   where,
 } from 'firebase/firestore';
 import {db} from '../../../firebase';
+import {searchusers} from '../../feeds/oldapis/search';
 const {height, width} = Dimensions.get('window');
 const Colors = Color();
 const removePassword = data => {
@@ -48,6 +49,7 @@ function Profile({route, appState, disp_surprise}) {
   const [imageUri, setImageUri] = useState(null);
   const [data, setData] = useState('');
   const [searchedUsers, setSearchedUsers] = useState();
+  const {mykey, mskl} = User;
   const makeconvid = friend => {
     const conversationId = [User?.mykey, friend?.id].sort().join('_');
 
@@ -60,83 +62,25 @@ function Profile({route, appState, disp_surprise}) {
       },
     });
   };
-  const usersRef = collection(db, 'profile');
 
   const handleInputChange = async event => {
     const newValue = event; // Convert to lowercase
     setData(newValue);
     try {
-      const q = query(usersRef);
-      const querySnapshot = await getDocs(q);
-
-      const usersData = [];
-      querySnapshot.forEach(doc => {
-        const userData = doc.data();
-        const {firstname, lastname} = userData;
-        const lowerCaseFirstname = firstname;
-        const lowerCaseLastname = lastname;
-        if (
-          lowerCaseFirstname.includes(newValue) ||
-          lowerCaseLastname.includes(newValue)
-        ) {
-          if (doc.id !== User?.mykey) {
-            const newData = removePassword(userData);
-            usersData.push({id: doc.id, ...newData});
-          }
-        }
-      });
-      setSearchedUsers(usersData);
+      searchUsers(newValue);
     } catch (error) {
       console.error('Error searching users:', error);
     }
   };
 
-  // const handleSearch = async () => {
-  //   try {
-  //     const q = query(usersRef);
-  //     r;
-  //     const querySnapshot = await getDocs(q);
+  const searchUsers = async value => {
+    const result = await searchusers(mykey, mskl, value, 'fna');
 
-  //     const usersData = [];
-  //     querySnapshot.forEach(doc => {
-  //       const userData = doc.data();
-  //       const {firstname, lastname} = userData;
-  //       const lowerCaseFirstname = firstname;
-  //       const lowerCaseLastname = lastname;
-  //       if (
-  //         lowerCaseFirstname.includes(data) ||
-  //         lowerCaseLastname.includes(data)
-  //       ) {
-  //         const newData = removePassword(userData);
-  //         usersData.push({id: doc.id, ...newData});
-  //       }
-  //     });
-  //     setSearchedUsers(usersData);
-  //   } catch (error) {
-  //     console.error('Error searching users:', error);
-  //   }
-  // };
-  const initializeuser = async () => {
-    try {
-      const q = query(usersRef);
-      const querySnapshot = await getDocs(q);
-
-      const usersData = [];
-      querySnapshot.forEach(doc => {
-        const userData = doc.data();
-        if (doc.id !== User?.mykey) {
-          const newData = removePassword(userData);
-          usersData.push({id: doc.id, ...newData});
-        }
-      });
-      setSearchedUsers(usersData);
-    } catch (error) {
-      console.error('Error searching users:', error);
+    if (result?.Members.length !== 0) {
+      setSearchedUsers(result?.Members);
     }
   };
-  useEffect(() => {
-    initializeuser();
-  }, []);
+  useEffect(() => {}, []);
   try {
     return (
       <>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   FlatList,
   View,
@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import {Style} from '../../../assets/styles';
 import {Avatar} from 'react-native-paper';
@@ -43,12 +44,36 @@ const PostItem = ({item}) => {
 };
 
 const GroupFlatListComponent = ({data}) => {
+  const [showMessage, setShowMessage] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowMessage(true);
+    }, 7000); // 7 seconds
+
+    return () => clearTimeout(timer);
+  }, []);
   return (
     <FlatList
       data={data}
       keyExtractor={(item, index) => index}
       renderItem={({item}) => <PostItem item={item} />}
-      ListEmptyComponent={<Text style={Style.boldText}>No Post for now</Text>}
+      ListEmptyComponent={
+        <View
+          style={{
+            flex: 1,
+            height: '100%',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginTop: 20,
+          }}>
+          {showMessage ? (
+            <Text>No Posts yet</Text>
+          ) : (
+            <ActivityIndicator size={'large'} />
+          )}
+        </View>
+      }
     />
   );
 };

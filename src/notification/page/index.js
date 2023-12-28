@@ -13,15 +13,21 @@ import {PeopleIcon} from '../../events/components/icons';
 import {Style} from '../../../assets/styles';
 import {BellIcon, FolowedIcon, Nodata} from '../components/icon';
 import {LabelTexts} from '../../events/components/texts';
-
+import NewBannerUpload from './UploadBanner';
+import AddressAddition from './AdressAddition';
+import * as Linking from 'expo-linking';
+import {PrimaryButton} from '../../components/buttons/primary';
+import AdBanners from '../components/AdBanners';
 const Colors = Color();
 
 function SignIn({navigation, appState}) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {}, []);
-
+  const {User} = appState;
+  useEffect(() => {
+    console.log(User);
+  }, []);
+  const link = `https://www.musterus.com/advertisements/order/?mykey=${User?.mykey}`;
   const STYLES = ['default', 'dark-content', 'light-content'];
   const TRANSITIONS = ['fade', 'slide', 'none'];
   const [hidden, setHidden] = useState(false);
@@ -44,7 +50,12 @@ function SignIn({navigation, appState}) {
         />
 
         <Header page="Notification" navigation={navigation} />
-        <ScrollView></ScrollView>
+        <ScrollView
+          contentContainerStyle={{alignItems: 'center', paddingHorizontal: 10}}>
+          <View style={{marginTop: 100, height: '100%', width: '100%'}}>
+            <AdBanners User={User} />
+          </View>
+        </ScrollView>
       </SafeAreaView>
     </>
   );

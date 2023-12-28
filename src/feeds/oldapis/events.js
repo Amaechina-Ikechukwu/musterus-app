@@ -5,10 +5,10 @@ const api = axios.create({
   baseURL: 'https://www.musterus.com', // Replace with your API base URL
 });
 
-export const sendDM = async (uid, touser, comment) => {
+export const events = async (mykey, mskl, friend, per_page) => {
   try {
-    const response = await api.post(
-      `/ws/api/messageSend?uid=${uid}&touser=${touser}&comment=${comment}`,
+    const response = await api.get(
+      `/ws/eventscard?mykey=${mykey}&mskl=${mskl}&friend=${friend}&per_page=${per_page}`,
     );
     return response.data;
   } catch (error) {

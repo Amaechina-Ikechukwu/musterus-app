@@ -110,9 +110,7 @@ function EditGroup({navigation, appState, route, setgroups}) {
   const chooseCategory = cat => {
     setData({...data, category: cat});
   };
-  useEffect(() => {
-    console.log(Group);
-  }, []);
+  useEffect(() => {}, []);
   return (
     <>
       <SafeAreaView style={styles.container}>

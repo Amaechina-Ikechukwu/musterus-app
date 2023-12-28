@@ -5,8 +5,8 @@ import {Color} from './theme';
 import {ThreeDots} from '../events/components/icons';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {StaticImage} from '../utilities';
-import {amifollwoing} from '../muster-points/apis/amifollowing';
-import {followuser} from '../muster-points/apis/followuser';
+import {followuser} from '../events/apis/followuser';
+import {frienduser} from '../events/apis/frienduser';
 
 const Colors = Color();
 export function NameDisplayCard({
@@ -23,40 +23,46 @@ export function NameDisplayCard({
   count,
 }) {
   const [following, setFollowing] = useState(item?.isFollowing);
-
+  const {mykey, mskl} = user;
   const followUser = async () => {
-    const result = await followuser(user, item.id);
-    count && count();
-    setFollowing(result?.message == 'added');
+    const result = await followuser(mykey, mskl, item.uid, item.profilekey);
+    console.log(JSON.stringify(result, null, 2));
+    // setFollowing(result?.message == 'added');
   };
-  const isUserFollowing = async () => {
-    const result = await amifollwoing(user, item.id);
+  const friendUser = async () => {
+    const result = await frienduser(mykey, mskl, item.uid, item.profilekey);
+    console.log(JSON.stringify(result, null, 2));
+    // setFollowing(result?.message == 'added');
+  };
 
-    setFollowing(result?.message);
-  };
   const emptyimage =
     'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
-  useEffect(() => {
-    if (!item?.isFollowing) {
-      isUserFollowing();
-    }
-  }, []);
+  useEffect(() => {}, []);
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Image
           style={styles.avatar}
-          src={`https://www.musterus.com${item?.avatar}` || emptyimage}
+          src={
+            item?.avatar
+              ? `https://www.musterus.com${item?.avatar}`
+              : emptyimage
+          }
         />
-        <View style={[styles.headerInfo, {flexDirection: 'row'}]}>
+        <View
+          style={[
+            styles.headerInfo,
+            {flexDirection: 'row', justifyContent: 'space-between'},
+          ]}>
           <View
-            style={{
-              flex: 1,
-              // backgroundColor: "green"
-            }}>
+            style={
+              {
+                // backgroundColor: "green"
+              }
+            }>
             <TouchableOpacity
               onPress={() => {
-                navigation.navigate('Profile', {user: item?.id});
+                navigation.navigate('Profile', {user: item});
               }}>
               <Text style={styles.username}>
                 {item?.firstname + ' ' + item?.lastname}
@@ -75,13 +81,15 @@ export function NameDisplayCard({
                   style={{
                     flex: 0.8,
                     // backgroundColor: "red",
-                    alignItems: 'flex-start',
-                    justifyContent: 'center',
+                    alignItems: 'center',
+                    justifyContent: 'flex-end',
+                    flexDirection: 'row',
+                    gap: 5,
                     // marginRight: 10,
                     // flex:1
                   }}>
                   <TouchableOpacity
-                    onPress={() => followUser()}
+                    onPress={() => friendUser()}
                     style={{
                       backgroundColor: Colors.primary,
                       height: 30,
@@ -90,7 +98,22 @@ export function NameDisplayCard({
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}>
-                    <Text style={{color: Colors.light}}>Muster</Text>
+                    <Text style={{color: Colors.light}}>Follow</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => friendUser()}
+                    style={{
+                      borderColor: Colors.primary,
+                      borderWidth: 1,
+                      height: 30,
+                      width: 90,
+                      borderRadius: 40,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                    <Text style={{color: Colors.light, color: Colors.primary}}>
+                      Add Friend
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </>
@@ -146,18 +169,6 @@ export function NameDisplayCard({
               </View>
             )
           ) : null}
-          {/* {dot && (
-            <View
-              style={{
-                flex: 0.6,
-                // backgroundColor: "red",
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginRight: 10,
-              }}>
-              <ThreeDots />
-            </View>
-          )} */}
         </View>
       </View>
     </View>

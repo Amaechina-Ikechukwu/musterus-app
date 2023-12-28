@@ -227,7 +227,7 @@ function SignIn({navigation, appState, route, setgroupmessages}) {
           groupid={groupid}
           groupphoto={'https://www.musterus.com' + group?.groupheader}
           navigation={navigation}
-          isadmin={true}
+          isadmin={group?.profilekey == user?.mykey}
         />
         <ChatHead navigation={navigation} />
 

@@ -21,6 +21,7 @@ import {usersprofile} from '../../user/apis/firebaseprofile';
 import {ActivityIndicator} from 'react-native';
 import {initializechat} from '../apis/initializechat';
 import {Image} from 'react-native';
+import {sendDM} from '../apis/sendDM';
 const {width} = Dimensions.get('screen');
 function extractTimeFromFirestoreTimestamp(timestampObj) {
   const {seconds, nanoseconds} = timestampObj;
@@ -44,7 +45,7 @@ function extractTimeFromFirestoreTimestamp(timestampObj) {
 export const ChatMessages = ({page, user, route}) => {
   const [messages, setMessages] = useState();
   const flatListRef = useRef(null);
-  const {conversationId} = route?.params;
+  // const {user} = route?.params;
   const [showMessage, setShowMessage] = useState(false);
 
   useEffect(() => {
@@ -55,26 +56,7 @@ export const ChatMessages = ({page, user, route}) => {
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    const q = query(
-      collection(db, 'direct_messages', conversationId, 'messages'),
-      orderBy('sent', 'desc'), // Order by 'sent' field in ascending order (oldest first)
-    );
-    const unsubscribe = onSnapshot(q, querySnapshot => {
-      let chats = [];
-      querySnapshot.forEach(doc => {
-        chats.push({id: doc.id, ...doc.data()});
-      });
-
-      setMessages(chats);
-    });
-
-    // Cleanup: Unsubscribe from real-time updates when component unmounts
-    return () => {
-      unsubscribe();
-    };
-  }, []);
-
+  useEffect(() => {}, []);
   const renderMessage = ({item}) => {
     return (
       <>

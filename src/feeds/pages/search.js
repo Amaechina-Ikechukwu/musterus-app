@@ -36,6 +36,7 @@ import {
   where,
 } from 'firebase/firestore';
 import {db} from '../../../firebase';
+import {searchusers} from '../oldapis/search';
 
 const {height, width} = Dimensions.get('window');
 const Colors = Color();
@@ -45,6 +46,7 @@ const removePassword = data => {
 };
 function Profile({route, appState, disp_surprise}) {
   const User = appState.User;
+  const {mykey, mskl} = User;
   const navigation = useNavigation();
   const [imageUri, setImageUri] = useState(null);
   const [data, setData] = useState('');
@@ -61,58 +63,23 @@ function Profile({route, appState, disp_surprise}) {
       },
     });
   };
-  const usersRef = collection(db, 'profile');
+  const searchUsers = async value => {
+    const result = await searchusers(mykey, mskl, value, 'fna');
+    console.log(result, null, 2);
+  };
 
   const handleInputChange = async event => {
     const newValue = event; // Convert to lowercase
     setData(newValue);
-    try {
-      const q = query(usersRef);
-      const querySnapshot = await getDocs(q);
 
-      const usersData = [];
-      querySnapshot.forEach(doc => {
-        const userData = doc.data();
-        const {firstname, lastname} = userData;
-        const lowerCaseFirstname = firstname;
-        const lowerCaseLastname = lastname;
-        if (
-          lowerCaseFirstname.includes(newValue) ||
-          lowerCaseLastname.includes(newValue)
-        ) {
-          if (doc.id !== User?.mykey) {
-            const newData = removePassword(userData);
-            usersData.push({id: doc.id, ...newData});
-          }
-        }
-      });
-      setSearchedUsers(usersData);
+    try {
+      searchUsers(newValue);
     } catch (error) {
-      console.error('Error searching users:', error);
+      // console.error('Error searching users:', error);
     }
   };
 
-  const initializeuser = async () => {
-    try {
-      const q = query(usersRef);
-      const querySnapshot = await getDocs(q);
-
-      const usersData = [];
-      querySnapshot.forEach(doc => {
-        const userData = doc.data();
-        if (doc.id !== User?.mykey) {
-          const newData = removePassword(userData);
-          usersData.push({id: doc.id, ...newData});
-        }
-      });
-      setSearchedUsers(usersData);
-    } catch (error) {
-      console.error('Error searching users:', error);
-    }
-  };
-  useEffect(() => {
-    initializeuser();
-  }, []);
+  useEffect(() => {}, []);
   try {
     return (
       <>

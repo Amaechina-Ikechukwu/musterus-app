@@ -29,6 +29,7 @@ import {collection, onSnapshot, orderBy, query} from 'firebase/firestore';
 import {usersprofile} from '../../user/apis/firebaseprofile';
 import {usefriends} from '../apis/UserFriends';
 import {suggestsusers} from '../apis/SuggestedUsers';
+import {homepage} from '../../feeds/oldapis/home';
 
 const {height, width} = Dimensions.get('window');
 const Colors = Color();
@@ -45,30 +46,18 @@ function Profile({route, appState, disp_surprise}) {
   const [followingData, setfollowingData] = useState('');
   const [component, setcomponent] = useState('SUGGESTION');
   const suggestedUsers = async () => {
-    const result = await suggestsusers(User?.mykey);
+    const result = await homepage(User?.mykey, User?.mskl);
 
-    setData(result);
+    setData(result?.RecentMembers);
+    setfollowingData(result?.MyFriends);
   };
   const gotoprofile = item => {
     navigation.navigate('Profile', {user: item});
   };
-  const friends = async () => {
-    const result = await usefriends(User?.mykey);
-    setfollowingData(result.userfriends);
-  };
-
-  const initizeUsers = async () => {
-    if (component == 'SUGGESTION') {
-      suggestedUsers();
-    } else if (component == 'FRIENDS') {
-      friends();
-    }
-  };
 
   useEffect(() => {
-    initizeUsers();
-  }, [component]);
-  useEffect(() => {}, [data, followingData]);
+    suggestedUsers();
+  }, []);
 
   return (
     <>

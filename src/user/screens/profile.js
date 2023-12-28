@@ -35,14 +35,10 @@ const ProfileHeader = ({Profile, user, mykey, postlength, navigation}) => {
     setFollowing(result?.message);
   };
   const makeconvid = friend => {
-    const conversationId = [mykey, user].sort().join('_');
-
     navigation.navigate('Chat', {
       screen: 'chat person',
       params: {
-        conversationId: conversationId,
-        friendid: user,
-        friend: Profile?.user,
+        user,
       },
     });
   };
@@ -72,7 +68,11 @@ const ProfileHeader = ({Profile, user, mykey, postlength, navigation}) => {
               height: 100,
               borderRadius: 65,
             }}
-            src={Profile?.avatar || emptyimage}
+            src={
+              Profile?.avatar
+                ? `https://www.musterus.com${Profile?.avatar}`
+                : emptyimage
+            }
             resizeMode={'cover'}
           />
         </TouchableOpacity>
@@ -129,7 +129,7 @@ const ProfileHeader = ({Profile, user, mykey, postlength, navigation}) => {
           ]}>
           {Profile?.profileintro}
         </Text>
-        {user && user !== mykey && (
+        {Profile?.profilekey !== mykey && (
           <View
             style={{
               // backgroundColor: "red",
@@ -168,21 +168,25 @@ const Profile = ({route, appState, setmyprofile}) => {
   const User = appState?.User;
   const Profile = appState?.Profile;
   const navigation = useNavigation();
-  const user = route?.params?.user || User?.mykey;
+  const user = route?.params?.user;
 
   const [profileData, setProfileData] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
 
-  useEffect(() => {
-    console.log(JSON.stringify(user, null, 2));
-  }, [user]);
   useEffect(() => {}, [Profile]);
+  useEffect(() => {
+    console.log(
+      JSON.stringify(user, null, 2),
+      JSON.stringify(Profile, null, 2),
+    );
+    console.log(user?.profilekey === User?.mykey);
+  }, []);
 
   if (Profile === null) {
     return <ActivityIndicator />;
   }
 
-  const isCurrentUser = user === User?.mykey;
+  const isCurrentUser = user ? user?.profilekey === User?.mykey : true;
   const pageTitle = `Profile`;
 
   return (
@@ -208,13 +212,13 @@ const Profile = ({route, appState, setmyprofile}) => {
           </View>
           <View style={styles.profileContainer}>
             <ProfileHeader
-              Profile={Profile}
+              Profile={isCurrentUser ? Profile : user}
               user={user}
               mykey={User?.mykey}
               postlength={userPosts.length}
               navigation={navigation}
             />
-            <ProfileInformation profileData={Profile} />
+            {isCurrentUser && <ProfileInformation profileData={Profile} />}
           </View>
         </View>
       </SafeAreaView>

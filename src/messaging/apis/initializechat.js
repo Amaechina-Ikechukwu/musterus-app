@@ -1,21 +1,14 @@
+// api.js
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://musterus-api.onrender.com', // Replace with your API base URL
+  baseURL: 'https://www.musterus.com', // Replace with your API base URL
 });
 
-export const initializechat = async (token, friendid) => {
+export const initializechat = async (uid, touser, mykey) => {
   try {
     const response = await api.post(
-      '/dm/initializechat',
-      {
-        friendid,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`, // Include the Bearer token in the request headers
-        },
-      },
+      `/ws/api/messageList?uid=${uid}&touser=${touser}&mykey=${mykey}`,
     );
     return response.data;
   } catch (error) {

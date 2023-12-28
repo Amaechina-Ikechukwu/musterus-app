@@ -21,8 +21,9 @@ function SignIn({navigation, appState, setchatlist}) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const getChatList = async () => {
-    const result = await chatlist(User?.mykey);
-    setchatlist(result.chats);
+    const result = await chatlist(User?.mykey, User?.mskl);
+    console.log(JSON.stringify(result, null, 2));
+    // setchatlist(result.chats);
   };
 
   useEffect(() => {

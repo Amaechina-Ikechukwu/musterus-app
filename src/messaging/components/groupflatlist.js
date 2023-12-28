@@ -38,8 +38,6 @@ const GroupsList = ({appState, groupsData, navigation, mykey, setgroup}) => {
       renderItem={renderItem}
       estimatedItemSize={200}
       keyExtractor={item => item.groupkey}
-      ListFooterComponent={<SuggestedGroups navigation={navigation} />}
-      ListFooterComponentStyle={{marginTop: 20, alignItems: 'center', gap: 20}}
       ListEmptyComponent={
         <View
           style={{

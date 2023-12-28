@@ -41,7 +41,7 @@ const UsersFlatlist = ({
     return (
       <View style={{marginBottom: 10}}>
         <NameDisplayCard
-          user={User?.mykey}
+          user={User}
           navigation={navigation}
           component={component}
           item={item}
@@ -58,7 +58,7 @@ const UsersFlatlist = ({
     <FlashList
       data={data}
       renderItem={renderItem}
-      keyExtractor={item => item.uid}
+      keyExtractor={(item, index) => item.uid + index}
       ListHeaderComponent={Header && Header}
       disableAutoLayout
       estimatedItemSize={200}

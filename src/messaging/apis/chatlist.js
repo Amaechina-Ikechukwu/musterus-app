@@ -2,16 +2,14 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://musterus-api.onrender.com', // Replace with your API base URL
+  baseURL: 'https://www.musterus.com', // Replace with your API base URL
 });
 
-export const chatlist = async token => {
+export const chatlist = async (mskl, mykey) => {
   try {
-    const response = await api.get('/dm/chatlist', {
-      headers: {
-        Authorization: `Bearer ${token}`, // Add the Bearer token in the headers
-      },
-    });
+    const response = await api.post(
+      `/ws/api/chatroom?mskl=${mskl}&mykey=${mykey}`,
+    );
     return response.data;
   } catch (error) {
     throw error;

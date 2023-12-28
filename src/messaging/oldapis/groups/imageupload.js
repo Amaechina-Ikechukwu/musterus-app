@@ -16,10 +16,9 @@ export const imageupload = async (mykey, mskl, uid, group, data, image) => {
     });
 
     const url = `https://www.musterus.com/ws/groups/imageupload?mykey=${mykey}&mskl=${mskl}&uid=${uid}&group=${group}&location=groups&imagecaption=${data?.caption}&upsection=${data?.upsection}`;
-
     const response = await fetch(url, {
       method: 'POST',
-      body: formData,
+      body: formData?._parts,
       headers: {
         'Content-Type': 'multipart/form-data',
       },

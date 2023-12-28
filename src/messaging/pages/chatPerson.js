@@ -8,13 +8,13 @@ import {Color} from '../../components/theme';
 import {DividerIcon} from '../../events/components/icons';
 import {Divider, Avatar} from 'react-native-paper';
 import {BottomTab} from '../../events/components/bottomTab';
-import {Header} from '../components/header';
+import Header from '../components/header';
 import {MessagingHeads} from '../components/messageHeads';
 import {ChatHead} from '../components/chatHeads';
 import {ChatScreen, SentMessage} from '../components/mesages';
 import {ChatInput} from '../components/chatInput';
 import {ChatMessages} from '../components/chatmessages';
-import {sendmessage} from '../apis/sendDM';
+import {sendDM, sendmessage} from '../apis/sendDM';
 import {initializechat} from '../apis/initializechat';
 import {usersfullprofile} from '../../user/apis/profile';
 import {getDownloadURL, ref, uploadBytesResumable} from 'firebase/storage';
@@ -26,17 +26,12 @@ const Colors = Color();
 function SignIn({navigation, appState, route, setchatlist}) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const {friendid} = route?.params;
-  const {User} = appState;
+  const {user} = route?.params;
+  const {User, Profile} = appState;
   const getProfile = async () => {
     const result = await usersfullprofile(friendid);
     setData(result);
   };
-  useEffect(() => {
-    initializechat(User?.mykey, friendid);
-    getProfile();
-  }, []);
-  useEffect(() => {}, [data]);
 
   const STYLES = ['default', 'dark-content', 'light-content'];
   const TRANSITIONS = ['fade', 'slide', 'none'];
@@ -59,14 +54,30 @@ function SignIn({navigation, appState, route, setchatlist}) {
     try {
       setTempMessage(message);
       setMessage('');
-      await sendmessage(User?.mykey, friendid, message, url);
-      setTempMessage('');
-      setImage();
-      setIsSending('');
+
+      const result = await sendDM(Profile?.uid, user?.uid, message);
+      if (result?.Success == 1) {
+        setTempMessage('');
+        setImage();
+        setIsSending('');
+      } else {
+        setMessage(tempmessage);
+        Alert.alert('Sending', 'Couldnt send message at this time');
+      }
     } catch (err) {
       setMessage(tempmessage);
       Alert.alert('Sending', 'Couldnt send message at this time');
     }
+  };
+  const getMessgaes = async () => {
+    const result = await initializechat(
+      Profile?.uid,
+      user?.uid,
+      User?.mykey,
+      0,
+      user,
+    );
+    console.log(JSON.stringify(result, null, 2));
   };
   const [pickImage, setpickImage] = useState(false);
   const [image, setImage] = useState(null);
@@ -94,7 +105,9 @@ function SignIn({navigation, appState, route, setchatlist}) {
 
   // Function to upload image to Firebase Storage
 
-  useEffect(() => {}, [uploadProgress]);
+  useEffect(() => {
+    getMessgaes();
+  }, []);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [downloadURL, setDownloadURL] = useState('');
 
@@ -158,13 +171,8 @@ function SignIn({navigation, appState, route, setchatlist}) {
           showHideTransition={statusBarTransition}
           hidden={hidden}
         />
-        <Header
-          page="Chat"
-          navigation={navigation}
-          profile={data}
-          user={User.mykey}
-        />
-        <ChatHead navigation={navigation} page="PERSON" />
+
+        <ChatHead navigation={navigation} page="PERSON" user={user} />
         <View style={{flex: 1, width: '100%', height: '100%'}}>
           <View style={{width: '100%', height: '100%'}}>
             <View

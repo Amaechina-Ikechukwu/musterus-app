@@ -53,8 +53,7 @@ function HomeStack({appState, setgroups}) {
   const [data, setData] = useState([]);
   const getGroups = async () => {
     const result = await getgroups(User.mykey, User?.mskl, Profile.uid, 3);
-    console.log(JSON.stringify(result, null, 2));
-    // setData(result?.groups);
+
     setgroups(result?.Groups);
   };
   useEffect(() => {
