@@ -19,7 +19,6 @@
       }
     },
     "plugins": [
-      "@react-native-firebase/app",
       [
         "expo-media-library",
         {
