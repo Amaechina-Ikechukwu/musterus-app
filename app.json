@@ -20,8 +20,6 @@
     },
     "plugins": [
       "@react-native-firebase/app",
-      "@react-native-firebase/perf",
-      "@react-native-firebase/crashlytics",
       [
         "expo-media-library",
         {
