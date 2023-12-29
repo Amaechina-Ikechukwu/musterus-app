@@ -30,6 +30,8 @@ import {editprofile, updateprofile} from '../apis/editprofile';
 import {usersfullprofile} from '../apis/profile';
 import {storage} from '../../../firebase';
 import {getDownloadURL, getStorage, ref, uploadBytes} from 'firebase/storage';
+import ExtraInfo from './ExtraInfo';
+import ImageUploadModal from '../compnents/ImageUploadModal';
 const TextArea = ({data, setData, name, key, label}) => {
   const color = Color();
   const handleTextChange = text => {
@@ -64,100 +66,10 @@ const Colors = Color();
 function Profile({route, appState, setmyprofile}) {
   const {User, Profile} = appState;
   const navigation = useNavigation();
-  const [image, setImage] = useState(null);
-  const [formData, setFormData] = useState({
-    firstname: Profile?.user?.firstname,
-    lastname: Profile?.user?.lastname,
-    username: Profile?.user?.username,
-    bio: Profile?.user?.bio,
-    photourl: Profile?.user?.photourl,
-  });
+  const [image, setImage] = useState(false);
 
-  const handleInputChange = (name, value) => {
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-  const inputFields = [
-    {name: 'firstname', label: 'Firstname'},
-    {name: 'lastname', label: 'Lastname'},
-    {name: 'username', label: 'Username'},
-    {name: 'bio', label: 'Bio'},
-    // Add more input field configurations as needed
-  ];
-  const getProfile = async () => {
-    const result = await usersfullprofile(User?.mykey);
-
-    setmyprofile(result);
-  };
   const pickImage = async () => {
-    const permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (permissionResult.granted === false) {
-      Alert.alert('Permission to access camera roll is required!');
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync();
-    if (!result.cancelled) {
-      setImage(result.uri);
-    }
-  };
-
-  // Function to upload image to Firebase Storage
-
-  const uploadImageToFirebase = async () => {
-    try {
-      const response = await fetch(image);
-      const blob = await response.blob();
-
-      const storageRef = ref(
-        storage,
-        `profilephotos/${User?.mykey}/${image.split('/').pop()}`,
-      );
-
-      // Uploading image to Firebase Storage
-      await uploadBytes(storageRef, blob); // Use uploadBytes method to upload the image blob
-
-      const downloadURL = await getDownloadURL(storageRef); // Get the download URL
-      setFormData({
-        ...formData,
-        photourl: downloadURL,
-      });
-      return downloadURL;
-    } catch (error) {
-      console.error('Error uploading image: ', error);
-    }
-  };
-  useEffect(() => {}, [formData.photourl]);
-  const editProfile = async () => {
-    try {
-      let imageUrl = ''; // Renamed to avoid conflict with url from uploadImageToFirebase
-      if (image) {
-        imageUrl = await uploadImageToFirebase(); // Assigning the result to imageUrl
-      }
-
-      const {firstname, lastname, username, bio} = formData;
-
-      await updateprofile(
-        User?.mykey,
-        firstname,
-        lastname,
-        username,
-        bio,
-        imageUrl, // Pass imageUrl instead of url
-      ).then(async () => {
-        Alert.alert('Updating profile', 'Profile Updated');
-        await getProfile();
-        navigation.navigate('Home');
-      });
-    } catch (err) {
-      Alert.alert(
-        'Error updating profile',
-        'Unfortunately, your profile cannot be updated at this time',
-      );
-    }
+    setImage(!image);
   };
 
   const emptyimage =
@@ -174,90 +86,63 @@ function Profile({route, appState, setmyprofile}) {
         }}>
         <AppStatusBar StatusBar={StatusBar} useState={useState} />
 
-        <ScrollView>
+        <View
+          style={{
+            flexDirection: 'row',
+            padding: 10,
+            // backgroundColor: "red"
+          }}>
           <View
             style={{
+              flex: 1,
               flexDirection: 'row',
-              padding: 10,
-              // backgroundColor: "red"
+              // backgroundColor: "blue"
             }}>
-            <View
-              style={{
-                flex: 1,
-                flexDirection: 'row',
-                // backgroundColor: "blue"
-              }}>
-              <BackIcon />
-              <LabelTexts style={{marginLeft: 15}} text="Edit Profile" />
-            </View>
-
-            <View
-              style={{
-                flex: 1,
-                flexDirection: 'row',
-                // backgroundColor: "blue",
-                justifyContent: 'flex-end',
-              }}></View>
+            <BackIcon />
+            <LabelTexts style={{marginLeft: 15}} text="Edit Profile" />
           </View>
 
           <View
             style={{
-              // backgroundColor: "red",
-              marginTop: 10,
-              // alignItems: "center",
-              padding: 15,
-            }}>
-            <View
-              style={{
-                width: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: 10,
-              }}>
-              <TouchableOpacity
-                onPress={pickImage}
-                style={styles.circularButton}>
-                {image ? (
-                  <Image
-                    source={{uri: image || data.photourl}}
-                    style={styles.circularImage}
-                  />
-                ) : (
-                  <Text style={styles.buttonText}>Choose Photo</Text>
-                )}
-              </TouchableOpacity>
-            </View>
-            <View style={{gap: 10}}>
-              {inputFields.map(field => (
-                <TextArea
-                  key={field.name}
-                  name={field.name}
-                  label={field.label}
-                  data={formData[field.name]}
-                  setData={handleInputChange}
-                />
-              ))}
-            </View>
+              flex: 1,
+              flexDirection: 'row',
+              // backgroundColor: "blue",
+              justifyContent: 'flex-end',
+            }}></View>
+        </View>
 
-            <View
-              style={{
-                // backgroundColor: "red",
-                // height: 20
-                width: '100%',
-                marginTop: 70,
-              }}>
-              <PrimaryButton
-                title="Update"
-                style={{width: '100%'}}
-                callBack={() => {
-                  editProfile();
-                }}
-              />
-            </View>
+        <View
+          style={{
+            // backgroundColor: "red",
+            marginTop: 10,
+            // alignItems: "center",
+            padding: 15,
+          }}>
+          <View
+            style={{
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: 10,
+            }}>
+            <TouchableOpacity onPress={pickImage} style={styles.circularButton}>
+              {image ? (
+                <ImageUploadModal
+                  onClose={pickImage}
+                  modalVisible={image}
+                  uid={Profile?.uid}
+                  mykey={User?.mykey}
+                  mskl={User?.mskl}
+                />
+              ) : (
+                <Text style={styles.buttonText}>Choose Photo</Text>
+              )}
+            </TouchableOpacity>
           </View>
-        </ScrollView>
+          <ExtraInfo User={User} Profile={Profile} navigation={navigation} />
+        </View>
       </SafeAreaView>
     </>
   );

@@ -87,9 +87,9 @@ function EditGroup({navigation, appState, route, setgroups}) {
         grouppolicy,
         website,
       );
-      console.log(JSON.stringify(result, null, 2));
+
       // await getGroups();
-      // navigation.goBack();
+      navigation.goBack();
     } catch (err) {
       Alert.alert('Error updating group');
     }

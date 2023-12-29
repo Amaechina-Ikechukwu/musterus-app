@@ -9,6 +9,7 @@ import {
   BackHandler,
   Modal,
   Image,
+  FlatList,
 } from 'react-native';
 import React, {useEffect, useState, useRef, useCallback} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -31,7 +32,9 @@ import PostFlatlist from '../models/PostFlatlist';
 import {SendACard} from '../components/SendACard';
 import {usersfullprofile} from '../../user/apis/profile';
 import {homepage} from '../oldapis/home';
-// import RNPaystack from 'react-native-paystack';
+import emptyimage from '../../../emptyimage';
+import {Style} from '../../../assets/styles';
+import AdPage from '../components/AdPage';
 
 const Colors = Color();
 
@@ -42,8 +45,9 @@ function SignIn({navigation, appState, setposts, setmyprofile}) {
   const [CreatePost, showCreatePost] = useState(false);
   const [pickImage, setpickImage] = useState(false);
   const {mykey, mskl} = appState?.User;
-  const {Posts, Profile} = appState;
+  const {User, Profile} = appState;
   const [posts, setPosts] = useState([]);
+  const [members, setMembers] = useState();
   const [postToView, setPostToView] = useState();
 
   useEffect(() => {
@@ -54,14 +58,6 @@ function SignIn({navigation, appState, setposts, setmyprofile}) {
       }
       return true;
     };
-
-    // Add event listener for hardware back button press
-    // BackHandler.addEventListener('hardwareBackPress', handleBackPress);
-
-    // // Cleanup the event listener when the component is unmounted
-    // return () => {
-    //     BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
-    // };
   }, [showCreatePost]);
 
   const STYLES = ['default', 'dark-content', 'light-content'];
@@ -75,19 +71,31 @@ function SignIn({navigation, appState, setposts, setmyprofile}) {
   const getHomeFeed = async () => {
     const result = await homepage(mykey, mskl);
     setmyprofile(result?.MyProfile);
-    // setposts(result.data);
+    setMembers(result?.RecentMembers);
   };
-  const getProfile = async () => {
-    const result = await usersfullprofile(mykey);
 
-    setmyprofile(result);
-  };
   useEffect(() => {
     getHomeFeed();
     // getProfile();
   }, []);
-  useEffect(() => {}, [posts, Profile]);
-
+  useEffect(() => {}, [User, Profile]);
+  const renderItem = ({item}) => {
+    return (
+      <View style={{alignItems: 'center'}}>
+        <Image
+          src={
+            item?.avatar && item?.avatar.length > 5
+              ? `https://www.musterus.com/${item?.avatar}`
+              : emptyimage
+          }
+          style={{height: 100, width: 100}}
+        />
+        <Text style={[Style.Text, {fontSize: 14}]}>
+          {item?.firstname + ' ' + item?.lastname}
+        </Text>
+      </View>
+    );
+  };
   return (
     <>
       {CreatePost == true && (
@@ -103,7 +111,7 @@ function SignIn({navigation, appState, setposts, setmyprofile}) {
 
       <FeedHeader
         showCreatePost={showCreatePost}
-        image={Profile?.user?.photourl}
+        Profile={Profile}
         navigation={navigation}
       />
       <BottomTab page="Home" navigation={navigation} />
@@ -124,16 +132,20 @@ function SignIn({navigation, appState, setposts, setmyprofile}) {
               width: '100%',
               height: '100%',
               gap: 20,
+              paddingHorizontal: 10,
             }}>
-            <PostFlatlist
-              setPostToView={setPostToView}
-              data={Posts}
-              loading={loading}
-              setLoading={setLoading}
-              setModalVisible={setModalVisible}
-              navigation={navigation}
-              setPosts={setPosts}
-              fetchposts={() => getHomeFeed()}
+            <SendACard mykey={mykey} />
+            <FlatList
+              data={members}
+              renderItem={renderItem}
+              numColumns={3}
+              columnWrapperStyle={{gap: 20, justifyContent: 'center'}}
+              contentContainerStyle={{gap: 10}}
+              keyExtractor={item => item.uid}
+              // ListFooterComponent={<AdPage mykey={mykey} mskl={mskl} />}
+              ListHeaderComponent={
+                <Text style={Style.Text}>Recent Members</Text>
+              }
             />
           </View>
         </View>

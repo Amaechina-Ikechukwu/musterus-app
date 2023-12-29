@@ -23,6 +23,7 @@ export function HeaderComponent({
   mykey,
 }) {
   useEffect(() => {}, [page]);
+
   return (
     <>
       <View
@@ -107,7 +108,7 @@ export function HeaderComponent({
               </TouchableOpacity>
             ))}
 
-          {page == 'Profile' && mykey == user && <OpenDrawerIcon />}
+          {page == 'Profile' && user == undefined && <OpenDrawerIcon />}
         </View>
       </View>
     </>

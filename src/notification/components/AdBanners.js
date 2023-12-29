@@ -10,6 +10,7 @@ import {adbanner} from '../apis/adbanner';
 import {Style} from '../../../assets/styles';
 import {PrimaryButton} from '../../components/buttons/primary';
 import * as Linking from 'expo-linking';
+import * as WebBrowser from 'expo-web-browser';
 export default function AdBanners({User}) {
   const [data, setData] = useState();
   const link = `https://www.musterus.com/advertisements/order/?mykey=${User?.mykey}`;
@@ -19,7 +20,7 @@ export default function AdBanners({User}) {
     return (
       <TouchableOpacity
         style={{height: 300, width: 200}}
-        onPress={() => Linking.openURL(bannerlink)}>
+        onPress={() => WebBrowser.openBrowserAsync(bannerlink)}>
         <ImageBackground
           source={{uri: 'https://www.musterus.com' + item.bannerfile}}
           imageStyle={{height: 400}}
@@ -57,11 +58,12 @@ export default function AdBanners({User}) {
         ListEmptyComponent={
           <View
             style={{
+              marginTop: 20,
               alignItems: 'center',
 
               width: '100%',
             }}>
-            <Text style={[Style.boldText]}>
+            <Text style={[Style.Text, {textAlign: 'center'}]}>
               Seems you haven't added an ad, click on the "Add New Banner"
               above.
             </Text>
@@ -85,7 +87,7 @@ export default function AdBanners({User}) {
               }}
               title=" My Orders"
               callBack={() => {
-                Linking.openURL(orderlink);
+                WebBrowser.openBrowserAsync(orderlink);
               }}
             />
 
@@ -93,7 +95,7 @@ export default function AdBanners({User}) {
               style={{borderRadius: 5}}
               title="Add New Banner"
               callBack={() => {
-                Linking.openURL(link);
+                WebBrowser.openBrowserAsync(link);
               }}
             />
           </View>

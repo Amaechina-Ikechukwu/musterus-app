@@ -48,11 +48,7 @@ function CreateGroupPost({appState, navigation}) {
           image,
         );
 
-        console.log(
-          'Upload Response:',
-          JSON.stringify(response.Group, null, 2),
-        );
-        // Handle the response accordingly
+        navigation.goBack();
       } catch (error) {
         Alert.alert(
           'Error Uploading Group Post',
@@ -102,10 +98,7 @@ function CreateGroupPost({appState, navigation}) {
                 gap: 3,
               }}>
               <Image
-                source={{
-                  uri:
-                    'https://www.musterus.com' + Profile.avatar || emptyimage,
-                }}
+                src={'https://www.musterus.com' + Profile.avatar || emptyimage}
                 style={{
                   width: 40,
                   height: 40,

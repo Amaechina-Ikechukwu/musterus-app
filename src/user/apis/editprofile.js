@@ -1,35 +1,20 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://musterus-api.onrender.com', // Replace with your API base URL
+  baseURL: 'https://www.musterus.com', // Replace with your API base URL
 });
 
-export const updateprofile = async (
-  token,
-  firstname,
-  lastname,
-  username,
-  bio,
-  photourl,
-  birthdate,
-) => {
+export const editprofile = async (mykey, mskl, profile) => {
   try {
-    const response = await api.post(
-      '/profile/update',
-      {
-        firstname, // Correct spelling here
-        lastname,
-        username,
-        bio,
-        photourl,
-        birthdate,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`, // Include the Bearer token in the request headers
-        },
-      },
-    );
+    // Constructing the query string
+    let queryString = `mykey=${mykey}&mskl=${mskl}`;
+    for (const key in profile) {
+      if (profile.hasOwnProperty(key)) {
+        queryString += `&${key}=${encodeURIComponent(profile[key])}`;
+      }
+    }
+
+    const response = await api.get(`/ws/myprofile/update?${queryString}`);
     return response.data;
   } catch (error) {
     throw error;

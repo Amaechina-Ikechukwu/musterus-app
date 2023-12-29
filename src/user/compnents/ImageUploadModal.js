@@ -15,8 +15,8 @@ import {Color} from '../../components/theme';
 import {Style} from '../../../assets/styles';
 import {OutlinedInput} from '../../components/inputs';
 import {FontAwesome} from '@expo/vector-icons';
-import axios from 'axios';
-import {imageupload} from '../oldapis/groups/imageupload';
+import {imageupload} from '../apis/imageupload';
+
 const {width, height} = Dimensions.get('window');
 const Colors = Color();
 export default function ImageUploadModal({
@@ -30,7 +30,7 @@ export default function ImageUploadModal({
   const [image, setImage] = useState(null);
   const [data, setData] = useState({
     caption: '',
-    upsection: '50',
+    upsection: '0',
   });
   const pickImage = async () => {
     const permissionResult =
@@ -46,14 +46,14 @@ export default function ImageUploadModal({
     }
   };
   const uploadImage = async () => {
-    if (!image || !data.caption) {
+    if (!image) {
       Alert.alert(
         'Error Uploading Group Image',
         "Please ensure you've added necessary fields",
       );
     } else {
       try {
-        await imageupload(mykey, mskl, uid, groupKey, data, image);
+        const response = await imageupload(mykey, mskl, uid, data, image);
 
         onClose();
       } catch (error) {
@@ -64,10 +64,6 @@ export default function ImageUploadModal({
         );
       }
     }
-  };
-
-  const onInputChange = (name, value) => {
-    setData({...data, [name]: value});
   };
 
   return (
@@ -151,7 +147,7 @@ export default function ImageUploadModal({
                   alignItems: 'center',
                 }}>
                 <TouchableOpacity
-                  onPress={() => setData(prev => ({...prev, upsection: '50'}))}
+                  onPress={() => setData(prev => ({...prev, upsection: '0'}))}
                   style={{
                     width: width * 0.8,
                     padding: 20,
@@ -161,23 +157,23 @@ export default function ImageUploadModal({
                     justifyContent: 'center',
                     alignItems: 'center',
                     backgroundColor:
-                      data.upsection == '50' ? Colors.primary : 'transparent',
+                      data.upsection == '0' ? Colors.primary : 'transparent',
                   }}>
                   <Text
                     style={[
                       Style.Text,
                       {
                         color:
-                          data.upsection == '50'
+                          data.upsection == '0'
                             ? Colors.light
                             : Colors.textColor,
                       },
                     ]}>
-                    Group Logo
+                    Timeline
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => setData(prev => ({...prev, upsection: '51'}))}
+                  onPress={() => setData(prev => ({...prev, upsection: '1'}))}
                   style={{
                     width: width * 0.8,
                     padding: 20,
@@ -187,21 +183,21 @@ export default function ImageUploadModal({
                     justifyContent: 'center',
                     alignItems: 'center',
                     backgroundColor:
-                      data.upsection == '51' ? Colors.primary : 'transparent',
+                      data.upsection == '1' ? Colors.primary : 'transparent',
                   }}>
                   <Text
                     style={[
                       Style.Text,
                       {
                         color:
-                          data.upsection == '51' ? Colors.light : Colors.text,
+                          data.upsection == '1' ? Colors.light : Colors.text,
                       },
                     ]}>
-                    Group Background
+                    Profile Header Background
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => setData(prev => ({...prev, upsection: '52'}))}
+                  onPress={() => setData(prev => ({...prev, upsection: '2'}))}
                   style={{
                     width: width * 0.8,
                     padding: 20,
@@ -211,28 +207,20 @@ export default function ImageUploadModal({
                     justifyContent: 'center',
                     alignItems: 'center',
                     backgroundColor:
-                      data.upsection == '52' ? Colors.primary : 'transparent',
+                      data.upsection == '2' ? Colors.primary : 'transparent',
                   }}>
                   <Text
                     style={[
                       Style.Text,
                       {
                         color:
-                          data.upsection == '52' ? Colors.light : Colors.text,
+                          data.upsection == '2' ? Colors.light : Colors.text,
                       },
                     ]}>
-                    Group Header
+                    Avatar
                   </Text>
                 </TouchableOpacity>
               </View>
-            </View>
-            <View style={{width: '100%'}}>
-              <OutlinedInput
-                style={{marginBottom: 0, width: width * 0.8}}
-                data={data.caption}
-                setData={value => onInputChange('caption', value)}
-                placeholder="Enter image caption"
-              />
             </View>
           </View>
           <View

@@ -14,7 +14,6 @@ export const grouppostcomment = async (
   replypost,
 ) => {
   try {
-    console.log({mykey, mskl, uid, group, postid, replypost});
     const response = await api.post(
       `/ws/groups/replypost?mykey=${mykey}&mskl=${mskl}&uid=${uid}&group=${group}&postid=${postid}&replypost=${replypost}`,
     );

@@ -95,20 +95,6 @@ function EditGroup({navigation, appState, route, setgroups}) {
     TRANSITIONS[0],
   );
 
-  // const updateGroup = async () => {
-  //   try {
-  //     // Renamed the function to updateUserGroup
-  //     const {name, description, photourl} = data;
-  //     const token = User?.mykey;
-  //     // Assuming this is the function that updates the group data
-  //     await updategroup(name, description, photourl, groupid, token);
-  //     await getGroups();
-  //     navigation.goBack(); // Changed from navigate(-1) to goBack()
-  //   } catch (err) {
-  //     console.log(err);
-  //     Alert.alert('Error updating group');
-  //   }
-  // };
   const onInputChange = (name, value) => {
     setData({...data, [name]: value});
   };

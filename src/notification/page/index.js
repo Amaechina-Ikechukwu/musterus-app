@@ -50,12 +50,11 @@ function SignIn({navigation, appState}) {
         />
 
         <Header page="Notification" navigation={navigation} />
-        <ScrollView
-          contentContainerStyle={{alignItems: 'center', paddingHorizontal: 10}}>
+        <View style={{alignItems: 'center', paddingHorizontal: 10}}>
           <View style={{marginTop: 100, height: '100%', width: '100%'}}>
             <AdBanners User={User} />
           </View>
-        </ScrollView>
+        </View>
       </SafeAreaView>
     </>
   );

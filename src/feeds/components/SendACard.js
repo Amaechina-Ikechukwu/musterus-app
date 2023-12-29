@@ -11,18 +11,18 @@ import {Style} from '../../../assets/styles';
 import {Color} from '../../components/theme';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {StaticImage} from '../../utilities';
+import * as Linking from 'expo-linking';
+import * as WebBrowser from 'expo-web-browser';
 const IMAGE_WIDTH = 74;
 const IMAGE_HEIGHT = 130;
 const Colors = Color();
-export function SendACard({navigation}) {
+export function SendACard({navigation, mykey}) {
+  const link = `https://www.musterus.com/eventcards?mykey=${mykey}&event=0`;
   return (
     <View style={styles.container}>
       <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
         <View style={styles.imagesContainer}>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('MuterCards');
-            }}>
+          <TouchableOpacity onPress={() => WebBrowser.openBrowserAsync(link)}>
             <ImageBackground
               style={{
                 width: '100%',

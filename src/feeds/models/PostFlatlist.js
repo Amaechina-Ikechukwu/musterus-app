@@ -66,7 +66,6 @@ const PostFlatlist = ({
             flexDirection: 'row',
             justifyContent: 'center',
           }}>
-          <BirthdayView user={User?.mykey} navigation={navigation} />
           <SendACard navigation={navigation} />
         </View>
       }

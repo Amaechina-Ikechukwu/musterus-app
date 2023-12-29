@@ -1,44 +1,64 @@
-import {View, Text, TouchableOpacity} from 'react-native';
-import React from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  SafeAreaView,
+  ScrollView,
+} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import CategorySelector from '../../notification/components/Countries';
 import AnniversaryCategorySelector from '../compnents/AnniversaryCategories';
-
-export default function ExtraInfo() {
+import DateTimePicker from '@react-native-community/datetimepicker';
+import {OutlinedInput} from '../../components/inputs';
+import {Style} from '../../../assets/styles';
+import {PrimaryButton} from '../../components/buttons/primary';
+import {editprofile} from '../apis/editprofile';
+export default function ExtraInfo({User, Profile, navigation}) {
   const [profile, setProfile] = useState({
-    profileintro: '',
-    address: '',
-    city: '',
-    state: '',
-    zipcode: '',
-    country: '',
+    firstname: Profile?.firstname,
+    lastname: Profile?.lastname,
+    username: Profile?.username,
+    usergender: Profile?.usergender,
+    birthdate: new Date(),
+    profileintro: Profile?.profileintro,
+    address: Profile?.address,
+    city: Profile?.city,
+    state: Profile?.state,
+    zipcode: Profile?.zipcode,
+    country: Profile?.country,
     relationship: 0,
-    anniversary: '',
+    anniversary: Profile?.anniversary,
     inrelation: '',
-    children: '',
-    nationality: '',
+    children: Profile?.children,
+    nationality: Profile?.nationality,
     education: 0,
-    institute: '',
-    graduateYear: '',
-    whereWork: '',
-    jobTitle: '',
-    scheduler: '',
-    telegram: '',
-    viber: '',
-    whatsapp: '',
-    skype: '',
-    signal: '',
-    facebook: '',
-    linkedin: '',
-    xing: '',
-    twitter: '',
-    youtube: '',
-    instagram: '',
-    pinterest: '',
-    mykey: '',
-    myintro: '',
+    institute: Profile?.institute,
+    graduateyear: Profile?.graduateyear,
+    wherework: Profile?.wherework,
+    jobtitle: Profile?.jobtitle,
+    scheduler: Profile?.scheduler,
+    telegram: Profile?.telegram,
+    viber: Profile?.viber,
+    whatsapp: Profile?.whatsapp,
+    skype: Profile?.skype,
+    signal: Profile?.signal,
+    facebook: Profile?.facebook,
+    linkedin: Profile?.linkedin,
+    xing: Profile?.xing,
+    twitter: Profile?.twitter,
+    youtube: Profile?.youtube,
+    instagram: Profile?.instagram,
+    pinterest: Profile?.pinterest,
+    myintro: Profile?.myintro,
   });
   const placeholders = {
+    firstname: 'Add Firstname',
+    lastname: 'Lastname',
+    username: 'Username',
+    birthdate: 'Add date of birth',
+    usergender: 'Male or Female',
     address: 'Enter Address (max 300 characters)',
+    profileintro: 'Add bio',
     city: 'Enter City (max 100 characters)',
     state: 'Enter State (max 100 characters)',
     zipcode: 'Enter Zip Code (max 50 characters)',
@@ -74,68 +94,153 @@ export default function ExtraInfo() {
     country: false,
     anniversary: false,
   });
+  const [date, setDate] = useState(new Date());
   const chooseCountry = cat => {
     setProfile(prev => ({...prev, country: cat}));
   };
   const chooseAnniversary = cat => {
     setProfile(prev => ({...prev, anniversary: cat}));
   };
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShowDatePicker(Platform.OS === 'ios'); // Close the picker on iOS after selection
+    setProfile({...data, birthdate: currentDate});
+  };
+
+  const showDatepicker = () => {
+    setShowDatePicker(true);
+  };
+  const formatDate = inputDate => {
+    const year = inputDate.getFullYear();
+    const month =
+      inputDate.getMonth() + 1 < 10
+        ? `0${inputDate.getMonth() + 1}`
+        : inputDate.getMonth() + 1;
+    const day =
+      inputDate.getDate() < 10
+        ? `0${inputDate.getDate()}`
+        : inputDate.getDate();
+    return `${year}-${month}-${day}`;
+  };
+  const handleInputChange = (field, value) => {
+    setProfile({...profile, [field]: value});
+  };
+  const editProfile = async () => {
+    try {
+      await editprofile(User?.mykey, User.mskl, profile);
+      navigation.goBack();
+    } catch (err) {
+      Alert.alert(
+        'Error updating profile',
+        'Unfortunately, your profile cannot be updated at this time',
+      );
+    }
+  };
   return (
-    <View>
-      <SafeAreaView>
-        {Object.keys(profile).map((prof, index) => {
-          if (prof == 'country') {
-            select.country ? (
-              <CategorySelector
-                onSelect={chooseCountry()}
-                onClose={() => setSelect({anniversary: !select.anniversary})}
-              />
-            ) : (
-              <TouchableOpacity
-                onPress={() => setSelect({country: !select.country})}
-                style={{
-                  width: '100%',
-                  borderWidth: 1,
-                  borderRadius: 10,
-                  height: 50,
-                  padding: 10,
-                  justifyContent: 'center',
-                  borderColor: 'gray',
-                }}>
-                <Text>{profile.country || 'Select a country'}</Text>
-              </TouchableOpacity>
-            );
-          }
-          if (prof == 'anniversary') {
-            select.anniversary ? (
-              <AnniversaryCategorySelector
-                onSelect={chooseAnniversary()}
-                onClose={() => setSelect({anniversary: !select.anniversary})}
-              />
-            ) : (
-              <TouchableOpacity
-                onPress={() => setSelect({anniversary: !select.anniversary})}
-                style={{
-                  width: '100%',
-                  borderWidth: 1,
-                  borderRadius: 10,
-                  height: 50,
-                  padding: 10,
-                  justifyContent: 'center',
-                  borderColor: 'gray',
-                }}>
-                <Text>{profile.anniversary || prof}</Text>
-              </TouchableOpacity>
-            );
-          }
-          <OutlinedInput
-            style={{marginBottom: 0}}
-            value={profile[prof]}
-            onChangeText={text => handleInputChange(prof, text)}
-            placeholder={placeholders[prof]}
-          />;
-        })}
-      </SafeAreaView>
+    <View style={{height: '75%'}}>
+      <ScrollView>
+        <View style={{gap: 20, marginBottom: 60}}>
+          {Object.keys(profile).map((prof, index) => {
+            if (prof == 'country') {
+              return select.country ? (
+                <CategorySelector
+                  onSelect={chooseCountry()}
+                  onClose={() => setSelect({anniversary: !select.anniversary})}
+                />
+              ) : (
+                <TouchableOpacity
+                  onPress={() => setSelect({country: !select.country})}
+                  style={{
+                    width: '100%',
+                    borderWidth: 1,
+                    borderRadius: 10,
+                    height: 50,
+                    padding: 10,
+                    justifyContent: 'center',
+                    borderColor: 'gray',
+                  }}>
+                  <Text>{profile.country || 'Select a country'}</Text>
+                </TouchableOpacity>
+              );
+            }
+            if (prof == 'anniversary') {
+              return select.anniversary ? (
+                <AnniversaryCategorySelector
+                  onSelect={chooseAnniversary()}
+                  onClose={() => setSelect({anniversary: !select.anniversary})}
+                />
+              ) : (
+                <TouchableOpacity
+                  onPress={() => setSelect({anniversary: !select.anniversary})}
+                  style={{
+                    width: '100%',
+                    borderWidth: 1,
+                    borderRadius: 10,
+                    height: 50,
+                    padding: 10,
+                    justifyContent: 'center',
+                    borderColor: 'gray',
+                  }}>
+                  <Text>{profile.anniversary || prof}</Text>
+                </TouchableOpacity>
+              );
+            }
+            if (prof == 'birthdate') {
+              return showDatePicker ? (
+                <DateTimePicker
+                  testID="dateTimePicker"
+                  value={profile.birthdate}
+                  mode="date"
+                  is24Hour={true}
+                  display="default"
+                  onChange={onChange}
+                />
+              ) : (
+                <TouchableOpacity
+                  style={{flexDirection: 'row', alignItems: 'center'}}
+                  onPress={showDatepicker}>
+                  <Text style={[Style.Text]}>
+                    {`Click to add your date of birth: `}
+                  </Text>
+                  <Text style={[Style.boldText]}>
+                    {` ${formatDate(profile.birthdate)}`}
+                  </Text>
+                </TouchableOpacity>
+              );
+            } else {
+              return (
+                <OutlinedInput
+                  data={profile[prof]}
+                  key={placeholders[prof]}
+                  style={{marginBottom: 0}}
+                  value={profile[prof]}
+                  setData={text => handleInputChange(prof, text)}
+                  placeholder={placeholders[prof]}
+                />
+              );
+            }
+          })}
+        </View>
+      </ScrollView>
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          width: '100%',
+          alignItems: 'center',
+        }}>
+        <View style={{width: '100%'}}>
+          <PrimaryButton
+            title="Update"
+            style={{width: '100%'}}
+            callBack={() => {
+              editProfile();
+            }}
+          />
+        </View>
+      </View>
     </View>
   );
 }

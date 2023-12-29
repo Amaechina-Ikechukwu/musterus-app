@@ -160,7 +160,7 @@ function SignIn({navigation, disp_Login, setUser, route}) {
                 setData={setPassword}
                 placeholder="Password"
               />
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 onPress={() => {
                   navigation.navigate('RESET PWD');
                 }}>
@@ -171,7 +171,7 @@ function SignIn({navigation, disp_Login, setUser, route}) {
                   }}>
                   forgot password?
                 </Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
 
               <TouchableOpacity
                 android_ripple={{color: 'white'}}

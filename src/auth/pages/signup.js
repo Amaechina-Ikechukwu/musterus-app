@@ -101,31 +101,18 @@ function SignIn({navigation, disp_Login, appState, setUser, route}) {
 
   // }, [data]);
   const signupUser = async () => {
-    const {
-      username,
-      firstname,
-      lastname,
-      email,
-      password,
-      confirmPassword,
-      birtdate,
-    } = data;
+    const {username, firstname, lastname, email} = data;
 
     try {
-      if (password !== confirmPassword) {
-        Alert.alert('Password does not match');
+      if (!firstname || !lastname || !email || !username) {
+        Alert.alert('Please fill in all fields');
       } else {
-        const result = await signup(
-          username,
-          firstname,
-          lastname,
-          email,
-          password,
-          birtdate,
-        );
+        await signup(firstname, lastname, email, username);
 
-        setUser(result);
-        navigation.navigate('Add-Photo');
+        Alert.alert(
+          'Signup Success',
+          'You will be notified once we go live. Thank you.',
+        );
       }
     } catch (err) {
       Alert.alert('Error Signing');
@@ -218,7 +205,7 @@ function SignIn({navigation, disp_Login, appState, setUser, route}) {
                 setData={value => onInputChange('username', value)}
                 placeholder="Enter Username"
               />
-              <OutlinedInput
+              {/* <OutlinedInput
                 data={data.password}
                 setData={value => onInputChange('password', value)}
                 placeholder="Enter Password"
@@ -249,7 +236,7 @@ function SignIn({navigation, disp_Login, appState, setUser, route}) {
                   display="default"
                   onChange={onChange}
                 />
-              )}
+              )} */}
               <PrimaryButton
                 loading={loading}
                 style={{

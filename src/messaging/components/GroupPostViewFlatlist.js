@@ -107,7 +107,6 @@ const GroupPostViewFlatListComponent = ({data, appState, route}) => {
       post.grouppostid,
     );
     setReplies(result.Replies);
-    console.log(JSON.stringify(result.Replies, null, 2));
   };
   const replyToGroupPost = async comment => {
     const result = await grouppostcomment(
@@ -118,7 +117,6 @@ const GroupPostViewFlatListComponent = ({data, appState, route}) => {
       post.grouppostid,
       comment,
     );
-    console.log({result});
     if (result.err == 0) {
       getFullPostView();
     }

@@ -6,7 +6,7 @@ import {
   ImageBackground,
   ActivityIndicator,
 } from 'react-native';
-import React, {useEffect, useLayoutEffect, useState} from 'react';
+import React, {useEffect, useLayoutEffect, useMemo, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {ScrollView, TouchableOpacity} from 'react-native-gesture-handler';
 import {connect} from 'react-redux';
@@ -46,26 +46,56 @@ function SignIn({navigation, appState, route, setgroupmessages}) {
   const {mykey, mskl} = user;
   const group = appState.Group;
   const {Profile} = appState;
-  const getGroupInfo = async () => {
-    const result = await getgroupsview(
-      user?.mykey,
-      user?.mskl,
-      group?.groupkey,
-    );
-    // console.log(JSON.stringify(result, null, 2));
-    // setData(result.data.group);
-    for (let index = 0; index < result?.Members.length; index++) {
-      const element = result?.Members[index];
+  // const getGroupInfo = async () => {
+  //   const result = await getgroupsview(
+  //     user?.mykey,
+  //     user?.mskl,
+  //     group?.groupkey,
+  //   );
+  //   // console.log(JSON.stringify(result, null, 2));
+  //   // setData(result.data.group);
+  //   for (let index = 0; index < result?.Members.length; index++) {
+  //     const element = result?.Members[index];
 
-      if (element.profilekey === Profile.profilekey) {
-        setIsUserMember(true);
-        getGroupPost();
+  //     if (element.profilekey === Profile.profilekey) {
+  //       setIsUserMember(true);
+  //       getGroupPost();
+  //     } else {
+  //       setIsUserMember(false);
+  //     }
+  //   }
+  // };
+  const memoizedGetGroupInfo = useMemo(() => {
+    const getGroupInfo = async () => {
+      const result = await getgroupsview(
+        user?.mykey,
+        user?.mskl,
+        group?.groupkey,
+      );
+      // console.log(JSON.stringify(result, null, 2));
+      // setData(result.data.group);
+      let isUserMember = false;
+
+      for (let index = 0; index < result?.Members.length; index++) {
+        const element = result?.Members[index];
+
+        if (element.profilekey === Profile.profilekey) {
+          isUserMember = true;
+          getGroupPost();
+          break; // No need to continue loop if found
+        } else {
+          isUserMember = false;
+        }
       }
-    }
-  };
+
+      setIsUserMember(isUserMember);
+    };
+
+    return getGroupInfo;
+  }, [group]);
 
   useLayoutEffect(() => {
-    getGroupInfo();
+    memoizedGetGroupInfo();
   }, [isUserMember]);
   const {groupid, groupname} = route.params;
   useEffect(() => {}, [group]);
@@ -100,27 +130,6 @@ function SignIn({navigation, appState, route, setgroupmessages}) {
   };
   const [pickImage, setpickImage] = useState(false);
   const [image, setImage] = useState(null);
-  const [recentImages, setRecentImages] = useState([]);
-  const ChooseImage = async () => {
-    const permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (permissionResult.granted === false) {
-      Alert.alert('Permission to access camera roll is required!');
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      // Use "canceled" instead of "cancelled"
-      setImage(result.assets[0].uri);
-      setpickImage(true);
-    }
-  };
 
   const getGroupPost = async () => {
     const result = await getgroupsposts(
@@ -144,6 +153,7 @@ function SignIn({navigation, appState, route, setgroupmessages}) {
     setIsUserMember(result.status == 1 || result.status == 0);
     getGroupPost();
   };
+
   useEffect(() => {}, [group]);
   if (!isUserMember) {
     <SafeAreaView style={styles.container}>
