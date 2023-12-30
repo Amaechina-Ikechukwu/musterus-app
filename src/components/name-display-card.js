@@ -39,7 +39,15 @@ export function NameDisplayCard({
     'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
   useEffect(() => {}, []);
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        {
+          alignItems: 'center',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+        },
+      ]}>
       <View style={styles.header}>
         <Image
           style={styles.avatar}
@@ -70,113 +78,112 @@ export function NameDisplayCard({
               <Text style={styles.usernameTag}>{'@' + item?.username}</Text>
             </TouchableOpacity>
           </View>
-
-          {component == 'SUGGESTION' ||
-          component == 'SEARCH' ||
-          component == 'SENDCARD' ||
-          component == 'FollowUsers' ? (
-            !following ? (
-              <>
-                <View
-                  style={{
-                    flex: 0.8,
-                    // backgroundColor: "red",
-                    alignItems: 'center',
-                    justifyContent: 'flex-end',
-                    flexDirection: 'row',
-                    gap: 5,
-                    // marginRight: 10,
-                    // flex:1
-                  }}>
-                  <TouchableOpacity
-                    onPress={() => friendUser()}
-                    style={{
-                      backgroundColor: Colors.primary,
-                      height: 30,
-                      width: 90,
-                      borderRadius: 40,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}>
-                    <Text style={{color: Colors.light}}>Follow</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => friendUser()}
-                    style={{
-                      borderColor: Colors.primary,
-                      borderWidth: 1,
-                      height: 30,
-                      width: 90,
-                      borderRadius: 40,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}>
-                    <Text style={{color: Colors.light, color: Colors.primary}}>
-                      Add Friend
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </>
-            ) : (
+        </View>
+      </View>
+      <View>
+        {component == 'SUGGESTION' ||
+        component == 'SEARCH' ||
+        component == 'SENDCARD' ||
+        component == 'FollowUsers' ? (
+          !following ? (
+            <>
               <View
                 style={{
-                  flex: 0.8,
                   // backgroundColor: "red",
-                  alignItems: 'flex-start',
-                  justifyContent: 'center',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                  flexDirection: 'row',
+                  gap: 5,
                   // marginRight: 10,
                   // flex:1
                 }}>
-                {component == 'SEARCH' ? (
-                  <TouchableOpacity
-                    onPress={() => conversationId(item)}
-                    style={{
-                      backgroundColor: Colors.white,
-                      height: 30,
-                      width: 90,
-                      borderRadius: 40,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}>
-                    <Text style={{color: Colors.primaryText}}>Message</Text>
-                  </TouchableOpacity>
-                ) : component == 'SENDCARD' ? (
-                  <TouchableOpacity
-                    onPress={() => sendACard(item)}
-                    style={{
-                      backgroundColor: Colors.white,
-                      height: 30,
-                      width: 90,
-                      borderRadius: 40,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}>
-                    <Text style={{color: Colors.primaryText}}>Send Card</Text>
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity
-                    style={{
-                      backgroundColor: Colors.lightgrey,
-                      height: 30,
-                      width: 90,
-                      borderRadius: 40,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}>
-                    <Text style={{color: Colors.primaryText}}>Following</Text>
-                  </TouchableOpacity>
-                )}
+                <TouchableOpacity
+                  onPress={() => friendUser()}
+                  style={{
+                    backgroundColor: Colors.primary,
+                    height: 30,
+                    borderRadius: 40,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 90,
+                  }}>
+                  <Text style={{color: Colors.light}}>Follow</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => friendUser()}
+                  style={{
+                    borderColor: Colors.primary,
+                    borderWidth: 1,
+                    height: 30,
+                    borderRadius: 40,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 90,
+                  }}>
+                  <Text style={{color: Colors.light, color: Colors.primary}}>
+                    Add Friend
+                  </Text>
+                </TouchableOpacity>
               </View>
-            )
-          ) : null}
-        </View>
+            </>
+          ) : (
+            <View
+              style={{
+                // backgroundColor: "red",
+                alignItems: 'flex-start',
+                justifyContent: 'center',
+                // marginRight: 10,
+                // flex:1
+              }}>
+              {component == 'SEARCH' ? (
+                <TouchableOpacity
+                  onPress={() => conversationId(item)}
+                  style={{
+                    backgroundColor: Colors.white,
+                    height: 30,
+                    width: 90,
+                    borderRadius: 40,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Text style={{color: Colors.primaryText}}>Message</Text>
+                </TouchableOpacity>
+              ) : component == 'SENDCARD' ? (
+                <TouchableOpacity
+                  onPress={() => sendACard(item)}
+                  style={{
+                    backgroundColor: Colors.white,
+                    height: 30,
+                    width: 90,
+                    borderRadius: 40,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Text style={{color: Colors.primaryText}}>Send Card</Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: Colors.lightgrey,
+                    height: 30,
+                    width: 90,
+                    borderRadius: 40,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Text style={{color: Colors.primaryText}}>Following</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          )
+        ) : null}
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {width: '100%', height: 40, marginBottom: 5},
+  container: {width: '100%', height: 40},
   header: {
     flexDirection: 'row',
     alignItems: 'center',

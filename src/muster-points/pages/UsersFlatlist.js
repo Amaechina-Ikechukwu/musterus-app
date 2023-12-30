@@ -55,13 +55,11 @@ const UsersFlatlist = ({
   };
 
   return (
-    <FlashList
+    <FlatList
       data={data}
       renderItem={renderItem}
       keyExtractor={(item, index) => item.uid + index}
       ListHeaderComponent={Header && Header}
-      disableAutoLayout
-      estimatedItemSize={200}
       ListEmptyComponent={
         <View
           style={{
