@@ -88,9 +88,9 @@ function SignIn({navigation, appState, setposts, setmyprofile}) {
               ? `https://www.musterus.com/${item?.avatar}`
               : emptyimage
           }
-          style={{height: 100, width: 100}}
+          style={{height: 60, width: 60}}
         />
-        <Text style={[Style.Text, {fontSize: 14}]}>
+        <Text style={[Style.Text, {fontSize: 10}]}>
           {item?.firstname + ' ' + item?.lastname}
         </Text>
       </View>

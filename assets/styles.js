@@ -4,33 +4,33 @@ const Colors = Color();
 export const Style = StyleSheet.create({
   bolder: {
     fontWeight: '600',
-    fontSize: 18,
+    fontSize: 14,
     color: Colors.textColor,
     fontFamily: 'Montserrat_Regular',
   },
   boldText: {
     fontWeight: '600',
-    fontSize: 14,
+    fontSize: 12,
     color: Colors.textColor,
     fontFamily: 'Montserrat_Regular',
   },
   boldText2: {
     fontWeight: '600',
-    fontSize: 14,
+    fontSize: 12,
     color: Colors.dark,
     fontFamily: 'Montserrat_Regular',
   },
 
   TextLink: {
     fontWeight: '400',
-    fontSize: 14,
+    fontSize: 12,
     color: Colors.primary,
     fontFamily: 'Montserrat_Regular',
   },
 
   LabelText: {
     fontWeight: '300',
-    fontSize: 14,
+    fontSize: 12,
     color: Colors.grey,
     fontFamily: 'Montserrat_light',
   },
@@ -43,7 +43,7 @@ export const Style = StyleSheet.create({
 
   Text: {
     fontWeight: '300',
-    fontSize: 14,
+    fontSize: 12,
     color: Colors.dark,
     fontFamily: 'Montserrat_Regular',
   },

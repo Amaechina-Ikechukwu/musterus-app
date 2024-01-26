@@ -7,6 +7,7 @@ import {TouchableOpacity} from 'react-native-gesture-handler';
 import {StaticImage} from '../utilities';
 import {followuser} from '../events/apis/followuser';
 import {frienduser} from '../events/apis/frienduser';
+import {Style} from '../../assets/styles';
 
 const Colors = Color();
 export function NameDisplayCard({
@@ -107,7 +108,10 @@ export function NameDisplayCard({
                     justifyContent: 'center',
                     width: 90,
                   }}>
-                  <Text style={{color: Colors.light}}>Follow</Text>
+                  <Text
+                    style={[Style.Text, {color: Colors.light, fontSize: 12}]}>
+                    Follow
+                  </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => friendUser()}
@@ -120,7 +124,15 @@ export function NameDisplayCard({
                     justifyContent: 'center',
                     width: 90,
                   }}>
-                  <Text style={{color: Colors.light, color: Colors.primary}}>
+                  <Text
+                    style={[
+                      Style.Text,
+                      {
+                        color: Colors.light,
+                        color: Colors.primary,
+                        fontSize: 12,
+                      },
+                    ]}>
                     Add Friend
                   </Text>
                 </TouchableOpacity>
@@ -196,7 +208,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.4)',
   },
   username: {
-    fontSize: 16,
+    fontSize: 12,
     fontWeight: 'bold',
     color: '#041616',
     fontFamily: 'Montserrat_ExtraBold',
@@ -218,7 +230,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   usernameTag: {
-    fontSize: 14,
+    fontSize: 10,
     color: 'gray',
     fontFamily: 'Montserrat_Regular',
   },

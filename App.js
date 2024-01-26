@@ -44,10 +44,14 @@ function App() {
         const value = await AsyncStorage.getItem('persist:user');
 
         const parsedValue = JSON.parse(value);
-
         if (parsedValue && parsedValue.User !== null) {
           setSignedIn(true);
         } else {
+          // const keys = await AsyncStorage.getAllKeys();
+          // // Iterate through all keys and remove their values
+          // await AsyncStorage.multiRemove(keys);
+
+          // console.log('AsyncStorage cleared successfully.');
           setSignedIn(false);
         }
       } catch (e) {
@@ -62,16 +66,16 @@ function App() {
   }, [signedIn]);
 
   // useEffect(() => {
-  // async function fetchData() {
-  //   const keys = await AsyncStorage.getAllKeys();
-  //   // Iterate through all keys and remove their values
-  //   await AsyncStorage.multiRemove(keys);
+  //   async function fetchData() {
+  //     const keys = await AsyncStorage.getAllKeys();
+  //     // Iterate through all keys and remove their values
+  //     await AsyncStorage.multiRemove(keys);
 
-  //   console.log('AsyncStorage cleared successfully.');
-  //   setSignedIn(false);
-  // }
+  //     console.log('AsyncStorage cleared successfully.');
+  //     setSignedIn(false);
+  //   }
 
-  // fetchData();
+  //   fetchData();
   // }, []);
   let [fontsLoaded, fontError] = useFonts({
     Montserrat_Regular,
