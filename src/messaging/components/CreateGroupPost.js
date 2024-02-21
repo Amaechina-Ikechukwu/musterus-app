@@ -19,7 +19,7 @@ import {FontAwesome} from '@expo/vector-icons';
 import axios from 'axios';
 import {imageupload} from '../oldapis/groups/imageupload';
 import {connect} from 'react-redux';
-import emptyimage from '../../../emptyimage';
+import emptyimage from '../../emptyimage';
 import {creategrouppost} from '../oldapis/groups/creategrouppost';
 const {width, height} = Dimensions.get('window');
 const Colors = Color();

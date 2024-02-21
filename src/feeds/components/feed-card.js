@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Pressable,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Replace with the appropriate icon library
 import {CommentIcon, LoveIcon, ShareIcon, ThreeDots, UnlikeIcon} from './icons';
@@ -16,6 +17,7 @@ import {StaticImage} from '../../utilities';
 import {NameDisplayCard} from './NameCard';
 import {Video, ResizeMode} from 'expo-av';
 import {likepost} from '../apis/likepost';
+import {reacttopost} from '../oldapis/reacttopost';
 // import {  } from 'react-native-paper';
 function getImageType(attachedImage) {
   const imageExtensions = /\.(jpg|jpeg|png|gif)$/i;
@@ -42,44 +44,43 @@ export function FeedCard({
   user,
   fetchposts,
 }) {
-  const [liked, setLiked] = useState();
+  const [liked, setLiked] = useState(0);
   const [action, setAction] = useState();
   const [showAction, setShowAction] = useState(false);
   const [usersLike, setUsersLike] = useState();
   const [numberOfLikes, setNumberOfLikes] = useState();
   const [numberOfComments, setNumberOfComments] = useState();
-  const postaction = async action => {
-    setShowAction(false);
-    await likepost(user, data?.postid, action);
+  const postaction = async (action, number) => {
+    try {
+      setShowAction(false);
+      const {comid, mykey, uid, userkey, mskl} = action;
+      await reacttopost(comid, number, 0, userkey, mskl, uid);
+      setLiked(number);
+    } catch (e) {
+      Alert.alert('Post Reaction', 'Could not react to post at this time');
+    }
   };
   const likeactions = [
     {
       title: 'like',
       url: 'https://seeklogo.com/images/F/facebook-like-icon-logo-E656F54784-seeklogo.com.png',
+      number: 1,
     },
-    {
-      title: 'love',
-      url: 'https://www.iconpacks.net/icons/1/free-heart-icon-992-thumb.png',
-    },
+
     {
       title: 'dislike',
       url: 'https://cdn-icons-png.flaticon.com/512/889/889220.png',
-    },
-    {
-      title: 'laugh',
-      url: 'https://cdn.iconscout.com/icon/free/png-256/free-haha-emoji-894766.png',
-    },
-    {
-      title: 'shocked',
-      url: 'https://cdn-icons-png.flaticon.com/512/983/983019.png',
+      number: 2,
     },
     {
       title: 'sad',
       url: 'https://cdn.iconscout.com/icon/free/png-256/free-sad-emoji-17-894764.png',
+      number: 3,
     },
     {
-      title: 'angry',
-      url: 'https://cdn.iconscout.com/icon/free/png-256/free-angry-face-14-894765.png',
+      title: 'love',
+      url: 'https://www.iconpacks.net/icons/1/free-heart-icon-992-thumb.png',
+      number: 4,
     },
   ];
   const video = React.useRef(null);
@@ -133,7 +134,7 @@ export function FeedCard({
   return (
     <View style={styles.container}>
       <NameDisplayCard
-        user={user}
+        user={data}
         navigation={navigation}
         item={data}
         dot={true}
@@ -172,10 +173,6 @@ export function FeedCard({
                   useNativeControls={false}
                   resizeMode={ResizeMode.CONTAIN}
                   isLooping
-                  onPlaybackStatusUpdate={newStatus => {
-                    setStatus(() => newStatus);
-                    setIsBuffering(newStatus.isBuffering);
-                  }}
                 />
 
                 <View style={styles.loadingContainer}>
@@ -194,25 +191,26 @@ export function FeedCard({
           {data?.comment}
         </Text>
       </TouchableOpacity>
-      {/* <View style={styles.iconsContainer}>
+      <View style={styles.iconsContainer}>
         {showAction && (
           <View
             style={{
               display: 'flex',
               flexDirection: 'row',
 
-              backgroundColor: 'white',
+              backgroundColor: Colors.background,
               gap: 15,
               borderRadius: 100,
               position: 'absolute',
               top: -45,
               zIndex: 20,
               alignItems: 'center',
+              padding: 5,
             }}>
             {likeactions.map(action => (
               <TouchableOpacity
                 key={action.title}
-                onPress={() => postaction(action)}>
+                onPress={() => postaction(data, action.number)}>
                 <Image
                   source={{uri: action.url}}
                   style={{width: 23, height: 23}}
@@ -224,7 +222,7 @@ export function FeedCard({
         )}
 
         <TouchableOpacity onPress={() => setShowAction(!showAction)}>
-          {usersLike ? (
+          {liked && liked > 0 ? (
             <View
               style={{
                 display: 'flex',
@@ -234,13 +232,10 @@ export function FeedCard({
                 alignItems: 'center',
               }}>
               <Image
-                source={{uri: usersLike.url}}
+                source={{uri: likeactions[liked - 1].url}}
                 style={{width: 23, height: 23}}
                 resizeMode="contain"
               />
-              <Text style={[Style.boldText2, {color: '#041616'}]}>
-                {numberOfLikes}
-              </Text>
             </View>
           ) : (
             <View
@@ -266,24 +261,11 @@ export function FeedCard({
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('Comment', {post: data});
-          }}
+          onPress={() => navigation.navigate('Comments', {post: data})}
           style={{flexDirection: 'row', marginRight: 10}}>
           <CommentIcon />
-          <Text
-            style={[
-              Style.boldText2,
-              {
-                fontFamily: 'Montserrat_Regular',
-                color: '#041616',
-              },
-            ]}>
-            {numberOfComments}
-          </Text>
         </TouchableOpacity>
-       
-      </View> */}
+      </View>
 
       <Text style={[{fontFamily: 'Montserrat_Regular', color: Colors.grey}]}>
         {data?.writetime}

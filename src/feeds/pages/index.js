@@ -38,7 +38,7 @@ import PostFlatlist from '../models/PostFlatlist';
 import {SendACard} from '../components/SendACard';
 import {usersfullprofile} from '../../user/apis/profile';
 import {homepage} from '../oldapis/home';
-import emptyimage from '../../../emptyimage';
+import emptyimage from '../../emptyimage';
 import {Style} from '../../../assets/styles';
 import AdPage from '../components/AdPage';
 
@@ -94,7 +94,9 @@ function Homepage({
     // getProfile();
   }, []);
 
-  useEffect(() => {}, [User, Profile]);
+  useEffect(() => {
+    console.log({User});
+  }, [User, Profile]);
   const renderItem = ({item}) => {
     return (
       <View style={{alignItems: 'center'}}>

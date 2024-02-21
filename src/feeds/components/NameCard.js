@@ -83,7 +83,7 @@ export function NameDisplayCard({
               justifyContent: 'space-evenly',
             },
           ]}>
-          {user !== item?.userkey ? (
+          {user?.userkey !== item?.userkey ? (
             !following ? (
               <>
                 <View

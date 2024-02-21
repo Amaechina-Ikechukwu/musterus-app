@@ -22,7 +22,7 @@ import {LabelTexts} from '../components/texts';
 
 import Header from '../../messaging/components/header';
 import {Color} from '../../components/theme';
-import emptyimage from '../../../emptyimage';
+import emptyimage from '../../emptyimage';
 import {FlashList} from '@shopify/flash-list';
 import musterusfullmedia from '../../../musterusfullmedia';
 const Colors = Color();

@@ -6,7 +6,7 @@ import {Color} from '../../components/theme';
 import {BackIcon} from '../../../assets/icons/auth-icons';
 import {TouchableOpacity} from '@gorhom/bottom-sheet';
 import {StaticImage} from '../../utilities';
-import emptyimage from '../../../emptyimage';
+import emptyimage from '../../emptyimage';
 
 const Colors = Color();
 

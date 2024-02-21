@@ -28,7 +28,7 @@ import {MusterCards, MusterCards2} from '../components/ustercards';
 import {FlatList} from 'react-native';
 import {holidaysImages} from '../controllers/Cards';
 import musterusfullmedia from '../../../musterusfullmedia';
-import emptyimage from '../../../emptyimage';
+import emptyimage from '../../emptyimage';
 import {PrimaryButton} from '../../components/buttons/primary';
 import {sendcard} from '../oldapis/sendCard';
 

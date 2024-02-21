@@ -158,11 +158,7 @@ const HeaderComponent = ({post}) => {
                 }}
                 useNativeControls={true}
                 resizeMode={ResizeMode.CONTAIN}
-                isLooping
-                onPlaybackStatusUpdate={newStatus => {
-                  setStatus(() => newStatus);
-                  setIsBuffering(newStatus.isBuffering);
-                }}
+                // isLooping
               />
 
               <View style={styles.loadingContainer}>

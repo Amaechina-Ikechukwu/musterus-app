@@ -174,19 +174,13 @@ const Profile = ({route, appState, setmyprofile}) => {
   const [userPosts, setUserPosts] = useState([]);
 
   useEffect(() => {}, [Profile]);
-  useEffect(() => {
-    console.log(
-      JSON.stringify(user, null, 2),
-      JSON.stringify(Profile, null, 2),
-    );
-    console.log(user === User?.mykey);
-  }, []);
+  useEffect(() => {}, []);
 
   if (Profile === null) {
     return <ActivityIndicator />;
   }
 
-  const isCurrentUser = user ? user === User?.mykey : true;
+  const isCurrentUser = user ? user?.userkey === User?.mykey : true;
   const pageTitle = `Profile`;
 
   return (
@@ -218,7 +212,11 @@ const Profile = ({route, appState, setmyprofile}) => {
               postlength={userPosts.length}
               navigation={navigation}
             />
-            {isCurrentUser && <ProfileInformation profileData={Profile} />}
+            {isCurrentUser ? (
+              <ProfileInformation profileData={Profile} />
+            ) : (
+              <ProfileInformation profileData={user} />
+            )}
           </View>
         </View>
       </SafeAreaView>
