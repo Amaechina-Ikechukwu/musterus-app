@@ -14,34 +14,22 @@ import {Color} from '../../components/theme';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {StaticImage} from '../../utilities';
 import {NameDisplayCard} from './NameCard';
-import {collection, onSnapshot, query} from 'firebase/firestore';
-import {db} from '../../../firebase';
-
+import {Video, ResizeMode} from 'expo-av';
 import {likepost} from '../apis/likepost';
 // import {  } from 'react-native-paper';
-function extractTimeFromFirestoreTimestamp(timestampObj) {
-  const {_seconds, _nanoseconds} = timestampObj;
-  const firestoreMilliseconds = _seconds * 1000 + _nanoseconds / 1000000;
+function getImageType(attachedImage) {
+  const imageExtensions = /\.(jpg|jpeg|png|gif)$/i;
+  const videoExtensions = /\.(mp4|avi|mov|mkv)$/i;
 
-  const currentMilliseconds = Date.now();
-  const timeDifference = currentMilliseconds - firestoreMilliseconds;
-
-  const secondsDifference = Math.floor(timeDifference / 1000);
-
-  if (secondsDifference < 60) {
-    return 'now';
-  } else if (secondsDifference < 3600) {
-    const minutes = Math.floor(secondsDifference / 60);
-    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-  } else if (secondsDifference < 86400) {
-    const hours = Math.floor(secondsDifference / 3600);
-    return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-  } else {
-    const days = Math.floor(secondsDifference / 86400);
-    return `${days} day${days > 1 ? 's' : ''} ago`;
+  switch (true) {
+    case imageExtensions.test(attachedImage):
+      return 'img';
+    case videoExtensions.test(attachedImage):
+      return 'vid';
+    default:
+      return 'unknown';
   }
 }
-
 const Colors = Color();
 export function FeedCard({
   data,
@@ -94,53 +82,53 @@ export function FeedCard({
       url: 'https://cdn.iconscout.com/icon/free/png-256/free-angry-face-14-894765.png',
     },
   ];
+  const video = React.useRef(null);
+  const [status, setStatus] = React.useState({});
+  const [isBuffering, setIsBuffering] = useState(true);
+  const [isPlaying, setPlaying] = useState(false);
+
+  const _onPlaybackStatusUpdate = playbackStatus => {
+    if (!playbackStatus.isLoaded) {
+      // Update your UI for the unloaded state
+      if (playbackStatus.error) {
+        console.log(
+          `Encountered a fatal error during playback: ${playbackStatus.error}`,
+        );
+        // Send Expo team the error on Slack or the forums so we can help you debug!
+      }
+    } else {
+      // Update your UI for the loaded state
+
+      if (playbackStatus.isPlaying) {
+        // Update your UI for the playing state
+        setPlaying(true);
+      } else {
+        // Update your UI for the paused state
+        setPlaying(false);
+      }
+
+      if (playbackStatus.isBuffering) {
+        // Update your UI for the buffering state
+        setIsBuffering(true);
+      } else {
+        setIsBuffering(false);
+      }
+
+      if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
+        // The player has just finished playing and will stop. Maybe you want to play something else?
+      }
+
+      // You can continue updating your UI for other states as needed.
+    }
+  };
+
+  const mediaType = getImageType(data?.attachedimage);
   useEffect(() => {
-    if (!user) return; // Ensure 'user' variable is available
+    if (video.current) {
+      video.current.setOnPlaybackStatusUpdate(_onPlaybackStatusUpdate);
+    }
+  }, [video.current]);
 
-    const likesRef = collection(db, 'posts', data.postid, 'likes');
-    const q = query(likesRef);
-
-    const unsubscribe = onSnapshot(q, querySnapshot => {
-      const likes = [];
-      let userLike = null;
-
-      querySnapshot.forEach(doc => {
-        likes.push(doc.id);
-        if (doc.id === user) {
-          userLike = doc.data().action;
-        }
-      });
-
-      setNumberOfLikes(likes.length);
-      setUsersLike(userLike);
-
-      // Check if the user's ID is in the likes array
-      const isLiked = likes.includes(user); // Replace 'userId' with your actual user ID field
-      setLiked(isLiked);
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, []); // Include necessary dependencies in the dependency array
-  useEffect(() => {
-    const q = query(
-      collection(db, 'posts', data.postid, 'comments'), // Order by 'sent' field in ascending order (oldest first)
-    );
-
-    const unsubscribe = onSnapshot(q, querySnapshot => {
-      let likes = [];
-      querySnapshot.forEach(doc => {
-        likes.push(doc.id); // Assuming the likes are stored as document IDs
-      });
-      setNumberOfComments(likes.length);
-    });
-
-    // Cleanup: Unsubscribe from real-time updates when component unmounts
-    return () => {
-      unsubscribe();
-    };
-  }, []); // Include necessary dependencies in the dependency array
   useEffect(() => {}, []);
   return (
     <View style={styles.container}>
@@ -151,41 +139,68 @@ export function FeedCard({
         dot={true}
         fetchposts={fetchposts}
       />
+      <TouchableOpacity
+        onPress={() => navigation.navigate('Comments', {post: data})}
+        style={styles.imageContainer}>
+        {mediaType !== 'unknown' && (
+          <>
+            {mediaType == 'img' && (
+              <Image
+                onLoadEnd={() => {
+                  setLoading(true);
+                }}
+                onLoad={() => {
+                  setLoading(true);
+                }}
+                style={[
+                  {
+                    aspectRatio: 1,
+                  },
+                ]}
+                source={{uri: 'https://musterus.com' + data?.attachedimage}}
+                resizeMode={'cover'}
+              />
+            )}
+            {mediaType == 'vid' && (
+              <View style={styles.ccontainer}>
+                <Video
+                  ref={video}
+                  style={{width: '100%', height: 500}}
+                  source={{
+                    uri: 'https://musterus.com' + data?.attachedimage,
+                  }}
+                  useNativeControls={false}
+                  resizeMode={ResizeMode.CONTAIN}
+                  isLooping
+                  onPlaybackStatusUpdate={newStatus => {
+                    setStatus(() => newStatus);
+                    setIsBuffering(newStatus.isBuffering);
+                  }}
+                />
 
-      {data?.mediaurl != null && data?.mediaurl?.length > 0 && (
-        <>
-          <Pressable
-            onPress={() => {
-              setPostToView(data);
-              setModalVisible(true);
-            }}
-            style={styles.imageContainer}>
-            <Image
-              onLoadEnd={() => {
-                setLoading(true);
-              }}
-              onLoad={() => {
-                setLoading(true);
-              }}
-              style={[
-                styles.tweetImage,
-                {
-                  aspectRatio: 1,
-                },
-              ]}
-              source={{uri: data?.mediaurl}}
-              resizeMode={'cover'}
-            />
-          </Pressable>
-        </>
-      )}
-      <View style={styles.iconsContainer}>
+                <View style={styles.loadingContainer}>
+                  {isBuffering ? (
+                    <ActivityIndicator size="large" color={Colors.grey} />
+                  ) : null}
+                </View>
+
+                {/* Your custom timeline UI can be added here */}
+                {/* Example: <CustomTimeline currentTime={status.positionMillis} totalDuration={status.durationMillis} /> */}
+              </View>
+            )}
+          </>
+        )}
+        <Text style={[styles.content, {fontFamily: 'Montserrat_light'}]}>
+          {data?.comment}
+        </Text>
+      </TouchableOpacity>
+      {/* <View style={styles.iconsContainer}>
         {showAction && (
           <View
             style={{
               display: 'flex',
               flexDirection: 'row',
-              padding: 10,
+
               backgroundColor: 'white',
               gap: 15,
               borderRadius: 100,
@@ -260,7 +275,6 @@ export function FeedCard({
             style={[
               Style.boldText2,
               {
-                marginTop: 6,
                 fontFamily: 'Montserrat_Regular',
                 color: '#041616',
               },
@@ -268,15 +282,11 @@ export function FeedCard({
             {numberOfComments}
           </Text>
         </TouchableOpacity>
-        {/* <View style={{flexDirection: 'row'}}>
-          <ShareIcon />
-        </View> */}
-      </View>
-      <Text style={[styles.content, {fontFamily: 'Montserrat_light'}]}>
-        {data?.caption}
-      </Text>
+       
+      </View> */}
+
       <Text style={[{fontFamily: 'Montserrat_Regular', color: Colors.grey}]}>
-        {data?.createdAt && extractTimeFromFirestoreTimestamp(data?.createdAt)}
+        {data?.writetime}
       </Text>
     </View>
   );
@@ -286,8 +296,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.background,
     // borderRadius: 10,
-    padding: 10,
-    margin: 10,
+    gap: 20,
     shadowColor: 'black',
     shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.2,
@@ -302,7 +311,18 @@ const styles = StyleSheet.create({
     width: 35,
     height: 35,
     borderRadius: 20,
-    marginRight: 10,
+  },
+  ccontainer: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  video: {
+    flex: 1,
+  },
+  loadingContainer: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   username: {
     fontSize: 16,
@@ -311,7 +331,7 @@ const styles = StyleSheet.create({
   },
   content: {
     fontSize: 16,
-    marginVertical: 10,
+
     color: '#041616',
   },
   imageContainer: {
@@ -322,7 +342,7 @@ const styles = StyleSheet.create({
     width: 500,
     height: 500,
     borderRadius: 10,
-    marginTop: 16,
+
     resizeMode: 'cover',
   },
   usernameTag: {
@@ -332,7 +352,7 @@ const styles = StyleSheet.create({
   iconsContainer: {
     flexDirection: 'row',
     // justifyContent: 'space-between',
-    marginTop: 10,
+
     alignItems: 'center',
   },
 });

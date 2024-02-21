@@ -38,6 +38,7 @@ const initialState = {
   Post: null,
   Chatlist: null,
   VisitID: null,
+  Friends: null,
 };
 
 const reducer = (state = initialState, action) => {
@@ -100,6 +101,11 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         Profile: action.payload,
+      };
+    case 'FRIENDS':
+      return {
+        ...state,
+        Friends: action.payload,
       };
     case 'GROUPS':
       return {

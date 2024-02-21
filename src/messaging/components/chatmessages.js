@@ -23,27 +23,8 @@ import {initializechat} from '../apis/initializechat';
 import {Image} from 'react-native';
 import {sendDM} from '../apis/sendDM';
 const {width} = Dimensions.get('screen');
-function extractTimeFromFirestoreTimestamp(timestampObj) {
-  const {seconds, nanoseconds} = timestampObj;
-  const milliseconds = seconds * 1000 + nanoseconds / 1000000;
 
-  // Create a Date object using the milliseconds value
-  const date = new Date(milliseconds);
-
-  // Extract hours, minutes, and seconds from the Date object
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  const second = date.getSeconds();
-
-  // Format the time to desired format (example: hh:mm:ss)
-  const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes
-    .toString()
-    .padStart(2, '0')}`;
-
-  return formattedTime;
-}
-export const ChatMessages = ({page, user, route}) => {
-  const [messages, setMessages] = useState();
+export const ChatMessages = ({page, user, route, messages}) => {
   const flatListRef = useRef(null);
   // const {user} = route?.params;
   const [showMessage, setShowMessage] = useState(false);
@@ -63,7 +44,7 @@ export const ChatMessages = ({page, user, route}) => {
         <View
           style={[
             styles.messageBubble,
-            item?.author == user.mykey
+            item?.profilekey !== user.mykey
               ? styles.sentBubble
               : styles.receivedBubble,
           ]}>
@@ -79,24 +60,24 @@ export const ChatMessages = ({page, user, route}) => {
           <Text
             style={[
               styles.messageText,
-              item?.author == user.mykey
-                ? styles.sentText
-                : styles.receivedText,
+              item?.profilekey !== user.mykey
+                ? styles.receivedText
+                : styles.sentText,
               {
                 fontFamily: 'Montserrat_Regular',
               },
             ]}>
-            {item?.text}
+            {item?.msgbody}
           </Text>
 
           <Text
             style={[
               styles.timeText,
-              item?.author == user.mykey
+              item?.profilekey !== user.mykey
                 ? styles.sentTime
                 : styles.receivedTime,
             ]}>
-            <Text>sent </Text> {extractTimeFromFirestoreTimestamp(item.sent)}
+            <Text>sent </Text> {item?.msgtime}
           </Text>
         </View>
       </>
@@ -109,8 +90,9 @@ export const ChatMessages = ({page, user, route}) => {
         style={{flex: 1, width: '100%', height: '100%'}}
         data={messages}
         renderItem={renderMessage}
-        keyExtractor={item => item.id}
         inverted
+        initialNumToRender={16}
+        keyExtractor={item => item.dmid}
         scrollToIndex={messages && messages.length - 1}
         ListEmptyComponent={
           <View

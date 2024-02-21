@@ -18,7 +18,13 @@ import {Logo} from '../../components/icons';
 import {PrimaryButton} from '../../components/buttons/primary';
 import {Color} from '../../components/theme';
 import {connect} from 'react-redux';
-import {setMyProfile, setPosts, surprise_state, user_state} from '../../redux';
+import {
+  setMyFriends,
+  setMyProfile,
+  setPosts,
+  surprise_state,
+  user_state,
+} from '../../redux';
 
 import {FeedHeader} from '../components/feed-header';
 import {UpcomingBirthdays} from '../components/upcoming-birthdays';
@@ -38,7 +44,13 @@ import AdPage from '../components/AdPage';
 
 const Colors = Color();
 
-function SignIn({navigation, appState, setposts, setmyprofile}) {
+function Homepage({
+  navigation,
+  appState,
+  setposts,
+  setmyprofile,
+  setmyfriends,
+}) {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState('');
@@ -70,14 +82,18 @@ function SignIn({navigation, appState, setposts, setmyprofile}) {
 
   const getHomeFeed = async () => {
     const result = await homepage(mykey, mskl);
+
     setmyprofile(result?.MyProfile);
     setMembers(result?.RecentMembers);
+    setmyfriends(result?.MyFriends);
+    setPosts(result?.Comments);
   };
 
   useEffect(() => {
     getHomeFeed();
     // getProfile();
   }, []);
+
   useEffect(() => {}, [User, Profile]);
   const renderItem = ({item}) => {
     return (
@@ -96,6 +112,7 @@ function SignIn({navigation, appState, setposts, setmyprofile}) {
       </View>
     );
   };
+
   return (
     <>
       {CreatePost == true && (
@@ -134,17 +151,25 @@ function SignIn({navigation, appState, setposts, setmyprofile}) {
               gap: 20,
               paddingHorizontal: 10,
             }}>
-            <SendACard mykey={mykey} />
-            <FlatList
-              data={members}
-              renderItem={renderItem}
-              numColumns={3}
-              columnWrapperStyle={{gap: 20, justifyContent: 'center'}}
-              contentContainerStyle={{gap: 10}}
-              keyExtractor={item => item.uid}
-              // ListFooterComponent={<AdPage mykey={mykey} mskl={mskl} />}
-              ListHeaderComponent={
-                <Text style={Style.Text}>Recent Members</Text>
+            <PostFlatlist
+              data={posts}
+              loading={loading}
+              setLoading={setLoading}
+              setModalVisible={setModalVisible}
+              navigation={navigation}
+              Footer={
+                <FlatList
+                  data={members}
+                  renderItem={renderItem}
+                  numColumns={3}
+                  columnWrapperStyle={{gap: 20, justifyContent: 'center'}}
+                  contentContainerStyle={{gap: 10}}
+                  keyExtractor={item => item.uid}
+                  // ListFooterComponent={<AdPage mykey={mykey} mskl={mskl} />}
+                  ListHeaderComponent={
+                    <Text style={Style.Text}>Recent Members</Text>
+                  }
+                />
               }
             />
           </View>
@@ -193,10 +218,11 @@ const mapDispatchToProps = (dispatch, encoded) => {
     disp_surprise: payload => dispatch(surprise_state(payload)),
     setposts: payload => dispatch(setPosts(payload)),
     setmyprofile: userData => dispatch(setMyProfile(userData)),
+    setmyfriends: userData => dispatch(setMyFriends(userData)),
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(SignIn);
+export default connect(mapStateToProps, mapDispatchToProps)(Homepage);
 
 const styles = StyleSheet.create({
   tweetImage: {

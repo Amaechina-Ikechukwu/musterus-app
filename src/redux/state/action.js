@@ -113,6 +113,10 @@ export const setUser = userData => ({
   type: USER,
   payload: userData,
 });
+export const setMyFriends = userData => ({
+  type: 'FRIENDS',
+  payload: userData,
+});
 export const setMyProfile = userData => ({
   type: 'PROFILE',
   payload: userData,

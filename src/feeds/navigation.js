@@ -16,6 +16,8 @@ import Feeds from './pages/index';
 import Search from './pages/search';
 import {Color} from '../components/theme';
 import BirthdayWish from './pages/BirthdayWish';
+import SinglePostViewFlatlist from './components/SinglePostViewFlatlist';
+import createFeed from './pages/createFeed';
 
 const headerColor = '#fffdfb';
 const navTheme = DefaultTheme;
@@ -84,11 +86,18 @@ export default function BCSEventStack({appState}) {
           header: () => null,
         }}
       />
+      <Stack.Screen
+        name="Create Feed"
+        component={createFeed}
+        options={{
+          header: () => null,
+        }}
+      />
 
       {/* comment ================= */}
       <Stack.Screen
-        name="Comment"
-        component={Comment}
+        name="Comments"
+        component={SinglePostViewFlatlist}
         options={{
           header: () => null,
         }}
@@ -96,7 +105,7 @@ export default function BCSEventStack({appState}) {
 
       {/* muster cards ================= */}
       <Stack.Screen
-        name="MuterCards"
+        name="MusterCards"
         component={MuterCards}
         options={{
           header: () => null,

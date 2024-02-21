@@ -36,7 +36,7 @@ export function ChatHead({navigation, page, user}) {
           style={[styles.avatar, {marginLeft: 17}]}
           src={
             user?.avatar
-              ? `https://www.musterus.com${user?.avatar}`
+              ? `https://www.musterus.com${user?.avatar.slice(1)}`
               : emptyimage
           }
         />

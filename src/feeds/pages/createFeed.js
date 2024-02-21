@@ -41,18 +41,21 @@ import * as ImagePicker from 'expo-image-picker';
 import {createpost} from '../apis/createpost';
 import {getposts} from '../apis/home';
 import {storage} from '../../../firebase';
+import {uploadimage} from '../oldapis/uploadimage';
+import {postcomment} from '../oldapis/postcomments';
+import {homepage} from '../oldapis/home';
 // import * as MediaLibrary from 'expo-media-library';
 
 const Colors = Color();
 
-function SignIn({navigation, appState, setposts}) {
+function CreateFeed({navigation, appState, setposts}) {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState('');
   const [mediaurl, setMediaurl] = useState('');
   const [CreatePost, showCreatePost] = useState(false);
   const [pickImage, setpickImage] = useState(false);
-  const {User} = appState;
+  const {User, Profile} = appState;
   const [postToView, setPostToView] = useState();
 
   useEffect(() => {
@@ -106,64 +109,21 @@ function SignIn({navigation, appState, setposts}) {
   };
 
   // Function to upload image to Firebase Storage
-  useEffect(() => {}, [mediaurl]);
-  useEffect(() => {}, [uploadProgress]);
+  useEffect(() => {
+    console.log(JSON.stringify(Profile, null, 2));
+  }, []);
+
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [downloadURL, setDownloadURL] = useState('');
-
-  const uploadImageToFirebase = () => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const response = await fetch(image);
-        const blob = await response.blob();
-
-        const storageRef = ref(storage, `posts/${image.split('/').pop()}`);
-        const uploadTask = uploadBytesResumable(storageRef, blob);
-
-        uploadTask.on(
-          'state_changed',
-          snapshot => {
-            const progress = Math.floor(
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100,
-            );
-            setUploadProgress(progress);
-          },
-          error => {
-            console.error('Error uploading image: ', error);
-            reject(error);
-          },
-          async () => {
-            try {
-              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-
-              setDownloadURL(downloadURL);
-              resolve(downloadURL);
-            } catch (downloadError) {
-              console.error('Error getting download URL: ', downloadError);
-              reject(downloadError);
-            }
-          },
-        );
-      } catch (error) {
-        console.error('Error uploading image: ', error);
-        reject(error);
-      }
-    });
-  };
 
   const createPost = async () => {
+    const token = User?.mykey;
     try {
       // Upload image before updating group data
       if (image) {
-        const token = User?.mykey;
-        const url = await uploadImageToFirebase();
-
-        if (url) {
-          await createpost(token, data, url);
-        }
+        const result = await uploadimage(token, image);
       } else {
-        const token = User?.mykey;
-        await createpost(token, data);
+        const result = await postcomment(token, 0, Profile?.uid, null, data);
+        console.log(result);
       }
     } catch (err) {
       Alert.alert('Error creating post');
@@ -172,7 +132,7 @@ function SignIn({navigation, appState, setposts}) {
 
   const getHomeFeed = async () => {
     setTimeout(async () => {
-      const result = await getposts(User?.mykey);
+      const result = await homepage(User?.mykey, User?.mskl);
       setposts(result.data);
 
       navigation.goBack();
@@ -221,7 +181,7 @@ const mapDispatchToProps = (dispatch, encoded) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(SignIn);
+export default connect(mapStateToProps, mapDispatchToProps)(CreateFeed);
 
 const styles = StyleSheet.create({
   tweetImage: {

@@ -36,7 +36,7 @@ import {surprise_state, user_state, setUser} from '../../redux';
 import {Style} from '../../../assets/styles';
 import Svg, {Path, Defs, Pattern, Use, Image} from 'react-native-svg';
 import {LoginController} from '../controllers/auth-controller';
-import {fetchFcmToken} from '../../utilities/fcntoken';
+
 import {BackIcon} from '../../../assets/icons/auth-icons';
 import {OutlinedInput} from '../../components/inputs';
 import {login} from '../apis/login';
@@ -63,9 +63,6 @@ function SignIn({navigation, disp_Login, setUser, route}) {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    fetchFcmToken(setFcmoken);
-  }, [setDate]);
   const loginUser = async () => {
     try {
       const result = await login(email, password);

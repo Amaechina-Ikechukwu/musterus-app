@@ -8,7 +8,7 @@ const api = axios.create({
 export const followuser = async (mykey, mskl, friendID, memberkey) => {
   try {
     const response = await api.get(
-      `/ws/musterpoint?mykey=${mykey}&mskl=${mskl}&friendID=${friendID}&follow=follow&memberkey=${memberkey}`,
+      `/ws/musterpoint?mykey=${mykey}&mskl=${mskl}&friendID=${friendID}&follow=${2}&memberkey=${memberkey}`,
     );
     return response.data;
   } catch (error) {

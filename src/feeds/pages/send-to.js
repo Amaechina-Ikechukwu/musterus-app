@@ -6,9 +6,10 @@ import {
   Image,
   Text,
   Alert,
+  ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
-import {TextInput} from 'react-native-paper';
-import {Divider, Avatar} from 'react-native-paper';
+
 import React, {useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {ScrollView} from 'react-native-gesture-handler';
@@ -16,102 +17,88 @@ import {connect} from 'react-redux';
 import {surprise_state, user_state} from '../../redux';
 import {useNavigation} from '@react-navigation/native';
 import {AppStatusBar} from '../../components/status-bar';
-import {TouchableOpacity} from '@gorhom/bottom-sheet';
-import {BackIcon} from '../../../assets/icons/auth-icons';
+
 import {LabelTexts} from '../components/texts';
-import {Color} from '../../components/theme';
-import {OutlinedInput} from '../../components/inputs';
-import {FeedHeader} from '../components/feed-header';
-import {Style} from '../../../assets/styles';
-import {NameDisplayCard} from '../../components/name-display-card';
+
 import Header from '../../messaging/components/header';
-import {MusterCards, MusterCards2} from '../components/ustercards';
-import {amifollwoing} from '../../muster-points/apis/amifollowing';
-import UsersFlatlist from '../../muster-points/pages/UsersFlatlist';
-import {
-  and,
-  collection,
-  getDocs,
-  onSnapshot,
-  or,
-  orderBy,
-  query,
-  where,
-} from 'firebase/firestore';
-import {db} from '../../../firebase';
-import {sendmessage} from '../../messaging/apis/sendDM';
-import {initializechat} from '../../messaging/apis/initializechat';
-import {suggestsusers} from '../../muster-points/apis/SuggestedUsers';
-const {height, width} = Dimensions.get('window');
+import {Color} from '../../components/theme';
+import emptyimage from '../../../emptyimage';
+import {FlashList} from '@shopify/flash-list';
+import musterusfullmedia from '../../../musterusfullmedia';
 const Colors = Color();
-const removePassword = data => {
-  delete data.password;
-  return data;
-};
-function MuterCards({route, appState, disp_surprise}) {
-  const User = appState.User;
+const FriendsFlatlist = ({Friends}) => {
   const navigation = useNavigation();
-  const {image} = route?.params;
-  const [imageUri, setImageUri] = useState(null);
-  const [message, setMessage] = useState('');
-  const [data, setData] = useState('');
-  const [searchedUsers, setSearchedUsers] = useState();
-  const makeconvid = async friend => {
-    try {
-      const conversationId = [User?.mykey, friend?.id].sort().join('_');
-      await initializechat(User?.mykey, friend?.id);
-      await sendmessage(User?.mykey, friend?.id, message, image, 'image');
-      navigation.navigate('Chat', {
-        screen: 'chat person',
-        params: {
-          conversationId: conversationId,
-          friendid: friend?.id,
-          friend: friend,
-        },
-      });
-    } catch (err) {
-      Alert.alert(
-        'Trying to send a card',
-        'We have encountered an error on our end',
-      );
-    }
+  const renderItem = ({item}) => {
+    return (
+      <View>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('MusterCards', {
+              friend: item,
+            });
+          }}
+          style={[
+            {
+              height: 50,
+              display: 'flex',
+              justifyContent: 'center',
+            },
+          ]}>
+          <View style={styles.header}>
+            <Image
+              style={styles.avatar}
+              source={{
+                uri: item?.avatar
+                  ? musterusfullmedia(item.avatar.slice(1))
+                  : emptyimage,
+              }}
+            />
+            <Text>{item?.firstname + ' ' + item?.lastname}</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    );
   };
-
-  const handleInputChange = async event => {
-    const newValue = event.toLowerCase(); // Convert to lowercase
-    setData(event);
-    try {
-      const filteredUsers = searchedUsers.filter(user => {
-        const lowerCaseFirstname = user.firstname.toLowerCase();
-        const lowerCaseLastname = user.lastname.toLowerCase();
-        return (
-          lowerCaseFirstname.includes(newValue) ||
-          lowerCaseLastname.includes(newValue)
-        );
-      });
-
-      setSearchedUsers(filteredUsers);
-    } catch (error) {
-      console.error('Error searching users:', error);
-      setSearchedUsers([]); // Set to an empty array in case of an error
-    }
-  };
-
-  const initializeuser = async () => {
-    try {
-      const result = await suggestsusers(User?.mykey); // Remove null values
-
-      setSearchedUsers(result || []); // Set an empty array if result is null
-    } catch (error) {
-      console.error('Error initializing users:', error);
-    }
-  };
+  const [showMessage, setShowMessage] = useState(false);
 
   useEffect(() => {
-    initializeuser();
-  }, []);
+    const timer = setTimeout(() => {
+      setShowMessage(true);
+    }, 7000); // 7 seconds
 
-  useEffect(() => {}, [searchedUsers, message]);
+    return () => clearTimeout(timer);
+  }, []);
+  return (
+    <FlashList
+      data={Friends}
+      renderItem={renderItem}
+      estimatedItemSize={200}
+      keyExtractor={item => item.uid}
+      ListHeaderComponent={<Text>Select Friend to send card to</Text>}
+      ListEmptyComponent={
+        <View
+          style={{
+            flex: 1,
+            height: '100%',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginTop: 20,
+          }}>
+          {showMessage ? (
+            <Text>No friends added</Text>
+          ) : (
+            <ActivityIndicator size={'large'} />
+          )}
+        </View>
+      }
+    />
+  );
+};
+
+function MuterCards({route, appState, disp_surprise}) {
+  const {User, Friends} = appState;
+  const navigation = useNavigation();
+  const [imageUri, setImageUri] = useState(null);
 
   return (
     <>
@@ -133,55 +120,19 @@ function MuterCards({route, appState, disp_surprise}) {
               flexDirection: 'row',
               // backgroundColor: "blue"
             }}>
-            <LabelTexts style={{marginLeft: 15}} text="Search" />
+            <LabelTexts
+              style={{marginLeft: 15}}
+              text="Pick a friend to send card too"
+            />
           </View>
 
           <View
             style={{
-              // backgroundColor: "red",
-              // marginTop: 5,
-              // alignItems: "center",
+              width: '100%',
+              height: '100%',
               padding: 15,
             }}>
-            <OutlinedInput
-              data={data}
-              setData={value => handleInputChange(value)}
-              placeholder="Search"
-              multiline={false}
-            />
-            <Text
-              style={[
-                Style.text,
-                {
-                  marginTop: 15,
-                  marginBottom: 15,
-                  color: Colors.grey,
-                  textAlign: 'left',
-                },
-              ]}>
-              Try typing a keyword or username
-            </Text>
-            <View style={{flexDirection: 'row', marginBottom: 5}}>
-              <Image style={{width: 100, height: 100}} source={{uri: image}} />
-              <TextInput
-                value={message}
-                onChangeText={text => setMessage(text)}
-                label={'Add a message'}
-                style={{
-                  height: 100,
-                  width: '100%',
-                  backgroundColor: 'transparent',
-                }}
-              />
-            </View>
-            <View style={{width: '100%', height: '100%'}}>
-              <UsersFlatlist
-                data={searchedUsers}
-                navigation={navigation}
-                component={'SENDCARD'}
-                sendACard={makeconvid}
-              />
-            </View>
+            <FriendsFlatlist key={Friends} Friends={Friends} />
           </View>
         </View>
       </SafeAreaView>
@@ -204,6 +155,10 @@ const mapDispatchToProps = (dispatch, encoded) => {
 export default connect(mapStateToProps, mapDispatchToProps)(MuterCards);
 
 const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 15,
+    paddingVertical: 15,
+  },
   imageBackground: {
     flex: 1,
     resizeMode: 'cover',
@@ -220,5 +175,45 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     // marginTop: 22,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatar: {
+    width: 35,
+    height: 35,
+    borderRadius: 20,
+    marginRight: 10,
+  },
+  username: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#041616',
+  },
+  content: {
+    fontSize: 16,
+    marginVertical: 10,
+    color: '#041616',
+  },
+  imageContainer: {
+    overflow: 'hidden',
+    borderRadius: 5,
+  },
+  tweetImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 10,
+    marginTop: 16,
+    resizeMode: 'cover',
+  },
+  usernameTag: {
+    fontSize: 14,
+    color: 'gray',
+  },
+  iconsContainer: {
+    flexDirection: 'row',
+    // justifyContent: 'space-between',
+    marginTop: 10,
   },
 });

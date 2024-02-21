@@ -8,7 +8,7 @@ const api = axios.create({
 export const events = async (mykey, mskl, friend, per_page) => {
   try {
     const response = await api.get(
-      `/ws/eventscard?mykey=${mykey}&mskl=${mskl}&friend=${friend}&per_page=${per_page}`,
+      `/ws/eventcards?mykey=${mykey}&mskl=${mskl}&friend=${friend}&event=${per_page}`,
     );
     return response.data;
   } catch (error) {

@@ -26,7 +26,11 @@
           "savePhotosPermission": "Allow Musterus to save photos.",
           "isAccessMediaLocationEnabled": true
         }
-      ]
-    ]
+      ],
+      "expo-font"
+    ],
+    "ios": {
+      "bundleIdentifier": "com.ikayna.musterus"
+    }
   }
 }

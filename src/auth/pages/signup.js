@@ -36,7 +36,6 @@ import {surprise_state, user_state, setUser} from '../../redux';
 import {Style} from '../../../assets/styles';
 import Svg, {Path, Defs, Pattern, Use, Image} from 'react-native-svg';
 import {LoginController} from '../controllers/auth-controller';
-import {fetchFcmToken} from '../../utilities/fcntoken';
 import {BackIcon} from '../../../assets/icons/auth-icons';
 import {OutlinedInput} from '../../components/inputs';
 import {signup} from '../apis/signup';

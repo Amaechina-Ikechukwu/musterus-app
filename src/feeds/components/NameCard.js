@@ -10,6 +10,7 @@ import {amifollwoing} from '../../muster-points/apis/amifollowing';
 import {followuser} from '../../muster-points/apis/followuser';
 import {ThreeDots} from './icons';
 import {deletepost} from '../apis/deletepost';
+import musterusfullmedia from '../../../musterusfullmedia';
 
 const Colors = Color();
 export function NameDisplayCard({
@@ -24,44 +25,12 @@ export function NameDisplayCard({
   const [following, setFollowing] = useState();
   const [Author, setAuthor] = useState(item?.authorinfo);
   const [showOptions, setShowOptions] = useState(false);
-  const userprofile = async () => {
-    if (!item?.authorinfo) {
-      const result = await usersprofile(item.author);
-      setAuthor(result);
-    }
-  };
-  const followinguser = async () => {
-    const result = await amifollwoing(user, item.author);
 
-    setFollowing(result?.message);
-  };
-  const followUser = async () => {
-    const result = await followuser(user, item.id);
-
-    setFollowing(result?.message == 'added');
-  };
-  const deletePost = async () => {
-    try {
-      await deletepost(user, item?.postid);
-      Alert.alert('Post Deleted', 'The post has been successfully deleted.');
-      fetchposts();
-    } catch (err) {
-      Alert.alert(
-        'Post deletion not complete',
-        'This post could not be deleted at the moment.',
-      );
-    }
-  };
   const emptyimage =
     'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
-  useEffect(() => {
-    userprofile();
-    followinguser();
-  }, []);
-  useEffect(() => {}, [Author, following]);
-  if (!Author || Object.keys(Author).length === 0) {
-    return null;
-  }
+
+  useEffect(() => {}, []);
+
   const showAlert = () => {
     Alert.alert(
       'Delete Post',
@@ -82,7 +51,10 @@ export function NameDisplayCard({
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Image style={styles.avatar} src={Author?.photourl || emptyimage} />
+        <Image
+          style={styles.avatar}
+          src={'https://musterus.com' + item?.avatar.slice(1) || emptyimage}
+        />
         <View
           style={{
             flex: 1,
@@ -91,15 +63,15 @@ export function NameDisplayCard({
           <TouchableOpacity
             onPress={() => {
               if (!link) {
-                navigation.navigate('Profile', {user: item?.author});
+                navigation.navigate('Profile', {user: user});
               } else {
                 navigation.navigate('Chat', {screen: link});
               }
             }}>
             <Text style={styles.username}>
-              {Author?.firstname + ' ' + Author?.lastname}
+              {item?.firstname + ' ' + item?.lastname}
             </Text>
-            <Text style={styles.usernameTag}>{'@' + Author?.username}</Text>
+            <Text style={styles.usernameTag}>{'@' + item?.username}</Text>
           </TouchableOpacity>
         </View>
         <View
@@ -111,7 +83,7 @@ export function NameDisplayCard({
               justifyContent: 'space-evenly',
             },
           ]}>
-          {user !== item?.author ? (
+          {user !== item?.userkey ? (
             !following ? (
               <>
                 <View
@@ -138,7 +110,7 @@ export function NameDisplayCard({
               </>
             ) : null
           ) : null}
-          {dot && user == item?.author && (
+          {dot && user == item?.userkey && (
             <View>
               <TouchableOpacity
                 onPress={() => setShowOptions(!showOptions)}

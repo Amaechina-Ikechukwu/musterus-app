@@ -33,7 +33,7 @@ const PostFlatlist = ({
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowMessage(true);
-    }, 7000); // 7 seconds
+    }, 11000); // 7 seconds
 
     return () => clearTimeout(timer);
   }, []);
@@ -47,7 +47,6 @@ const PostFlatlist = ({
           navigation={navigation}
           setpickImage={setpickImage}
           user={User?.mykey}
-          setPostToView={setPostToView}
           loading={loading}
           setLoading={setLoading}
           setPost={() => setpost(item)}
@@ -74,8 +73,8 @@ const PostFlatlist = ({
       renderItem={renderItem}
       // onRefresh={() => fetchposts()}
       initialNumToRender={8}
-      keyExtractor={item => item.postid}
-      contentContainerStyle={{gap: 20}}
+      keyExtractor={item => item.comid}
+      contentContainerStyle={{gap: 40}}
       estimatedItemSize={200}
       ListEmptyComponent={
         <View

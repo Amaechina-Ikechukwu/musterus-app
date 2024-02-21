@@ -7,6 +7,7 @@ import {
   Text,
   SectionList,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import {TextInput} from 'react-native-paper';
 import {Divider, Avatar} from 'react-native-paper';
@@ -21,25 +22,32 @@ import {TouchableOpacity} from '@gorhom/bottom-sheet';
 import {BackIcon} from '../../../assets/icons/auth-icons';
 import {LabelTexts} from '../components/texts';
 import {Color} from '../../components/theme';
-import {OutlinedInput} from '../../components/inputs';
-import {FeedHeader} from '../components/feed-header';
-import {Style} from '../../../assets/styles';
-import {NameDisplayCard} from '../../components/name-display-card';
+
 import Header from '../../messaging/components/header';
-import {MusterCards, MusterCards2} from '../components/ustercards';
-import {holidaysImages} from '../controllers/Cards';
+
 import {events} from '../oldapis/events';
+import musterusfullmedia from '../../../musterusfullmedia';
 
 const {height, width} = Dimensions.get('window');
 const Colors = Color();
 function MuterCards({route, appState, disp_surprise}) {
-  const User = appState.User;
+  const {User, Profile} = appState;
   const navigation = useNavigation();
-  const [imageUri, setImageUri] = useState(null);
-  const [data, setData] = useState('');
+  const {friend} = route?.params;
+  const [showMessage, setShowMessage] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowMessage(true);
+    }, 7000); // 7 seconds
+
+    return () => clearTimeout(timer);
+  }, []);
+  const [data, setData] = useState();
   const getEvents = async () => {
-    const result = await events(User?.mykey, User?.mskl, 71, 0);
-    console.log(JSON.stringify(result, null, 2));
+    const result = await events(User?.mykey, User?.mskl, friend.uid, 0);
+
+    setData(result?.Cards);
   };
   useEffect(() => {
     getEvents();
@@ -95,27 +103,49 @@ function MuterCards({route, appState, disp_surprise}) {
 
         <View style={{flex: 1}}>
           <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-            {holidaysImages.map((image, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => {
-                  navigation.navigate('SelectCard', {
-                    selected: image.title,
-                  });
-                  // Handle image selection here
-                }}>
-                <Image
+            <FlatList
+              data={data}
+              style={{flex: 1, height: '100%'}}
+              contentContainerStyle={{alignItems: 'center'}}
+              keyExtractor={(item, index) => index.toString()}
+              numColumns={3} // Set the number of columns to 3
+              renderItem={({item}) => (
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate('SelectCard', {
+                      card: item,
+                      friend: friend,
+                    });
+                  }}>
+                  <Image
+                    style={{
+                      width: 100,
+                      height: 150,
+                      borderRadius: 10,
+                      margin: 5,
+                    }}
+                    source={{uri: musterusfullmedia(item.thumbnail)}}
+                  />
+                  <LabelTexts style={{marginLeft: 25}} text={item.imagetitle} />
+                </TouchableOpacity>
+              )}
+              ListEmptyComponent={
+                <View
                   style={{
-                    width: 100,
-                    height: 150,
-                    borderRadius: 10,
-                    margin: 5,
-                  }}
-                  source={{uri: image.data[0]}}
-                />
-                <LabelTexts style={{marginLeft: 25}} text={image.title} />
-              </TouchableOpacity>
-            ))}
+                    flex: 1,
+                    height: '100%',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginTop: 20,
+                  }}>
+                  {showMessage ? (
+                    <Text>No friends added</Text>
+                  ) : (
+                    <ActivityIndicator size={'large'} />
+                  )}
+                </View>
+              }
+            />
           </View>
         </View>
       </SafeAreaView>

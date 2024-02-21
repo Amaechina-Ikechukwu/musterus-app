@@ -29,12 +29,12 @@ export function CreatePostModal({
   progress,
 }) {
   const CreateMyPost = () => {
-    if (data.length > 3) {
+    if (data.length > 2 || image !== null) {
       createpost();
       fetchposts();
     }
   };
-  useEffect(() => {}, []);
+
   return (
     <>
       <View
@@ -134,7 +134,7 @@ export function CreatePostModal({
         <View>
           <PrimaryButton
             // loading={loading}
-            noBG={data.length < 3 ? true : false}
+            noBG={image == null || data.length < 2 ? true : false}
             style={{
               width: '90%',
               marginLeft: '5%',
@@ -142,18 +142,18 @@ export function CreatePostModal({
               marginTop: 20,
               marginBottom: 40,
               backgroundColor:
-                data.length < 0
-                  ? Colors.inactiveButton
-                  : data.length < 0
-                  ? Colors.inactiveButton
-                  : pickImage == true || data.length > 0
+                image !== null || data.length > 2
                   ? Colors.primary
+                  : Colors.inactiveButton,
+              color:
+                image !== null || data.length > 2
+                  ? Colors.white
                   : Colors.inactiveButton,
             }}
             callBack={() => {
               CreateMyPost();
             }}
-            title={`Post `}
+            title={`Post`}
           />
         </View>
       </View>

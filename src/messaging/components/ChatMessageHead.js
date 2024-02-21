@@ -14,32 +14,10 @@ import {
 } from 'firebase/firestore';
 import {db} from '../../../firebase';
 import {usersprofile} from '../../user/apis/firebaseprofile';
+import musterusfullmedia from '../../../musterusfullmedia';
 
 const Colors = Color();
-const getUserid = (uid, data) => {
-  return data.filter(id => id !== uid)[0];
-};
-function extractTimeFromFirestoreTimestamp(timestampObj) {
-  if (timestampObj) {
-    const {seconds, nanoseconds} = timestampObj;
-    const milliseconds = seconds * 1000 + nanoseconds / 1000000;
 
-    // Create a Date object using the milliseconds value
-    const date = new Date(milliseconds);
-
-    // Extract hours, minutes, and seconds from the Date object
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    const second = date.getSeconds();
-
-    // Format the time to desired format (example: hh:mm:ss)
-    const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes
-      .toString()
-      .padStart(2, '0')}`;
-
-    return formattedTime;
-  }
-}
 export function ChatMessagingHeads({
   dot,
   active,
@@ -49,58 +27,21 @@ export function ChatMessagingHeads({
   user,
   dmData,
 }) {
-  const friendid = getUserid(user, dmData?.participants);
   const [data, setData] = useState([]);
-  const [friendData, setFriendData] = useState(dmData?.friendinfo);
-  const getFriendProfile = async () => {
-    try {
-      const result = await usersprofile(friendid);
+  const [friendData, setFriendData] = useState();
 
-      setFriendData(result);
-    } catch (err) {
-      Alert.alert(
-        'Do not be angry',
-        'Our service seems to be down at the moment',
-      );
-    }
-  };
-  useEffect(() => {
-    getFriendProfile();
-  }, []);
-  useEffect(() => {
-    if (dmData?.conversationId) {
-      const q = query(
-        collection(db, 'direct_messages', dmData?.conversationId, 'messages'),
-        orderBy('sent', 'desc'), // Order by 'sent' field in descending order (latest first)
-        limit(1), // Limit the query to retrieve only the latest chat message
-      );
-      const unsubscribe = onSnapshot(q, querySnapshot => {
-        let chats = null;
-        querySnapshot.forEach(doc => {
-          chats = {id: doc.id, ...doc.data()};
-        });
-
-        setData(chats);
-      });
-
-      // Cleanup: Unsubscribe from real-time updates when component unmounts
-      return () => {
-        unsubscribe();
-      };
-    }
-  }, [dmData?.conversationId]); // Ensure db and gdata.groupid are dependencies if they change
   const emptyimage =
     'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
-  if (!friendData || Object.keys(friendData).length === 0) {
-    return null;
-  }
+  // if (!friendData || Object.keys(friendData).length === 0) {
+  //   return null;
+  // }
 
   return (
     <TouchableOpacity
       onPress={() => {
         navigation.navigate('chat person', {
           conversationId: dmData?.conversationId,
-          friendid: friendid,
+          friend: dmData,
         });
       }}
       style={[
@@ -116,7 +57,14 @@ export function ChatMessagingHeads({
         },
       ]}>
       <View style={styles.header}>
-        <Image style={styles.avatar} src={friendData?.photourl || emptyimage} />
+        <Image
+          style={styles.avatar}
+          source={{
+            uri: dmData?.avatar
+              ? musterusfullmedia(dmData?.avatar.slice(1))
+              : emptyimage,
+          }}
+        />
 
         <View style={[styles.headerInfo, {flexDirection: 'row'}]}>
           <View
@@ -125,35 +73,7 @@ export function ChatMessagingHeads({
               // backgroundColor: "green"
             }}>
             <Text style={styles.username}>
-              {friendData?.firstname + ' ' + friendData?.lastname}
-            </Text>
-            <Text style={styles.usernameTag}>
-              {data && Object.entries(data).length == 0
-                ? 'Enter message'
-                : data?.text}
-            </Text>
-          </View>
-          <View
-            style={{
-              flex: 0.6,
-              // backgroundColor: "red",
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginRight: 10,
-            }}>
-            <Text
-              style={{
-                color: Colors.light,
-                fontSize: 11,
-                backgroundColor: Colors.primary,
-                borderRadius: 20,
-                height: 25,
-                textAlign: 'center',
-                padding: 4,
-                marginTop: 5,
-              }}>
-              {extractTimeFromFirestoreTimestamp(data?.sent) &&
-                extractTimeFromFirestoreTimestamp(data?.sent)}
+              {dmData?.firstname + ' ' + dmData?.lastname}
             </Text>
           </View>
         </View>

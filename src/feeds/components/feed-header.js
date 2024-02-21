@@ -48,6 +48,12 @@ export function FeedHeader({showCreatePost, navigation, Profile}) {
           }}>
           <TouchableOpacity
             onPress={() => {
+              navigation.navigate('Create Feed');
+            }}>
+            <PlusIcon />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
               navigation.navigate('Search');
             }}>
             <SearchIcon />

@@ -22,7 +22,7 @@ export function SendACard({navigation, mykey}) {
     <View style={styles.container}>
       <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
         <View style={styles.imagesContainer}>
-          <TouchableOpacity onPress={() => WebBrowser.openBrowserAsync(link)}>
+          <TouchableOpacity onPress={() => navigation.navigate('Sendto')}>
             <ImageBackground
               style={{
                 width: '100%',

@@ -179,14 +179,14 @@ const Profile = ({route, appState, setmyprofile}) => {
       JSON.stringify(user, null, 2),
       JSON.stringify(Profile, null, 2),
     );
-    console.log(user?.profilekey === User?.mykey);
+    console.log(user === User?.mykey);
   }, []);
 
   if (Profile === null) {
     return <ActivityIndicator />;
   }
 
-  const isCurrentUser = user ? user?.profilekey === User?.mykey : true;
+  const isCurrentUser = user ? user === User?.mykey : true;
   const pageTitle = `Profile`;
 
   return (

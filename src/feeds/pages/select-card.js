@@ -27,6 +27,10 @@ import Header from '../../messaging/components/header';
 import {MusterCards, MusterCards2} from '../components/ustercards';
 import {FlatList} from 'react-native';
 import {holidaysImages} from '../controllers/Cards';
+import musterusfullmedia from '../../../musterusfullmedia';
+import emptyimage from '../../../emptyimage';
+import {PrimaryButton} from '../../components/buttons/primary';
+import {sendcard} from '../oldapis/sendCard';
 
 const {height, width} = Dimensions.get('window');
 const Colors = Color();
@@ -35,13 +39,16 @@ let ImgUrl =
 function MuterCards({route, appState, disp_surprise}) {
   const User = appState.User;
   const navigation = useNavigation();
-  const [imageUri, setImageUri] = useState(null);
-  const [data, setData] = useState('');
-  const {selected} = route?.params;
-  useEffect(() => {}, []);
-  const selectedHoliday = holidaysImages.find(
-    holiday => holiday.title === selected,
-  );
+  const [message, setMessage] = useState('');
+  const {card, friend} = route?.params;
+  const SendCard = async () => {
+    try {
+      const result = await sendcard(User?.mykey, User?.mskl);
+    } catch {}
+  };
+  useEffect(() => {
+    console.log(JSON.stringify(card, null, 2));
+  }, []);
 
   return (
     <>
@@ -55,36 +62,50 @@ function MuterCards({route, appState, disp_surprise}) {
           // padding: 20
         }}>
         <AppStatusBar StatusBar={StatusBar} useState={useState} />
-        <View style={{height: '100%', flex: 1}}>
-          <FlatList
-            data={selectedHoliday ? selectedHoliday.data : []}
-            style={{flex: 1, height: '100%'}}
-            contentContainerStyle={{alignItems: 'center'}}
-            keyExtractor={(item, index) => index.toString()}
-            numColumns={3} // Set the number of columns to 3
-            renderItem={({item}) => (
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate('Sendto', {image: item});
-                  // Handle image selection here
-                }}>
-                <Image
-                  style={{
-                    width: 130,
-                    height: 160,
-                    borderRadius: 20,
-                    margin: 5, // Add some margin between images for spacing
-                  }}
-                  source={{uri: item}}
-                />
-              </TouchableOpacity>
-            )}
-            ListHeaderComponent={() => (
-              <Text style={{fontSize: 20, fontWeight: 'bold', padding: 10}}>
-                {selected}
-              </Text>
-            )}
-          />
+        <View style={{height: '100%', flex: 1, gap: 20}}>
+          <View
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              flexDirection: 'row-reverse',
+              gap: 5,
+            }}>
+            <Text>{`Send ${friend.firstname} a card`} </Text>
+            <Image
+              style={{width: 50, height: 50, borderRadius: 1000}}
+              source={{
+                uri:
+                  friend && friend?.avatar
+                    ? musterusfullmedia(friend?.avatar.slice(1))
+                    : emptyimage,
+              }}
+            />
+          </View>
+          <View style={{flexDirection: 'row', marginBottom: 5}}>
+            <Image
+              style={{width: 100, height: 100}}
+              source={{
+                uri:
+                  friend && friend?.avatar
+                    ? musterusfullmedia(card.filename)
+                    : emptyimage,
+              }}
+            />
+            <TextInput
+              value={message}
+              onChangeText={text => setMessage(text)}
+              label={'Add a message'}
+              style={{
+                height: 100,
+                width: '100%',
+                backgroundColor: 'transparent',
+              }}
+            />
+          </View>
+          <View style={{display: 'flex', alignItems: 'center', width: '100%'}}>
+            <PrimaryButton title={'Send Card'} style={{width: width * 0.8}} />
+          </View>
         </View>
       </SafeAreaView>
     </>

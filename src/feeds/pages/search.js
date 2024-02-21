@@ -65,7 +65,7 @@ function Profile({route, appState, disp_surprise}) {
   };
   const searchUsers = async value => {
     const result = await searchusers(mykey, mskl, value, 'fna');
-    console.log(result, null, 2);
+    console.log(JSON.stringify(result, null, 2));
   };
 
   const handleInputChange = async event => {
@@ -144,7 +144,7 @@ function Profile({route, appState, disp_surprise}) {
             />
             <Text
               style={[
-                Style.text,
+                Style.Text,
                 {
                   marginTop: 15,
                   marginBottom: 15,

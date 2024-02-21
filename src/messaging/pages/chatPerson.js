@@ -14,19 +14,20 @@ import {ChatHead} from '../components/chatHeads';
 import {ChatScreen, SentMessage} from '../components/mesages';
 import {ChatInput} from '../components/chatInput';
 import {ChatMessages} from '../components/chatmessages';
-import {sendDM, sendmessage} from '../apis/sendDM';
 import {initializechat} from '../apis/initializechat';
 import {usersfullprofile} from '../../user/apis/profile';
 import {getDownloadURL, ref, uploadBytesResumable} from 'firebase/storage';
 import {storage} from '../../../firebase';
 
 import * as ImagePicker from 'expo-image-picker';
+import {personalmessages} from '../oldapis/chats/personalmessages';
+import {sendDMMessage} from '../oldapis/chats/sendMessage';
 const Colors = Color();
 
 function SignIn({navigation, appState, route, setchatlist}) {
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const {user} = route?.params;
+  const [mesages, setMessages] = useState(false);
+  const {friend} = route?.params;
   const {User, Profile} = appState;
   const getProfile = async () => {
     const result = await usersfullprofile(friendid);
@@ -55,8 +56,9 @@ function SignIn({navigation, appState, route, setchatlist}) {
       setTempMessage(message);
       setMessage('');
 
-      const result = await sendDM(Profile?.uid, user?.uid, message);
+      const result = await sendDMMessage(Profile?.uid, friend?.uid, message);
       if (result?.Success == 1) {
+        getMessgaes();
         setTempMessage('');
         setImage();
         setIsSending('');
@@ -70,14 +72,14 @@ function SignIn({navigation, appState, route, setchatlist}) {
     }
   };
   const getMessgaes = async () => {
-    const result = await initializechat(
+    const result = await personalmessages(
       Profile?.uid,
-      user?.uid,
+      friend?.uid,
       User?.mykey,
-      0,
-      user,
+      friend?.friendstat,
+      friend,
     );
-    console.log(JSON.stringify(result, null, 2));
+    setMessages(result?.Messages.reverse());
   };
   const [pickImage, setpickImage] = useState(false);
   const [image, setImage] = useState(null);
@@ -119,7 +121,7 @@ function SignIn({navigation, appState, route, setchatlist}) {
 
         const storageRef = ref(
           storage,
-          `chats/${User?.mykey + '_' + friendid}/${image.split('/').pop()}`,
+          `chats/${User?.mykey + '_' + friend?.id}/${image.split('/').pop()}`,
         );
         const uploadTask = uploadBytesResumable(storageRef, blob);
 
@@ -172,7 +174,7 @@ function SignIn({navigation, appState, route, setchatlist}) {
           hidden={hidden}
         />
 
-        <ChatHead navigation={navigation} page="PERSON" user={user} />
+        <ChatHead navigation={navigation} page="PERSON" user={friend} />
         <View style={{flex: 1, width: '100%', height: '100%'}}>
           <View style={{width: '100%', height: '100%'}}>
             <View
@@ -188,6 +190,7 @@ function SignIn({navigation, appState, route, setchatlist}) {
                 user={User}
                 route={route}
                 image={image}
+                messages={mesages}
                 ChooseImage={() => ChooseImage()}
               />
             </View>

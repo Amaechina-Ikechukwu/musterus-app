@@ -17,18 +17,16 @@ import Header from '../components/header';
 const Colors = Color();
 
 function SignIn({navigation, appState, setchatlist}) {
-  const {User, Profile} = appState;
+  const {User, Profile, Friends} = appState;
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const getChatList = async () => {
     const result = await chatlist(User?.mykey, User?.mskl);
-    console.log(JSON.stringify(result, null, 2));
+
     // setchatlist(result.chats);
   };
 
-  useEffect(() => {
-    getChatList();
-  }, []);
+  useEffect(() => {}, []);
   useEffect(() => {}, [data]);
   const STYLES = ['default', 'dark-content', 'light-content'];
   const TRANSITIONS = ['fade', 'slide', 'none'];
@@ -67,7 +65,7 @@ function SignIn({navigation, appState, setchatlist}) {
             <View style={{width: '100%', height: '100%'}}>
               <ChatFlatlist
                 navigation={navigation}
-                data={data}
+                data={Friends}
                 mykey={User?.mykey}
               />
             </View>
