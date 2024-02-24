@@ -77,7 +77,7 @@ function MuterCards({route, appState, disp_surprise}) {
               source={{
                 uri:
                   friend && friend?.avatar
-                    ? musterusfullmedia(friend?.avatar.slice(1))
+                    ? 'https://musterus.com' + friend?.avatar.slice(1)
                     : emptyimage,
               }}
             />
@@ -88,7 +88,7 @@ function MuterCards({route, appState, disp_surprise}) {
               source={{
                 uri:
                   friend && friend?.avatar
-                    ? musterusfullmedia(card.filename)
+                    ? 'https://musterus.com' + card.filename
                     : emptyimage,
               }}
             />

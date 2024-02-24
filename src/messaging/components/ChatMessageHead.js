@@ -61,7 +61,7 @@ export function ChatMessagingHeads({
           style={styles.avatar}
           source={{
             uri: dmData?.avatar
-              ? musterusfullmedia(dmData?.avatar.slice(1))
+              ? 'https://musterus.com' + dmData?.avatar.slice(1)
               : emptyimage,
           }}
         />

@@ -49,7 +49,7 @@ const FriendsFlatlist = ({Friends}) => {
               style={styles.avatar}
               source={{
                 uri: item?.avatar
-                  ? musterusfullmedia(item.avatar.slice(1))
+                  ? 'https://musterus.com' + item.avatar.slice(1)
                   : emptyimage,
               }}
             />

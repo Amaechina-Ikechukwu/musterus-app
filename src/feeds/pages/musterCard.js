@@ -124,7 +124,7 @@ function MuterCards({route, appState, disp_surprise}) {
                       borderRadius: 10,
                       margin: 5,
                     }}
-                    source={{uri: musterusfullmedia(item.thumbnail)}}
+                    source={{uri: 'https://musterus.com' + item.thumbnail}}
                   />
                   <LabelTexts style={{marginLeft: 25}} text={item.imagetitle} />
                 </TouchableOpacity>
