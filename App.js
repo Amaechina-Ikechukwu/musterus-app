@@ -64,16 +64,15 @@ function App() {
 
     fetchData();
   }, [signedIn]);
+  async function logout() {
+    const keys = await AsyncStorage.getAllKeys();
+    // Iterate through all keys and remove their values
+    await AsyncStorage.multiRemove(keys);
 
+    console.log('AsyncStorage cleared successfully.');
+    setSignedIn(false);
+  }
   // useEffect(() => {
-  //   async function fetchData() {
-  //     const keys = await AsyncStorage.getAllKeys();
-  //     // Iterate through all keys and remove their values
-  //     await AsyncStorage.multiRemove(keys);
-
-  //     console.log('AsyncStorage cleared successfully.');
-  //     setSignedIn(false);
-  //   }
 
   //   fetchData();
   // }, []);
@@ -114,6 +113,7 @@ function App() {
                     name="Dashboard"
                     component={FeedNavigation}
                     options={{header: () => null}}
+                    initialParams={{logout: () => logout()}}
                   />
                   <Stack.Screen
                     name="Chat"

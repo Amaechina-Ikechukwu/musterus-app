@@ -10,7 +10,7 @@ import {amifollwoing} from '../../muster-points/apis/amifollowing';
 import {followuser} from '../../muster-points/apis/followuser';
 import {ThreeDots} from './icons';
 import {deletepost} from '../apis/deletepost';
-import musterusfullmedia from '../../../musterusfullmedia';
+import musterusfullmedia from '../../musterusfullmedia';
 
 const Colors = Color();
 export function NameDisplayCard({

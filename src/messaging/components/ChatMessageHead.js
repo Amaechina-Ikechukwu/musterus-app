@@ -14,7 +14,7 @@ import {
 } from 'firebase/firestore';
 import {db} from '../../../firebase';
 import {usersprofile} from '../../user/apis/firebaseprofile';
-import musterusfullmedia from '../../../musterusfullmedia';
+import musterusfullmedia from '../../musterusfullmedia';
 
 const Colors = Color();
 

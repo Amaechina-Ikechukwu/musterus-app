@@ -41,16 +41,11 @@ import {homepage} from '../oldapis/home';
 import emptyimage from '../../emptyimage';
 import {Style} from '../../../assets/styles';
 import AdPage from '../components/AdPage';
+import {useNavigation} from '@react-navigation/native';
 
 const Colors = Color();
 
-function Homepage({
-  navigation,
-  appState,
-  setposts,
-  setmyprofile,
-  setmyfriends,
-}) {
+function Homepage({appState, setposts, setmyprofile, setmyfriends, route}) {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState('');
@@ -61,7 +56,8 @@ function Homepage({
   const [posts, setPosts] = useState([]);
   const [members, setMembers] = useState();
   const [postToView, setPostToView] = useState();
-
+  const {logout} = route?.params;
+  const navigation = useNavigation();
   useEffect(() => {
     const handleBackPress = () => {
       if (CreatePost == true) {
@@ -81,12 +77,22 @@ function Homepage({
   );
 
   const getHomeFeed = async () => {
-    const result = await homepage(mykey, mskl);
+    try {
+      const result = await homepage(mykey, mskl);
 
-    setmyprofile(result?.MyProfile);
-    setMembers(result?.RecentMembers);
-    setmyfriends(result?.MyFriends);
-    setPosts(result?.Comments);
+      if (result.err == 2 && result.target == 'login') {
+        logout();
+      }
+      setmyprofile(result?.MyProfile);
+      setMembers(result?.RecentMembers);
+      setmyfriends(result?.MyFriends);
+      setPosts(result?.Comments);
+    } catch {
+      Alert.alert(
+        'Connection Error',
+        'Could not retrieve lastest post at this moment',
+      );
+    }
   };
 
   useEffect(() => {
@@ -94,9 +100,7 @@ function Homepage({
     // getProfile();
   }, []);
 
-  useEffect(() => {
-    console.log({User});
-  }, [User, Profile]);
+  useEffect(() => {}, [User, Profile]);
   const renderItem = ({item}) => {
     return (
       <View style={{alignItems: 'center'}}>

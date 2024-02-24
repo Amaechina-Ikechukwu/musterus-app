@@ -24,7 +24,7 @@ import Header from '../../messaging/components/header';
 import {Color} from '../../components/theme';
 import emptyimage from '../../emptyimage';
 import {FlashList} from '@shopify/flash-list';
-import musterusfullmedia from '../../../musterusfullmedia';
+import musterusfullmedia from '../../musterusfullmedia';
 const Colors = Color();
 const FriendsFlatlist = ({Friends}) => {
   const navigation = useNavigation();

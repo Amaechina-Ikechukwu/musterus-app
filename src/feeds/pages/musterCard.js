@@ -26,7 +26,7 @@ import {Color} from '../../components/theme';
 import Header from '../../messaging/components/header';
 
 import {events} from '../oldapis/events';
-import musterusfullmedia from '../../../musterusfullmedia';
+import musterusfullmedia from '../../musterusfullmedia';
 
 const {height, width} = Dimensions.get('window');
 const Colors = Color();

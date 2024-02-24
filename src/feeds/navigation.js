@@ -49,13 +49,13 @@ const transition = {
 const Stack = createStackNavigator();
 // const Drawer = createDrawerNavigator();
 
-export default function BCSEventStack({appState}) {
+export default function BCSEventStack({appState, route}) {
   const [isOnoarded, setOnboarded] = useState();
-
+  const {logout} = route?.params;
   const Colors = Color();
+
   return (
     <Stack.Navigator
-      // initialRouteName={isOnoarded == true ? "WEB" : "Home"}
       initialRouteName="index"
       screenOptions={{
         transitionSpec: transition.transitionSpec,
@@ -66,6 +66,7 @@ export default function BCSEventStack({appState}) {
       }}>
       {/* feeds=================================== */}
       <Stack.Screen
+        initialParams={{logout: () => logout()}}
         name="index"
         component={Feeds}
         options={{
