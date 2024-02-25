@@ -53,7 +53,7 @@ export function NameDisplayCard({
       <View style={styles.header}>
         <Image
           style={styles.avatar}
-          src={'https://musterus.com' + item?.avatar.slice(1) || emptyimage}
+          src={'https://www.musterus.com' + item?.avatar.slice(1) || emptyimage}
         />
         <View
           style={{

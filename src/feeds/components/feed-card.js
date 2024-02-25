@@ -158,7 +158,7 @@ export function FeedCard({
                     aspectRatio: 1,
                   },
                 ]}
-                source={{uri: 'https://musterus.com' + data?.attachedimage}}
+                source={{uri: 'https://www.musterus.com' + data?.attachedimage}}
                 resizeMode={'cover'}
               />
             )}
@@ -168,7 +168,7 @@ export function FeedCard({
                   ref={video}
                   style={{width: '100%', height: 500}}
                   source={{
-                    uri: 'https://musterus.com' + data?.attachedimage,
+                    uri: 'https://www.musterus.com' + data?.attachedimage,
                   }}
                   useNativeControls={false}
                   resizeMode={ResizeMode.CONTAIN}

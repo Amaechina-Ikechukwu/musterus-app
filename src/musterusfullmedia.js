@@ -1,5 +1,5 @@
 function musterusfullmedia(mediaurl) {
-  const media = 'https://musterus.com' + mediaurl;
+  const media = 'https://www.musterus.com' + mediaurl;
   return media;
 }
 

@@ -144,7 +144,7 @@ const HeaderComponent = ({post}) => {
                   aspectRatio: 1,
                 },
               ]}
-              source={{uri: 'https://musterus.com' + post?.attachedimage}}
+              source={{uri: 'https://www.musterus.com' + post?.attachedimage}}
               resizeMode={'cover'}
             />
           )}
@@ -154,7 +154,7 @@ const HeaderComponent = ({post}) => {
                 ref={video}
                 style={{width: '100%', height: 300}}
                 source={{
-                  uri: 'https://musterus.com' + post?.attachedimage,
+                  uri: 'https://www.musterus.com' + post?.attachedimage,
                 }}
                 useNativeControls={true}
                 resizeMode={ResizeMode.CONTAIN}
