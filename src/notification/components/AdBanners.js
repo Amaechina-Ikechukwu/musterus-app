@@ -55,6 +55,7 @@ export default function AdBanners({User}) {
         data={data}
         renderItem={renderItem}
         numColumns={3}
+        columnWrapperStyle={{columnGap: 2, rowGap: 2}}
         ListEmptyComponent={
           <View
             style={{
@@ -76,6 +77,7 @@ export default function AdBanners({User}) {
               flexDirection: 'row',
               gap: 5,
               width: '100%',
+              marginBottom: 10,
             }}>
             <PrimaryButton
               style={{

@@ -62,22 +62,6 @@ export function CreatePostModal({
             }>
             <View
               style={{
-                padding: 15,
-                flexDirection: 'row',
-              }}>
-              <TouchableOpacity
-                onPress={() => {
-                  showCreatePost(false);
-                }}>
-                <BackIcon />
-              </TouchableOpacity>
-              <LabelTexts
-                text={progress ? `Uploading ${progress}%` : 'Create a post'}
-                style={{marginLeft: 20}}
-              />
-            </View>
-            <View
-              style={{
                 padding: 5,
               }}>
               <DividerIcon />
@@ -134,7 +118,7 @@ export function CreatePostModal({
         <View>
           <PrimaryButton
             // loading={loading}
-            noBG={image == null || data.length < 2 ? true : false}
+            noBG={data.length < 5 ? true : false}
             style={{
               width: '90%',
               marginLeft: '5%',
@@ -142,13 +126,10 @@ export function CreatePostModal({
               marginTop: 20,
               marginBottom: 40,
               backgroundColor:
-                image !== null || data.length > 2
+                image !== null || data.length > 5
                   ? Colors.primary
                   : Colors.inactiveButton,
-              color:
-                image !== null || data.length > 2
-                  ? Colors.white
-                  : Colors.inactiveButton,
+              color: data.length > 5 ? Colors.white : Colors.inactiveButton,
             }}
             callBack={() => {
               CreateMyPost();

@@ -55,6 +55,7 @@ function Homepage({appState, setposts, setmyprofile, setmyfriends, route}) {
   const {User, Profile} = appState;
   const [posts, setPosts] = useState([]);
   const [members, setMembers] = useState();
+  const [birthdays, setBirthdays] = useState();
   const [postToView, setPostToView] = useState();
   const {logout} = route?.params;
   const navigation = useNavigation();
@@ -87,6 +88,8 @@ function Homepage({appState, setposts, setmyprofile, setmyfriends, route}) {
       setMembers(result?.RecentMembers);
       setmyfriends(result?.MyFriends);
       setPosts(result?.Comments);
+      setposts(result?.Comments);
+      setBirthdays(result?.Birthdays);
     } catch {
       Alert.alert(
         'Connection Error',

@@ -8,14 +8,10 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from 'react-native';
-import {setGroup, setPosts} from '../../redux';
 import {connect} from 'react-redux';
-import {NameDisplayCard} from '../../components/name-display-card';
-import {FeedCard} from '../components/feed-card';
-import {FlashList} from '@shopify/flash-list';
-import {SendACard} from '../components/SendACard';
-import BirthdayView from '../components/BirthdayView';
-import BirthdayList from '../components/BirthdayView';
+import {setPosts} from '../../redux';
+import {FeedCard} from '../../feeds/components/feed-card';
+
 const PostFlatlist = ({
   appState,
   data,
@@ -25,7 +21,7 @@ const PostFlatlist = ({
   loading,
   setLoading,
   setpost,
-  setPostToView,
+  Header,
   fetchposts,
 }) => {
   const {User} = appState;
@@ -59,20 +55,12 @@ const PostFlatlist = ({
 
   return (
     <FlatList
-      ListHeaderComponent={
-        <View
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'center',
-          }}>
-          <SendACard navigation={navigation} />
-        </View>
-      }
-      ListHeaderComponentStyle={{display: 'flex', flexDirection: 'row'}}
+      ListHeaderComponentStyle={{
+        width: '100%',
+      }}
       data={data}
+      ListHeaderComponent={Header}
       renderItem={renderItem}
-      // onRefresh={() => fetchposts()}
       initialNumToRender={8}
       keyExtractor={item => item.comid}
       contentContainerStyle={{gap: 40}}

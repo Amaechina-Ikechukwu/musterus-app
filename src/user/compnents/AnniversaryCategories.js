@@ -19,7 +19,7 @@ const CategoryList = [
     value: 4,
   },
   {
-    title: `Its's Complicated`,
+    title: `It's Complicated`,
     value: 5,
   },
   {
@@ -38,7 +38,7 @@ const AnniversaryCategorySelector = ({onSelect, onClose}) => {
   const handleCategorySelect = category => {
     setSelectedCategory(category);
     // Perform actions or state updates based on the selected category
-    console.log('Selected category:', category);
+
     onSelect(category.value);
     onClose();
   };
@@ -48,14 +48,19 @@ const AnniversaryCategorySelector = ({onSelect, onClose}) => {
       selectedCategory && selectedCategory.title === item.title;
 
     return (
-      <TouchableOpacity
-        onPress={() => handleCategorySelect(item)}
-        style={styles.categoryItem}>
-        <Text
-          style={[styles.categoryName, isSelected && styles.selectedCategory]}>
-          {item.catname}
-        </Text>
-      </TouchableOpacity>
+      <View style={{width: '100%'}}>
+        <TouchableOpacity
+          onPress={() => handleCategorySelect(item)}
+          style={styles.categoryItem}>
+          <Text
+            style={[
+              styles.categoryName,
+              isSelected && styles.selectedCategory,
+            ]}>
+            {item.title}
+          </Text>
+        </TouchableOpacity>
+      </View>
     );
   };
 
@@ -64,7 +69,7 @@ const AnniversaryCategorySelector = ({onSelect, onClose}) => {
       <FlatList
         data={CategoryList}
         renderItem={renderCategoryItem}
-        keyExtractor={item => item.title}
+        keyExtractor={item => String(item.value)} // Using value as the key since title can be null
         contentContainerStyle={styles.listContainer}
       />
     </View>
@@ -73,9 +78,6 @@ const AnniversaryCategorySelector = ({onSelect, onClose}) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: 'white',
     width: '100%',
   },
@@ -91,6 +93,7 @@ const styles = StyleSheet.create({
   },
   categoryName: {
     fontSize: 16,
+    color: 'black',
   },
   selectedCategory: {
     fontWeight: 'bold',

@@ -94,12 +94,13 @@ export default function ExtraInfo({User, Profile, navigation}) {
     country: false,
     anniversary: false,
   });
+
   const [date, setDate] = useState(new Date());
   const chooseCountry = cat => {
     setProfile(prev => ({...prev, country: cat}));
   };
   const chooseAnniversary = cat => {
-    setProfile(prev => ({...prev, anniversary: cat}));
+    setProfile(prev => ({...prev, relationship: cat}));
   };
   const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -138,20 +139,51 @@ export default function ExtraInfo({User, Profile, navigation}) {
       );
     }
   };
+  const CategoryList = [
+    {
+      title: 'In a relationship',
+      value: 1,
+    },
+    {
+      title: 'Married',
+      value: 2,
+    },
+    {
+      title: 'Divorced',
+      value: 3,
+    },
+    {
+      title: 'Single',
+      value: 4,
+    },
+    {
+      title: `It's Complicated`,
+      value: 5,
+    },
+    {
+      title: 'Widowed',
+      value: 6,
+    },
+    {
+      title: null,
+      value: 0,
+    },
+  ];
+  useEffect(() => {}, []);
   return (
     <View style={{height: '75%'}}>
       <ScrollView>
         <View style={{gap: 20, marginBottom: 60}}>
           {Object.keys(profile).map((prof, index) => {
-            if (prof == 'country') {
+            if (prof === 'country') {
               return select.country ? (
                 <CategorySelector
-                  onSelect={chooseCountry()}
-                  onClose={() => setSelect({anniversary: !select.anniversary})}
+                  onSelect={chooseCountry}
+                  onClose={() => setSelect({...select, country: false})}
                 />
               ) : (
                 <TouchableOpacity
-                  onPress={() => setSelect({country: !select.country})}
+                  onPress={() => setSelect({...select, country: true})}
                   style={{
                     width: '100%',
                     borderWidth: 1,
@@ -161,19 +193,19 @@ export default function ExtraInfo({User, Profile, navigation}) {
                     justifyContent: 'center',
                     borderColor: 'gray',
                   }}>
-                  <Text>{profile.country || 'Select a country'}</Text>
+                  <Text>{[profile.country] || 'Select a country'}</Text>
                 </TouchableOpacity>
               );
             }
-            if (prof == 'anniversary') {
+            if (prof === 'relationship') {
               return select.anniversary ? (
                 <AnniversaryCategorySelector
-                  onSelect={chooseAnniversary()}
-                  onClose={() => setSelect({anniversary: !select.anniversary})}
+                  onSelect={chooseAnniversary}
+                  onClose={() => setSelect({...select, anniversary: false})}
                 />
               ) : (
                 <TouchableOpacity
-                  onPress={() => setSelect({anniversary: !select.anniversary})}
+                  onPress={() => setSelect({...select, anniversary: true})}
                   style={{
                     width: '100%',
                     borderWidth: 1,
@@ -183,7 +215,10 @@ export default function ExtraInfo({User, Profile, navigation}) {
                     justifyContent: 'center',
                     borderColor: 'gray',
                   }}>
-                  <Text>{profile.anniversary || prof}</Text>
+                  <Text>
+                    {CategoryList[profile.relationship - 1]?.title ||
+                      placeholders[prof]}
+                  </Text>
                 </TouchableOpacity>
               );
             }

@@ -23,17 +23,22 @@ export function NameDisplayCard({
   goto,
   count,
 }) {
-  const [following, setFollowing] = useState(item?.isFollowing);
+  const [following, setFollowing] = useState(false);
+  const [addFriend, setAddFriend] = useState(false);
   const {mykey, mskl} = user;
   const followUser = async () => {
-    const result = await followuser(mykey, mskl, item.uid, item.profilekey);
-    console.log(JSON.stringify(result, null, 2));
-    // setFollowing(result?.message == 'added');
+    // const result = await followuser(mykey, mskl, item.uid, item.profilekey);
+    // console.log(JSON.stringify(result, null, 2));
+    setInterval(() => {
+      setFollowing(true);
+    }, 1000);
   };
   const friendUser = async () => {
-    const result = await frienduser(mykey, mskl, item.uid, item.profilekey);
-    console.log(JSON.stringify(result, null, 2));
-    // setFollowing(result?.message == 'added');
+    // const result = await frienduser(mykey, mskl, item.uid, item.profilekey);
+    // console.log(JSON.stringify(result, null, 2));
+    setInterval(() => {
+      setAddFriend(true);
+    }, 1000);
   };
 
   const emptyimage =
@@ -88,108 +93,56 @@ export function NameDisplayCard({
         component == 'SEARCH' ||
         component == 'SENDCARD' ||
         component == 'FollowUsers' ? (
-          !following ? (
-            <>
-              <View
-                style={{
-                  // backgroundColor: "red",
-                  alignItems: 'center',
-                  justifyContent: 'flex-end',
-                  flexDirection: 'row',
-                  gap: 5,
-                  // marginRight: 10,
-                  // flex:1
-                }}>
-                <TouchableOpacity
-                  onPress={() => friendUser()}
-                  style={{
-                    backgroundColor: Colors.primary,
-                    height: 30,
-                    borderRadius: 40,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: 90,
-                  }}>
-                  <Text
-                    style={[Style.Text, {color: Colors.light, fontSize: 12}]}>
-                    Follow
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => friendUser()}
-                  style={{
-                    borderColor: Colors.primary,
-                    borderWidth: 1,
-                    height: 30,
-                    borderRadius: 40,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: 90,
-                  }}>
-                  <Text
-                    style={[
-                      Style.Text,
-                      {
-                        color: Colors.light,
-                        color: Colors.primary,
-                        fontSize: 12,
-                      },
-                    ]}>
-                    Add Friend
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </>
-          ) : (
+          <>
             <View
               style={{
                 // backgroundColor: "red",
-                alignItems: 'flex-start',
-                justifyContent: 'center',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                flexDirection: 'row',
+                gap: 5,
                 // marginRight: 10,
                 // flex:1
               }}>
-              {component == 'SEARCH' ? (
-                <TouchableOpacity
-                  onPress={() => conversationId(item)}
-                  style={{
-                    backgroundColor: Colors.white,
-                    height: 30,
-                    width: 90,
-                    borderRadius: 40,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <Text style={{color: Colors.primaryText}}>Message</Text>
-                </TouchableOpacity>
-              ) : component == 'SENDCARD' ? (
-                <TouchableOpacity
-                  onPress={() => sendACard(item)}
-                  style={{
-                    backgroundColor: Colors.white,
-                    height: 30,
-                    width: 90,
-                    borderRadius: 40,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <Text style={{color: Colors.primaryText}}>Send Card</Text>
-                </TouchableOpacity>
-              ) : (
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: Colors.lightgrey,
-                    height: 30,
-                    width: 90,
-                    borderRadius: 40,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <Text style={{color: Colors.primaryText}}>Following</Text>
-                </TouchableOpacity>
-              )}
+              <TouchableOpacity
+                onPress={() => followUser()}
+                style={{
+                  backgroundColor: Colors.primary,
+                  height: 30,
+                  borderRadius: 40,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 90,
+                }}>
+                <Text style={[Style.Text, {color: Colors.light, fontSize: 12}]}>
+                  {following ? 'Following' : 'Follow'}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => friendUser()}
+                style={{
+                  borderColor: Colors.primary,
+                  borderWidth: 1,
+                  height: 30,
+                  borderRadius: 40,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 90,
+                }}>
+                <Text
+                  style={[
+                    Style.Text,
+                    {
+                      color: Colors.light,
+                      color: Colors.primary,
+                      fontSize: 12,
+                    },
+                  ]}>
+                  {addFriend ? 'Added' : 'Add Friend'}
+                </Text>
+              </TouchableOpacity>
             </View>
-          )
+          </>
         ) : null}
       </View>
     </View>

@@ -200,20 +200,18 @@ const countries = [
   {name: 'Zambia', initials: 'ZM'},
   {name: 'Zimbabwe', initials: 'ZW'},
 ];
-
 const CategorySelector = ({onSelect, onClose}) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   const handleCategorySelect = category => {
     setSelectedCategory(category.name);
     // Perform actions or state updates based on the selected category
-
     onSelect(category.name);
     onClose();
   };
 
   const renderCategoryItem = ({item}) => {
-    const isSelected = selectedCategory && selectedCategory.name === item.name;
+    const isSelected = selectedCategory && selectedCategory === item.name;
 
     return (
       <TouchableOpacity
@@ -232,7 +230,7 @@ const CategorySelector = ({onSelect, onClose}) => {
       <FlatList
         data={countries}
         renderItem={renderCategoryItem}
-        keyExtractor={item => item.gcatrow}
+        keyExtractor={item => item.initials}
         contentContainerStyle={styles.listContainer}
       />
     </View>
@@ -245,6 +243,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'white',
     width: '100%',
+    position: 'absolute',
+    zIndex: 4,
   },
   listContainer: {
     width: '100%',
