@@ -53,9 +53,9 @@ export function FeedCard({
   const postaction = async (action, number) => {
     try {
       setShowAction(false);
+      setLiked(number);
       const {comid, mykey, uid, userkey, mskl} = action;
       await reacttopost(comid, number, 0, userkey, mskl, uid);
-      setLiked(number);
     } catch (e) {
       Alert.alert('Post Reaction', 'Could not react to post at this time');
     }
@@ -63,23 +63,23 @@ export function FeedCard({
   const likeactions = [
     {
       title: 'like',
-      url: 'https://seeklogo.com/images/F/facebook-like-icon-logo-E656F54784-seeklogo.com.png',
+      url: '👍',
       number: 1,
     },
 
     {
       title: 'dislike',
-      url: 'https://cdn-icons-png.flaticon.com/512/889/889220.png',
+      url: '👎',
       number: 2,
     },
     {
       title: 'sad',
-      url: 'https://cdn.iconscout.com/icon/free/png-256/free-sad-emoji-17-894764.png',
+      url: '😒',
       number: 3,
     },
     {
       title: 'love',
-      url: 'https://www.iconpacks.net/icons/1/free-heart-icon-992-thumb.png',
+      url: '❤️',
       number: 4,
     },
   ];
@@ -211,11 +211,9 @@ export function FeedCard({
               <TouchableOpacity
                 key={action.title}
                 onPress={() => postaction(data, action.number)}>
-                <Image
-                  source={{uri: action.url}}
-                  style={{width: 23, height: 23}}
-                  resizeMode="cover"
-                />
+                <Text style={[{fontFamily: 'Montserrat_light', fontSize: 24}]}>
+                  {action.url}
+                </Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -231,11 +229,9 @@ export function FeedCard({
                 gap: 5,
                 alignItems: 'center',
               }}>
-              <Image
-                source={{uri: likeactions[liked - 1].url}}
-                style={{width: 23, height: 23}}
-                resizeMode="contain"
-              />
+              <Text style={[{fontFamily: 'Montserrat_light', fontSize: 24}]}>
+                {likeactions[liked - 1].url}
+              </Text>
             </View>
           ) : (
             <View

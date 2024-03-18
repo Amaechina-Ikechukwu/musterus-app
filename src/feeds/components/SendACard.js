@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Text,
   ImageBackground,
+  Dimensions,
 } from 'react-native';
 import {Style} from '../../../assets/styles';
 import {Color} from '../../components/theme';
@@ -16,6 +17,7 @@ import * as WebBrowser from 'expo-web-browser';
 const IMAGE_WIDTH = 74;
 const IMAGE_HEIGHT = 130;
 const Colors = Color();
+const fullWidth = Dimensions.get('window').width;
 export function SendACard({navigation, mykey}) {
   const link = `https://www.musterus.com/eventcards?mykey=${mykey}&event=0`;
   return (
@@ -25,10 +27,8 @@ export function SendACard({navigation, mykey}) {
           <TouchableOpacity onPress={() => navigation.navigate('Sendto')}>
             <ImageBackground
               style={{
-                width: '100%',
-                height: '100%',
-                width: 100,
-                height: 150,
+                width: fullWidth,
+                height: 100,
                 borderRadius: 10,
                 overflow: 'hidden',
                 justifyContent: 'flex-end',
@@ -43,16 +43,16 @@ export function SendACard({navigation, mykey}) {
                   backgroundColor: 'rgba(0,0,0,0.5)',
                   padding: 5,
                   alignItems: 'center',
-                  justifyContent: 'flex-end',
+                  justifyContent: 'center',
                 }}>
                 <Text
                   style={[
                     Style.boldText,
                     {
                       color: 'white',
-                      fontWeight: 400,
+                      fontWeight: 600,
                       textAlign: 'center',
-                      fontSize: 14,
+                      fontSize: 16,
                     },
                   ]}>
                   Send card to anyone

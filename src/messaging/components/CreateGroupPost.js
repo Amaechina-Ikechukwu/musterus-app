@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Alert,
   SafeAreaView,
+  ImageBackground,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import * as ImagePicker from 'expo-image-picker';
@@ -21,13 +22,15 @@ import {imageupload} from '../oldapis/groups/imageupload';
 import {connect} from 'react-redux';
 import emptyimage from '../../emptyimage';
 import {creategrouppost} from '../oldapis/groups/creategrouppost';
+import musterusfullmedia from '../../musterusfullmedia';
+import BackButton from '../../feeds/pages/BackButton';
 const {width, height} = Dimensions.get('window');
 const Colors = Color();
 function CreateGroupPost({appState, navigation}) {
   const [image, setImage] = useState(null);
   const [data, setData] = useState({
     title: '',
-    status: 'Save as draft',
+    status: 'Publish',
     body: '',
   });
   const {User, Profile, Group} = appState;
@@ -83,33 +86,51 @@ function CreateGroupPost({appState, navigation}) {
             padding: 20,
             borderRadius: 20,
           }}>
+          <BackButton />
           <View
             style={{
-              gap: 20,
+              gap: 0,
               alignItems: 'flex-start',
               justifyContent: 'center',
               height: '100%',
+              width: '100%',
             }}>
-            <View
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 3,
-              }}>
-              <Image
-                src={'https://www.musterus.com' + Profile.avatar || emptyimage}
+            {Group.groupheader !== null && (
+              <ImageBackground
                 style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 100,
-                  backgroundColor: Colors.lightgrey,
+                  width: '100%',
+                  height: 200,
+                  overflow: 'hidden',
+                  justifyContent: 'flex-end',
                 }}
-              />
-              <Text style={[styles.author, Style.boldText]}>
-                {Profile.firstname + ' ' + Profile.lastname}
-              </Text>
-            </View>
+                source={{
+                  uri: musterusfullmedia(Group.groupbg),
+                }}>
+                <View
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Image
+                    resizeMode="contain"
+                    source={{uri: musterusfullmedia(Group.groupheader)}}
+                    style={{
+                      width: 100,
+                      height: 100,
+                      borderRadius: 100,
+                      backgroundColor: 'white',
+                    }}
+                  />
+                  <Text style={[Style.boldText, {color: 'white'}]}>
+                    {Group.groupname}
+                  </Text>
+                </View>
+              </ImageBackground>
+            )}
+
             <View
               style={{
                 width: '100%',
@@ -118,6 +139,28 @@ function CreateGroupPost({appState, navigation}) {
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
+              <View
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 3,
+                }}>
+                <Image
+                  src={
+                    'https://www.musterus.com' + Profile.avatar || emptyimage
+                  }
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 100,
+                    backgroundColor: Colors.lightgrey,
+                  }}
+                />
+                <Text style={[styles.author, Style.boldText]}>
+                  {Profile.firstname + ' ' + Profile.lastname}
+                </Text>
+              </View>
               <OutlinedInput
                 style={{marginBottom: 0, width: width * 0.8}}
                 data={data.title}
@@ -228,7 +271,7 @@ function CreateGroupPost({appState, navigation}) {
               <Text
                 style={{
                   textAlign: 'center',
-                  fontSize: 15,
+                  fontSize: 16,
                   color: Colors.light,
                 }}>
                 Push Post To Group

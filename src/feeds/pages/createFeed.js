@@ -96,7 +96,6 @@ function CreateFeed({navigation, appState, setposts}) {
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
     });
@@ -109,9 +108,7 @@ function CreateFeed({navigation, appState, setposts}) {
   };
 
   // Function to upload image to Firebase Storage
-  useEffect(() => {
-    console.log(JSON.stringify(Profile, null, 2));
-  }, []);
+  useEffect(() => {}, []);
 
   const [uploadProgress, setUploadProgress] = useState(0);
 

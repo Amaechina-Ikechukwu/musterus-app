@@ -117,6 +117,7 @@ function HelloFriday({appState, navigate}) {
                       marginLeft: 20,
                       flex: 1,
                       color: Colors.lightgrey,
+                      fontSize: 16,
                     },
                   ]}>
                   Edit profile
@@ -150,6 +151,7 @@ function HelloFriday({appState, navigate}) {
                       marginLeft: 20,
                       flex: 1,
                       color: Colors.lightgrey,
+                      fontSize: 16,
                     },
                   ]}>
                   Reset password
@@ -177,6 +179,7 @@ function HelloFriday({appState, navigate}) {
                       marginLeft: 20,
                       flex: 1,
                       color: Colors.lightgrey,
+                      fontSize: 16,
                     },
                   ]}>
                   Help and suport
@@ -204,6 +207,7 @@ function HelloFriday({appState, navigate}) {
                       marginLeft: 20,
                       flex: 1,
                       color: Colors.lightgrey,
+                      fontSize: 16,
                     },
                   ]}>
                   Terms of use
@@ -231,6 +235,7 @@ function HelloFriday({appState, navigate}) {
                       marginLeft: 20,
                       flex: 1,
                       color: Colors.lightgrey,
+                      fontSize: 16,
                     },
                   ]}>
                   Privacy policy
@@ -259,7 +264,7 @@ function HelloFriday({appState, navigate}) {
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            <Text>LogOut</Text>
+            <Text style={{color: 'white'}}>Log Out</Text>
           </TouchableOpacity>
         </View>
       </View>

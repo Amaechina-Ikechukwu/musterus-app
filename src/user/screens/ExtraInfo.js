@@ -13,12 +13,14 @@ import {OutlinedInput} from '../../components/inputs';
 import {Style} from '../../../assets/styles';
 import {PrimaryButton} from '../../components/buttons/primary';
 import {editprofile} from '../apis/editprofile';
+import {FontAwesome} from '@expo/vector-icons';
+import {Color} from '../../components/theme';
 export default function ExtraInfo({User, Profile, navigation}) {
   const [profile, setProfile] = useState({
     firstname: Profile?.firstname,
     lastname: Profile?.lastname,
     username: Profile?.username,
-    usergender: Profile?.usergender,
+    usergender: Profile?.gender,
     birthdate: new Date(),
     profileintro: Profile?.profileintro,
     address: Profile?.address,
@@ -94,7 +96,7 @@ export default function ExtraInfo({User, Profile, navigation}) {
     country: false,
     anniversary: false,
   });
-
+  const colors = Color();
   const [date, setDate] = useState(new Date());
   const chooseCountry = cat => {
     setProfile(prev => ({...prev, country: cat}));
@@ -111,7 +113,7 @@ export default function ExtraInfo({User, Profile, navigation}) {
   };
 
   const showDatepicker = () => {
-    setShowDatePicker(true);
+    setShowDatePicker(!showDatePicker);
   };
   const formatDate = inputDate => {
     const year = inputDate.getFullYear();
@@ -169,6 +171,7 @@ export default function ExtraInfo({User, Profile, navigation}) {
       value: 0,
     },
   ];
+  const usergender = ['male', 'female'];
   useEffect(() => {}, []);
   return (
     <View style={{height: '75%'}}>
@@ -176,50 +179,114 @@ export default function ExtraInfo({User, Profile, navigation}) {
         <View style={{gap: 20, marginBottom: 60}}>
           {Object.keys(profile).map((prof, index) => {
             if (prof === 'country') {
-              return select.country ? (
-                <CategorySelector
-                  onSelect={chooseCountry}
-                  onClose={() => setSelect({...select, country: false})}
-                />
-              ) : (
-                <TouchableOpacity
-                  onPress={() => setSelect({...select, country: true})}
-                  style={{
-                    width: '100%',
-                    borderWidth: 1,
-                    borderRadius: 10,
-                    height: 50,
-                    padding: 10,
-                    justifyContent: 'center',
-                    borderColor: 'gray',
-                  }}>
-                  <Text>{[profile.country] || 'Select a country'}</Text>
-                </TouchableOpacity>
+              return (
+                <>
+                  <Text style={[Style.Text]}>Select Country</Text>
+                  {select.country ? (
+                    <CategorySelector
+                      onSelect={chooseCountry}
+                      onClose={() => setSelect({...select, country: false})}
+                    />
+                  ) : (
+                    <TouchableOpacity
+                      onPress={() => setSelect({...select, country: true})}
+                      style={{
+                        width: '100%',
+                        borderWidth: 1,
+                        borderRadius: 10,
+                        height: 50,
+                        padding: 10,
+                        justifyContent: 'center',
+                        borderColor: 'gray',
+                      }}>
+                      <Text>{[profile.country] || 'Select a country'}</Text>
+                    </TouchableOpacity>
+                  )}
+                </>
+              );
+            }
+            if (prof === 'usergender') {
+              return (
+                <>
+                  <Text style={[Style.Text]}>Select Gender</Text>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'center',
+                      padding: 5,
+                    }}>
+                    {usergender.map((gender, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() =>
+                          setProfile(prev => ({...prev, usergender: index}))
+                        }
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          paddingHorizontal: 10,
+                          paddingVertical: 5,
+                          borderWidth: 1,
+                          borderRadius: 10,
+                          height: 50,
+                          marginHorizontal: 5,
+                          justifyContent: 'center',
+                          borderColor: 'gray',
+                          width: '40%',
+                          backgroundColor:
+                            index == profile.usergender
+                              ? colors.primary
+                              : 'transparent',
+                        }}>
+                        <FontAwesome
+                          name={gender}
+                          size={24}
+                          color={
+                            index == profile.usergender ? 'white' : 'black'
+                          }
+                        />
+                        <Text
+                          style={{
+                            marginLeft: 5,
+                            color:
+                              index == profile.usergender ? 'white' : 'black',
+                          }}>
+                          {gender}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </>
               );
             }
             if (prof === 'relationship') {
-              return select.anniversary ? (
-                <AnniversaryCategorySelector
-                  onSelect={chooseAnniversary}
-                  onClose={() => setSelect({...select, anniversary: false})}
-                />
-              ) : (
-                <TouchableOpacity
-                  onPress={() => setSelect({...select, anniversary: true})}
-                  style={{
-                    width: '100%',
-                    borderWidth: 1,
-                    borderRadius: 10,
-                    height: 50,
-                    padding: 10,
-                    justifyContent: 'center',
-                    borderColor: 'gray',
-                  }}>
-                  <Text>
-                    {CategoryList[profile.relationship - 1]?.title ||
-                      placeholders[prof]}
-                  </Text>
-                </TouchableOpacity>
+              return (
+                <>
+                  <Text style={[Style.Text]}>Add relationship status</Text>
+                  {select.anniversary ? (
+                    <AnniversaryCategorySelector
+                      onSelect={chooseAnniversary}
+                      onClose={() => setSelect({...select, anniversary: false})}
+                    />
+                  ) : (
+                    <TouchableOpacity
+                      onPress={() => setSelect({...select, anniversary: true})}
+                      style={{
+                        width: '100%',
+                        borderWidth: 1,
+                        borderRadius: 10,
+                        height: 50,
+                        padding: 10,
+                        justifyContent: 'center',
+                        borderColor: 'gray',
+                      }}>
+                      <Text>
+                        {CategoryList[profile.relationship - 1]?.title ||
+                          placeholders[prof]}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </>
               );
             }
             if (prof == 'birthdate') {
@@ -231,6 +298,7 @@ export default function ExtraInfo({User, Profile, navigation}) {
                   is24Hour={true}
                   display="default"
                   onChange={onChange}
+                  onTouchCancel={showDatepicker}
                 />
               ) : (
                 <TouchableOpacity
@@ -246,14 +314,17 @@ export default function ExtraInfo({User, Profile, navigation}) {
               );
             } else {
               return (
-                <OutlinedInput
-                  data={profile[prof]}
-                  key={placeholders[prof]}
-                  style={{marginBottom: 0}}
-                  value={profile[prof]}
-                  setData={text => handleInputChange(prof, text)}
-                  placeholder={placeholders[prof]}
-                />
+                <View>
+                  <Text style={[Style.Text]}>{placeholders[prof]}</Text>
+                  <OutlinedInput
+                    data={profile[prof]}
+                    key={placeholders[prof]}
+                    style={{marginBottom: 0}}
+                    value={profile[prof]}
+                    setData={text => handleInputChange(prof, text)}
+                    placeholder={placeholders[prof]}
+                  />
+                </View>
               );
             }
           })}

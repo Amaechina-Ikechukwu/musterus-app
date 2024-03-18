@@ -6,6 +6,7 @@ import {
   Image,
   Text,
   Alert,
+  ImageBackground,
 } from 'react-native';
 import {TextInput} from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
@@ -32,6 +33,7 @@ import {storage} from '../../../firebase';
 import {getDownloadURL, getStorage, ref, uploadBytes} from 'firebase/storage';
 import ExtraInfo from './ExtraInfo';
 import ImageUploadModal from '../compnents/ImageUploadModal';
+import musterusfullmedia from '../../musterusfullmedia';
 const TextArea = ({data, setData, name, key, label}) => {
   const color = Color();
   const handleTextChange = text => {
@@ -137,7 +139,30 @@ function Profile({route, appState, setmyprofile}) {
                   mskl={User?.mskl}
                 />
               ) : (
-                <Text style={styles.buttonText}>Choose Photo</Text>
+                <ImageBackground
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: 100,
+                    overflow: 'hidden',
+                    justifyContent: 'flex-end',
+                  }}
+                  source={{
+                    uri: musterusfullmedia(Profile.avatar.substring(1)),
+                  }}>
+                  <View
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      backgroundColor: 'rgba(0,0,0,0.5)',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                    <Text style={[styles.buttonText, {color: 'white'}]}>
+                      Choose Photo
+                    </Text>
+                  </View>
+                </ImageBackground>
               )}
             </TouchableOpacity>
           </View>

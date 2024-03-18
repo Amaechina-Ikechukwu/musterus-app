@@ -97,7 +97,7 @@ export function PrimaryButton({title, callBack, style, loading, noBG}) {
           <Text
             style={{
               textAlign: 'center',
-              fontSize: 12,
+              fontSize: 16,
               color: noBG && noBG == true ? Colors.primary : Colors.light,
             }}>
             {title}

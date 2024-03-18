@@ -73,8 +73,7 @@ function App() {
     setSignedIn(false);
   }
   // useEffect(() => {
-
-  //   fetchData();
+  //   logout();
   // }, []);
   let [fontsLoaded, fontError] = useFonts({
     Montserrat_Regular,

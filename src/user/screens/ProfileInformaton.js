@@ -64,7 +64,25 @@ const ProfileInformation = ({profileData, open, onClose}) => {
     resetlink,
     speakinglanguages,
   } = profileData;
-
+  const MaritalStatus = [
+    'In a relationship',
+    'Married',
+    'Divorced',
+    'Single',
+    "It's Complicated",
+    'Widowed',
+    '',
+  ];
+  const EducationalStatus = [
+    '',
+    'Dropped out',
+    'Highschool graduate',
+    'General Education',
+    'Diploma (GED)',
+    'Bachelors Degree',
+    'Masters Degree',
+    'PHD',
+  ];
   return (
     <Modal transparent visible={open} onDismiss={onClose}>
       <View
@@ -80,7 +98,9 @@ const ProfileInformation = ({profileData, open, onClose}) => {
           <ScrollView style={{height: '70%'}}>
             <View style={styles.section}>
               <Text style={Style.bold}>Personal Information</Text>
-              <Text style={Style.Text}>Marital Status: {maritalstatus}</Text>
+              <Text style={Style.Text}>
+                Marital Status: {MaritalStatus[maritalstatus]}
+              </Text>
               <Text style={Style.Text}>Children: {children}</Text>
               <Text style={Style.Text}>Gender: {gender}</Text>
               <Text style={Style.Text}>Birthdate: {birthdate}</Text>
@@ -100,7 +120,9 @@ const ProfileInformation = ({profileData, open, onClose}) => {
 
             <View style={styles.section}>
               <Text style={Style.boldText}>Work & Education</Text>
-              <Text style={Style.Text}>Education: {education}</Text>
+              <Text style={Style.Text}>
+                Education: {EducationalStatus[education]}
+              </Text>
               <Text style={Style.Text}>
                 Location of Education: {edulocation}
               </Text>
@@ -162,6 +184,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderBottomWidth: 1,
     paddingBottom: 10,
+    gap: 5,
   },
 });
 

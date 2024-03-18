@@ -8,6 +8,7 @@ import {ThreeDots, UnlikeIcon} from './icons';
 import {Style} from '../../../assets/styles';
 import {StaticImage} from '../../utilities';
 import {usersprofile} from '../../user/apis/firebaseprofile';
+import BackButton from '../pages/BackButton';
 
 const Colors = Color();
 export function CommentsComponent({item, tag}) {

@@ -130,7 +130,8 @@ export default function ImageUploadModal({
                 {image ? (
                   <Image
                     source={{uri: image || data.photourl}}
-                    style={{width: '100%', height: 60}}
+                    style={{width: '100%', height: '100%'}}
+                    resizeMode="cover"
                   />
                 ) : (
                   <Text style={styles.buttonText}>Choose Photo</Text>

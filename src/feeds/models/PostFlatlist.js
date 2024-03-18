@@ -62,14 +62,15 @@ const PostFlatlist = ({
       ListHeaderComponent={
         <View
           style={{
-            display: 'flex',
             flexDirection: 'row',
             justifyContent: 'center',
           }}>
           <SendACard navigation={navigation} />
         </View>
       }
-      ListHeaderComponentStyle={{display: 'flex', flexDirection: 'row'}}
+      ListHeaderComponentStyle={{
+        flexDirection: 'row',
+      }}
       data={data}
       renderItem={renderItem}
       // onRefresh={() => fetchposts()}

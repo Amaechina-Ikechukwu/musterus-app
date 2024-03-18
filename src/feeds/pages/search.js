@@ -65,7 +65,6 @@ function Profile({route, appState, disp_surprise}) {
   };
   const searchUsers = async value => {
     const result = await searchusers(mykey, mskl, value, 'fna');
-    console.log(JSON.stringify(result, null, 2));
   };
 
   const handleInputChange = async event => {

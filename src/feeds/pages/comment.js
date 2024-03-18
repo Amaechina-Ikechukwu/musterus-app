@@ -33,6 +33,7 @@ import {db} from '../../../firebase';
 import {collection, onSnapshot, query} from 'firebase/firestore';
 import CommentFlatList from '../models/CommentFlatList';
 import {commentonpost} from '../apis/comment';
+import BackButton from './BackButton';
 
 const {height, width} = Dimensions.get('window');
 const Colors = Color();
@@ -57,41 +58,11 @@ function Profile({route, appState}) {
       Alert.alert('Comment', 'Couldnt send comment at this time');
     }
   };
-  useEffect(() => {
-    const q = query(
-      collection(db, 'posts', post.postid, 'comments'), // Order by 'sent' field in ascending order (oldest first)
-    );
-
-    const unsubscribe = onSnapshot(q, querySnapshot => {
-      let comments = [];
-      querySnapshot.forEach(doc => {
-        comments.push({id: doc.id, ...doc.data()}); // Assuming the comments are stored as document IDs
-      });
-      setPostComments(comments);
-      // Check if the user's ID is in the likes array
-    });
-
-    // Cleanup: Unsubscribe from real-time updates when component unmounts
-    return () => {
-      unsubscribe();
-    };
-  }, []); // Include necessary dependencies in the dependency array
 
   return (
     <>
       <Header navigation={navigation} />
-
-      {/* no comment */}
-      {/* <View style={{
-                flex: 1,
-                backgroundColor: "red",
-                marginTop: 90,
-                justifyContent: "center",
-                alignItems: "center"
-            }} >
-
-                <NoComment />
-            </View> */}
+      <BackButton />
 
       <SafeAreaView
         style={{

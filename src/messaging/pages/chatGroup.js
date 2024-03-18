@@ -5,6 +5,7 @@ import {
   StatusBar,
   ImageBackground,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import React, {useEffect, useLayoutEffect, useMemo, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -36,6 +37,7 @@ import {PrimaryButton} from '../../components/buttons/primary';
 import {subscribetogroup} from '../oldapis/groups/subscribetogroup';
 import {getgroupsposts} from '../oldapis/groups/groupposts';
 import GroupFlatListComponent from '../components/GroupPostFlatlist';
+import musterusfullmedia from '../../musterusfullmedia';
 const Colors = Color();
 
 function SignIn({navigation, appState, route, setgroupmessages}) {
@@ -169,7 +171,7 @@ function SignIn({navigation, appState, route, setgroupmessages}) {
       </View>
     </SafeAreaView>;
   }
-  if (isUserMember == false) {
+  if (isUserMember == false && group.owner !== Profile.profilekey) {
     return (
       <SafeAreaView style={styles.container}>
         <View
@@ -190,6 +192,38 @@ function SignIn({navigation, appState, route, setgroupmessages}) {
               gap: 20,
               paddingVertical: 20,
             }}>
+            {group.groupheader !== null && (
+              <ImageBackground
+                style={{
+                  width: '100%',
+                  height: 200,
+                  overflow: 'hidden',
+                  justifyContent: 'flex-end',
+                }}
+                source={{
+                  uri: musterusfullmedia(group.groupbg),
+                }}>
+                <View
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Image
+                    source={{uri: musterusfullmedia(group.grouplogo)}}
+                    style={{
+                      width: 100,
+                      height: 100,
+                      borderRadius: 100,
+                      backgroundColor: 'white',
+                    }}
+                  />
+                </View>
+              </ImageBackground>
+            )}
+
             <Text
               style={[
                 Style.boldText,

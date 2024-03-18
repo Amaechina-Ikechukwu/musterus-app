@@ -20,6 +20,7 @@ import {Color} from '../../components/theme';
 import {ResizeMode, Video} from 'expo-av';
 import {getcomment} from '../oldapis/getcomment';
 import {postcomment} from '../oldapis/postcomments';
+import BackButton from '../pages/BackButton';
 function getImageType(attachedImage) {
   const imageExtensions = /\.(jpg|jpeg|png|gif)$/i;
   const videoExtensions = /\.(mp4|avi|mov|mkv)$/i;
@@ -230,8 +231,10 @@ const SinglePostViewFlatlist = ({data, appState, route}) => {
   useEffect(() => {
     getPostComments();
   }, []);
+
   return (
     <View style={{height: '100%'}}>
+      <BackButton />
       <FlatList
         data={replies}
         keyExtractor={(item, index) => index}
