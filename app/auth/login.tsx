@@ -31,7 +31,7 @@ function MusterDisplay() {
   }, []);
 
   return (
-    <View>
+    <View style={{backgroundColor:'transparent'}}>
       <Text style={{ fontSize: 40 }}>{musterInfo[currentIndex]}</Text>
     </View>
   );
@@ -119,10 +119,10 @@ export default function Login() {
         gap: 15,
         justifyContent: "center",
         alignContent: "center",
-        height: "100%",
+        height: "100%", backgroundColor:"transaparent"
       }}
     >
-      <View style={{ marginBottom: 30 }}>
+      <View style={{ marginBottom: 30, backgroundColor:"transaparent" }}>
         <MusterDisplay />
       </View>
       <MInput

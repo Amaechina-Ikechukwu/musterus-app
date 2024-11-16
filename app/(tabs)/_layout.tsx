@@ -37,12 +37,9 @@ export default function TabLayout() {
     data: { mskl: string; mykey: string }
   ) {
     try {
-      // Make the API request with the entered username and password
-      const response = await axios.get(
-        `${api}/home?mskl=${data.mskl}&mykey=${data.mykey}`
-      );
-
-      // Check if login was successful
+      const response = await axios.get(`${api}/home`, {
+        params: { mskl: data.mskl, mykey: data.mykey },
+      });
       if (response.data) {
         updateProfile(response.data.MyProfile);
         updatePosts(response.data.Comments);
@@ -50,39 +47,34 @@ export default function TabLayout() {
         router.push("/auth/startup");
       }
     } catch (error) {
+      console.error("Error fetching user profile:", error);
       router.push("/auth/startup");
     }
   }
+
   async function getValueFor() {
     try {
-      const result = await SecureStore.getItemAsync("username");
+      const username = await SecureStore.getItemAsync("username");
       const password = await SecureStore.getItemAsync("password");
-      if (result) {
-        setValue(result);
-        try {
-          // Make the API request with the entered username and password
-          const response = await axios.get(`${api}/authenticate`, {
-            params: {
-              username: result, // Assuming username is the username
-              password: password,
-            },
-          });
-          // Check if login was successful
-          if (response.data) {
-            await getUserProfile(result, response.data);
-            router.push("/(tabs)");
-          } else {
-            // Show a notification if login failed (depending on the API's response format)
-            router.push("/auth/startup");
-          }
-        } catch (error) {
+      if (username && password) {
+        setValue(username);
+        const response = await axios.get(`${api}/authenticate`, {
+          params: { username, password },
+        });
+        if (response.data) {
+          await getUserProfile(username, response.data);
+          router.push("/(tabs)");
+        } else {
           router.push("/auth/startup");
         }
+      } else {
+        router.push("/auth/startup");
       }
     } catch (error) {
-      console.error("Error fetching password:", error);
+      console.error("Error during authentication:", error);
+      router.push("/auth/startup");
     } finally {
-      setLoading(false); // Set loading to false when done
+      setLoading(false);
     }
   }
 
@@ -90,19 +82,18 @@ export default function TabLayout() {
     getValueFor();
   }, []);
 
-  // Show a loading indicator while waiting for SecureStore
-  if (!profile) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <AnimatedLoading />
-      </View>
-    ); // Or a loading component
-  }
-  if (!value) {
-    // On web, static rendering will stop here as the user is not authenticated
-    // in the headless Node process that the pages are rendered in.
-    return <Redirect href="/auth/startup" />;
-  }
+  // if (loading) {
+  //   return (
+  //     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+  //       <AnimatedLoading />
+  //     </View>
+  //   );
+  // }
+
+  // if (!value || !profile) {
+  //   return <Redirect href="/auth/startup" />;
+  // }
+
   return (
     <Tabs
       screenOptions={{
@@ -138,7 +129,7 @@ export default function TabLayout() {
               height: 0,
             },
           },
-
+          tabBarHideOnKeyboard: true,
           headerLeftContainerStyle: { paddingLeft: 20 },
           headerLeft: () => (
             <Link href="/modal" asChild>

@@ -6,7 +6,9 @@ import { Post, StoreState, UserProfile } from "./constants/types";
 export const MStore = create<StoreState>((set) => ({
   profile: null,
   posts: null,
-  updateProfile: (newProfile: UserProfile) => set({ profile: newProfile }),
 
+  singlePost: null,
+  updateProfile: (newProfile: UserProfile) => set({ profile: newProfile }),
+  updateSinglePost: (newPost: Post | null) => set({ singlePost: newPost }),
   updatePosts: (newPosts: Post[]) => set({ posts: newPosts }),
 }));

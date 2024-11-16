@@ -1,82 +1,137 @@
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import {
-  FlatList,
+  Animated,
   StyleSheet,
   TouchableOpacity,
   useColorScheme,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from "react-native";
-
-import EditScreenInfo from "@/components/EditScreenInfo";
 import { Text, View } from "@/components/Themed";
-import MInput from "@/UIComponents/MInput";
-import MButton from "@/UIComponents/MButton";
 import Colors, { accent } from "@/constants/Colors";
-import { mwidth } from "@/constants/ScreenDimensions";
-import { useNotification } from "@/contexts/NotificationContext";
-import { memo, useEffect } from "react";
-import { router } from "expo-router";
+import PostCard from "@/components/Posts/PostCard";
 import { MStore } from "@/mstore";
 import { useShallow } from "zustand/react/shallow";
-import PostCard from "@/components/Posts/PostCard";
-const MemoizedPostCard = memo(PostCard);
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+
+import { Comments } from "@/components/Posts/CommentSheet";
+
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
+const MemoizedPostCard = React.memo(PostCard);
+
 export default function TabOneScreen() {
-  const { showNotification } = useNotification();
   const colorScheme = useColorScheme();
-  const [posts] = MStore(useShallow((state) => [state.posts]));
+  const [posts, profile] = MStore(
+    useShallow((state) => [state.posts, state.profile])
+  );
+  const [singlePost, updateSinglePost] = MStore(
+    useShallow((state) => [state.singlePost, state.updateSinglePost])
+  );
+
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const lastScrollY = useRef(0); // Track the last scroll position
+  const buttonVisible = useRef(true); // Track button visibility state
+  const footerOpacity = useRef(new Animated.Value(1)).current;
+
+  const handleScroll = Animated.event(
+    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+    {
+      useNativeDriver: true,
+      listener: (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+        const currentScrollY = event.nativeEvent.contentOffset.y;
+        const diff = currentScrollY - lastScrollY.current;
+
+        if (Math.abs(diff) < 20) return; // Ignore small scroll movements
+
+        if (diff > 0 && buttonVisible.current) {
+          buttonVisible.current = false;
+          Animated.timing(footerOpacity, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: true,
+          }).start();
+        } else if (diff < 0 && !buttonVisible.current) {
+          buttonVisible.current = true;
+          Animated.timing(footerOpacity, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+          }).start();
+        }
+
+        lastScrollY.current = currentScrollY;
+      },
+    }
+  );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.floatButton}>
-        <TouchableOpacity style={{ padding: 10, borderRadius: 100 }}>
-          <Text
-            style={{
-              fontWeight: "bold",
-              fontSize: 40,
-              color: Colors.dark.text,
-            }}
-          >
-            M+
-          </Text>
-        </TouchableOpacity>
-      </View>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View style={styles.container}>
+        {/* Post List */}
+        <Animated.FlatList
+          data={posts}
+          keyExtractor={(item) => item.comid}
+          renderItem={({ item }) => <MemoizedPostCard post={item} />}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ padding: 20 }}
+          ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+        />
 
-      <FlatList
-        data={posts}
-        keyExtractor={(item) => item.comid}
-        renderItem={({ item }) => <MemoizedPostCard post={item} />}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ gap: 10, padding: 20 }}
-        initialNumToRender={10}
-        maxToRenderPerBatch={5}
-        windowSize={5}
-        getItemLayout={(data, index) => ({
-          length: 150,
-          offset: 150 * index,
-          index,
-        })}
-      />
-    </View>
+        {!singlePost && (
+          <AnimatedTouchable
+            style={[styles.floatButton, { opacity: footerOpacity }]}
+            onPress={() => console.log("Button Pressed")}
+          >
+            <Text style={styles.footerText}>M+</Text>
+          </AnimatedTouchable>
+        )}
+
+        {/* Bottom Sheet */}
+        <Comments
+          singlePost={singlePost}
+          updateSinglePost={updateSinglePost}
+          profile={profile}
+        />
+      </View>
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: "80%",
+    backgroundColor: Colors.light.background,
   },
   floatButton: {
     position: "absolute",
-    bottom: 10,
-    right: 10,
-    zIndex: 99,
-    borderRadius: 100,
+    bottom: 20,
+    right: 20,
     backgroundColor: accent,
+    borderRadius: 50,
+    padding: 12,
+    zIndex: 99,
+  },
+  footerText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: Colors.dark.text,
+  },
+  sheetContent: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  postContent: {
+    fontSize: 16,
+    color: Colors.dark.text,
+    textAlign: "center",
   },
 });

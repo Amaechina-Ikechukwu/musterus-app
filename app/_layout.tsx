@@ -13,6 +13,8 @@ import "react-native-reanimated";
 import { useColorScheme } from "@/components/useColorScheme";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import Colors from "@/constants/Colors";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import AnimatedLoading from "@/constants/AnimatedLoading";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -45,7 +47,7 @@ export default function RootLayout() {
   }, [loaded]);
 
   if (!loaded) {
-    return null;
+    return <AnimatedLoading />;
   }
 
   return <RootLayoutNav />;
@@ -57,17 +59,19 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <NotificationProvider>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: {
-              backgroundColor: Colors[colorScheme].background,
-            },
-          }}
-        >
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-        </Stack>
+        <GestureHandlerRootView>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: {
+                backgroundColor: Colors[colorScheme].background,
+              },
+            }}
+          >
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+          </Stack>
+        </GestureHandlerRootView>
       </NotificationProvider>
     </ThemeProvider>
   );

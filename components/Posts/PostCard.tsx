@@ -1,16 +1,27 @@
 import React, { useState } from "react";
 import { Text, View } from "../Themed";
-import { ActivityIndicator, View as PlainView } from "react-native";
+import {
+  ActivityIndicator,
+  View as PlainView,
+  TouchableOpacity,
+} from "react-native";
 import { Post } from "@/constants/types";
 import { UserAvatar } from "@/constants/UserAvatar";
 import { Image, StyleSheet, useColorScheme } from "react-native";
 import { api } from "@/constants/shortened";
 import Colors, { accent } from "@/constants/Colors";
 import { mheight } from "@/constants/ScreenDimensions";
+import ReactionComponent from "./ReactionComponents";
+import { Foundation } from "@expo/vector-icons";
+import { MStore } from "@/mstore";
+import { useShallow } from "zustand/react/shallow";
 
 export default function PostCard({ post }: { post: Post }) {
   const colorScheme = useColorScheme() ?? "light";
   const [loading, setLoading] = useState(true);
+  const [updateSinglePost] = MStore(
+    useShallow((state) => [state.updateSinglePost])
+  );
   return (
     <View
       style={[
@@ -59,6 +70,19 @@ export default function PostCard({ post }: { post: Post }) {
           </>
         )}
       </PlainView>
+      <PlainView style={styles.reaction}>
+        <ReactionComponent commentId={post.comid} />
+        <TouchableOpacity
+          onPress={() => updateSinglePost(post)}
+          style={{ padding: 20, opacity: 0.7 }}
+        >
+          <Foundation
+            name="comment"
+            size={30}
+            color={Colors[colorScheme].text}
+          />
+        </TouchableOpacity>
+      </PlainView>
     </View>
   );
 }
@@ -92,5 +116,11 @@ const styles = StyleSheet.create({
   loader: {
     position: "relative",
     zIndex: 1,
+  },
+  reaction: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
   },
 });
