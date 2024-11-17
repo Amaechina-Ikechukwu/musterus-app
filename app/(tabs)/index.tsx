@@ -15,6 +15,8 @@ import { useShallow } from "zustand/react/shallow";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { Comments } from "@/components/Posts/CommentSheet";
+import AnimatedLoading from "@/constants/AnimatedLoading";
+import { Post } from "@/constants/types";
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 const MemoizedPostCard = React.memo(PostCard);
@@ -24,8 +26,12 @@ export default function TabOneScreen() {
   const [posts, profile] = MStore(
     useShallow((state) => [state.posts, state.profile])
   );
-  const [singlePost, updateSinglePost] = MStore(
-    useShallow((state) => [state.singlePost, state.updateSinglePost])
+  const [singlePost, updateSinglePost, updatePostInView] = MStore(
+    useShallow((state) => [
+      state.singlePost,
+      state.updateSinglePost,
+      state.updatePostInView,
+    ])
   );
 
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -64,6 +70,29 @@ export default function TabOneScreen() {
     }
   );
 
+  const onViewableItemsChanged = useCallback(({ viewableItems }) => {
+    // Loop through the array of viewable items
+    viewableItems.forEach(({ item }) => {
+      updatePostInView(item.comid); // Access comid for each viewable post
+    });
+
+    // Optionally update visible posts
+    // updatePostInView(viewableItems);
+  }, []);
+
+  if (!posts || !profile) {
+    return (
+      <View
+        style={[
+          styles.container,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
+        <AnimatedLoading />
+      </View>
+    );
+  }
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={styles.container}>
@@ -77,6 +106,8 @@ export default function TabOneScreen() {
           ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
           onScroll={handleScroll}
           scrollEventThrottle={16}
+          onViewableItemsChanged={onViewableItemsChanged} // Now handled correctly outside render
+          viewabilityConfig={{ viewAreaCoveragePercentThreshold: 100 }}
         />
 
         {!singlePost && (

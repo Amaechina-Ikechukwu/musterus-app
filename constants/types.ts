@@ -99,7 +99,9 @@ export type StoreState = {
   profile: UserProfile | null;
   posts: Post[] | null;
   singlePost: Post | null;
+  postInView: string[];
   updatePosts: (post: Post[]) => void;
   updateProfile: (profile: UserProfile) => void;
   updateSinglePost: (post: Post | null) => void;
+  updatePostInView: (post: string) => void;
 };

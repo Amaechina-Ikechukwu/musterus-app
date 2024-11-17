@@ -1,20 +1,23 @@
-import React, { useState } from "react";
-import { Text, View } from "../Themed";
+import React, { useRef, useState } from "react";
 import {
+  Text,
+  View,
   ActivityIndicator,
-  View as PlainView,
   TouchableOpacity,
+  Image,
+  StyleSheet,
+  useColorScheme,
 } from "react-native";
 import { Post } from "@/constants/types";
 import { UserAvatar } from "@/constants/UserAvatar";
-import { Image, StyleSheet, useColorScheme } from "react-native";
-import { api } from "@/constants/shortened";
+import { api, checkMediaType, newAvatar } from "@/constants/shortened";
 import Colors, { accent } from "@/constants/Colors";
 import { mheight } from "@/constants/ScreenDimensions";
 import ReactionComponent from "./ReactionComponents";
 import { Foundation } from "@expo/vector-icons";
 import { MStore } from "@/mstore";
 import { useShallow } from "zustand/react/shallow";
+import VideoPlayer from "./VideoPlayer";
 
 export default function PostCard({ post }: { post: Post }) {
   const colorScheme = useColorScheme() ?? "light";
@@ -22,6 +25,7 @@ export default function PostCard({ post }: { post: Post }) {
   const [updateSinglePost] = MStore(
     useShallow((state) => [state.updateSinglePost])
   );
+
   return (
     <View
       style={[
@@ -29,48 +33,61 @@ export default function PostCard({ post }: { post: Post }) {
         { backgroundColor: Colors[colorScheme].darkTint },
       ]}
     >
-      <PlainView style={styles.postHeader}>
-        <PlainView
-          style={{ flexDirection: "row", gap: 5, alignItems: "center" }}
-        >
+      <View style={styles.postHeader}>
+        <View style={{ flexDirection: "row", gap: 5, alignItems: "center" }}>
           <UserAvatar
             imageUrl={
               api && post.avatar
-                ? `${api.slice(0, -3)}${post.avatar.slice(
-                    1,
-                    post.avatar.length
-                  )}`
+                ? `${api.slice(0, -3)}${post.avatar.slice(1)}`
                 : ""
             }
-            name={post.firstname + post.lastname || ""}
-            showFallback={post.avatar == null}
+            name={`${post.firstname} ${post.lastname}` || ""}
+            showFallback={!post.avatar}
           />
-          <Text>{post.firstname + " " + post.lastname}</Text>
-        </PlainView>
-
-        <Text style={{ fontWeight: "light" }}>{post.writetime}</Text>
-      </PlainView>
-      <PlainView style={styles.postView}>
+          <Text>{`${post.firstname} ${post.lastname}`}</Text>
+        </View>
+        <Text style={{ fontWeight: "300" }}>{post.writetime}</Text>
+      </View>
+      <View style={styles.postView}>
         <Text style={styles.title}>{post.comment}</Text>
-        {post.attachedimage && (
+        {post.attachedimage && typeof post.attachedimage === "string" && (
           <>
-            {loading && (
-              <PlainView style={styles.loader}>
+            {loading && checkMediaType(post.attachedimage) == "image" && (
+              <View style={styles.loader}>
                 <ActivityIndicator size="small" color={accent} />
-              </PlainView>
+              </View>
             )}
-            <Image
-              style={[styles.image, { width: loading ? 20 : "auto" }]}
-              source={{
-                uri: `${api && api.slice(0, -3)}${post.attachedimage}`,
-              }}
-              onLoadEnd={() => setLoading(false)}
-              onError={() => setLoading(false)} // Hide loader if there's an error
-            />
+            {(() => {
+              const mediaType = checkMediaType(post.attachedimage);
+
+              if (mediaType === "image") {
+                return (
+                  <Image
+                    style={[styles.image]}
+                    source={{ uri: newAvatar(post.attachedimage) }}
+                    onLoadEnd={() => setLoading(false)}
+                    onError={(error) => {
+                      console.error("Image Load Error:", error);
+                      setLoading(false);
+                    }}
+                  />
+                );
+              } else if (mediaType === "video") {
+                return (
+                  <VideoPlayer
+                    url={newAvatar(post.attachedimage)}
+                    comid={post.comid}
+                  />
+                );
+              } else {
+                console.warn("Unsupported media type:", post.attachedimage);
+                return <Text>Unsupported media type</Text>;
+              }
+            })()}
           </>
         )}
-      </PlainView>
-      <PlainView style={styles.reaction}>
+      </View>
+      <View style={styles.reaction}>
         <ReactionComponent commentId={post.comid} />
         <TouchableOpacity
           onPress={() => updateSinglePost(post)}
@@ -82,10 +99,11 @@ export default function PostCard({ post }: { post: Post }) {
             color={Colors[colorScheme].text}
           />
         </TouchableOpacity>
-      </PlainView>
+      </View>
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     borderRadius: 10,
@@ -99,14 +117,13 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   image: {
-    width: "auto",
-    height: "auto",
+    width: "100%",
     aspectRatio: 3 / 4,
     borderRadius: 10,
   },
   title: {
     fontSize: 18,
-    fontWeight: "regular",
+    fontWeight: "400",
     lineHeight: 30,
   },
   postView: {
