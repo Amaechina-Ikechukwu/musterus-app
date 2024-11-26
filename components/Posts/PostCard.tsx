@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Text,
   View,
@@ -25,7 +25,11 @@ export default function PostCard({ post }: { post: Post }) {
   const [updateSinglePost] = MStore(
     useShallow((state) => [state.updateSinglePost])
   );
-
+  // useEffect(() => {
+  //   if (post.comid.toString() == "215") {
+  //     console.log(JSON.stringify(post, null, 2));
+  //   }
+  // }, []);
   return (
     <View
       style={[

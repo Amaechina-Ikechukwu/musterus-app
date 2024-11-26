@@ -93,6 +93,40 @@ export type Comment = CommonUserInfo & {
   attachedimage: string | null;
   userpassword: string;
 };
+// Group type
+export type Group = {
+  grid: string;
+  groupname: string;
+  owner: string;
+  groupkey: string;
+  groupurl: string;
+  groupintro: string;
+  grouppolicy: string;
+  moderated: string;
+  grouplogo: string | null;
+  groupbg: string | null;
+  groupheader: string | null;
+  groupstatus: string;
+  publicgroup: string;
+  createdate: string;
+  groupcategory: string;
+  website: string;
+  gcatrow: string;
+  catname: string;
+  caturl: string;
+  catstatus: string;
+  catimage: string | null;
+};
+
+// GroupMember type
+export type GroupMember = CommonUserInfo & {
+  grmid: string;
+  groupid: string;
+  memberid: string;
+  approved: string;
+  groupmemberstatus: string;
+  moderator: string;
+};
 
 // Define the store state type
 export type StoreState = {
@@ -100,8 +134,14 @@ export type StoreState = {
   posts: Post[] | null;
   singlePost: Post | null;
   postInView: string[];
+  allGroups: Group[] | null;
+  myGroups: Group[] | null;
+  otherGroups: Group[] | null;
   updatePosts: (post: Post[]) => void;
   updateProfile: (profile: UserProfile) => void;
   updateSinglePost: (post: Post | null) => void;
   updatePostInView: (post: string) => void;
+  updateAllGroups: (groups: Group[]) => void;
+  updateMyGroups: (groups: Group[]) => void;
+  updateOtherGroups: (groups: Group[]) => void;
 };

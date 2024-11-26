@@ -1,6 +1,6 @@
 // Import create with type
 import { create } from "zustand";
-import { Post, StoreState, UserProfile } from "./constants/types";
+import { Group, Post, StoreState, UserProfile } from "./constants/types";
 
 // Create the store with proper typing
 export const MStore = create<StoreState>((set) => ({
@@ -8,9 +8,11 @@ export const MStore = create<StoreState>((set) => ({
   posts: null,
   postInView: [],
   singlePost: null,
+  allGroups: null,
+  myGroups: null,
+  otherGroups: null,
   updateProfile: (newProfile: UserProfile) => set({ profile: newProfile }),
   updateSinglePost: (newPost: Post | null) => set({ singlePost: newPost }),
-
   updatePosts: (newPosts: Post[]) => set({ posts: newPosts }),
   updatePostInView: (post) =>
     set((state) => {
@@ -21,4 +23,7 @@ export const MStore = create<StoreState>((set) => ({
       }
       return { postInView: updatedPostInView };
     }),
+  updateAllGroups: (groups: Group[]) => set({ allGroups: groups }),
+  updateMyGroups: (groups: Group[]) => set({ myGroups: groups }),
+  updateOtherGroups: (groups: Group[]) => set({ otherGroups: groups }),
 }));

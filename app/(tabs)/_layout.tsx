@@ -159,10 +159,11 @@ export default function TabLayout() {
       <Tabs.Screen
         name="groups"
         options={{
-          title: "Muster",
+          title: "Groups",
           tabBarIcon: ({ color }) => (
             <TabBarIcon name="torsos-all" color={color} />
           ),
+          headerShown: false,
         }}
       />
       <Tabs.Screen
