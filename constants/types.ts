@@ -127,6 +127,30 @@ export type GroupMember = CommonUserInfo & {
   groupmemberstatus: string;
   moderator: string;
 };
+export interface GroupPost {
+  grouppostid: string;
+  groupid: string;
+  memberid: string;
+  posttitle: string;
+  postbody: string;
+  attachedimage: string | null;
+  approved: string;
+  posttime: string;
+  postdate: string;
+  poststatus: string;
+  uid: string;
+  username: string;
+  firstname: string;
+  lastname: string;
+  registeremail: string;
+  [key: string]: any; // For additional properties
+}
+
+export interface APIResponse {
+  Posts: GroupPost[];
+  Group: Group;
+  MyGroupAccess: Group;
+}
 
 // Define the store state type
 export type StoreState = {
@@ -137,6 +161,7 @@ export type StoreState = {
   allGroups: Group[] | null;
   myGroups: Group[] | null;
   otherGroups: Group[] | null;
+  singleGroup: Group | null;
   updatePosts: (post: Post[]) => void;
   updateProfile: (profile: UserProfile) => void;
   updateSinglePost: (post: Post | null) => void;
@@ -144,4 +169,5 @@ export type StoreState = {
   updateAllGroups: (groups: Group[]) => void;
   updateMyGroups: (groups: Group[]) => void;
   updateOtherGroups: (groups: Group[]) => void;
+  updateSingleGroup: (group: Group) => void;
 };

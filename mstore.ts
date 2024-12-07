@@ -11,6 +11,7 @@ export const MStore = create<StoreState>((set) => ({
   allGroups: null,
   myGroups: null,
   otherGroups: null,
+  singleGroup: null,
   updateProfile: (newProfile: UserProfile) => set({ profile: newProfile }),
   updateSinglePost: (newPost: Post | null) => set({ singlePost: newPost }),
   updatePosts: (newPosts: Post[]) => set({ posts: newPosts }),
@@ -26,4 +27,5 @@ export const MStore = create<StoreState>((set) => ({
   updateAllGroups: (groups: Group[]) => set({ allGroups: groups }),
   updateMyGroups: (groups: Group[]) => set({ myGroups: groups }),
   updateOtherGroups: (groups: Group[]) => set({ otherGroups: groups }),
+  updateSingleGroup: (group: Group) => set({ singleGroup: group }),
 }));

@@ -10,13 +10,16 @@ import {
   TouchableOpacity,
   Keyboard,
 } from "react-native";
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import BottomSheet, {
+  BottomSheetFlatList,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
 import axios from "axios";
 import { api, newAvatar } from "@/constants/shortened";
 import { Post, UserProfile } from "@/constants/types";
 import { UserAvatar } from "@/constants/UserAvatar";
 import { View } from "../Themed";
-import { mwidth } from "@/constants/ScreenDimensions";
+import { mheight, mwidth } from "@/constants/ScreenDimensions";
 import MInput from "@/UIComponents/MInput";
 import { FontAwesome } from "@expo/vector-icons";
 import Colors, { accent } from "@/constants/Colors";
@@ -52,7 +55,7 @@ export const Comments = ({
   const [comments, setComments] = useState<Comment[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const colorScheme = useColorScheme() ?? "light";
-  const snapPoints = useMemo(() => ["50%", "75%"], []);
+  const snapPoints = useMemo(() => ["75%"], []);
   const [commentInput, setCommentInput] = useState<string>("");
   const { showNotification } = useNotification();
 
@@ -170,36 +173,37 @@ export const Comments = ({
       enablePanDownToClose={true}
       onClose={handleSheetClose}
     >
-      <BottomSheetView style={styles.sheetContent}>
+      <BottomSheetView style={[styles.sheetContent, { flex: 1 }]}>
         {loading ? (
           <ActivityIndicator size="large" color={accent} />
         ) : error ? (
           <Text style={styles.errorText}>{error}</Text>
         ) : comments ? (
-          <KeyboardAvoidingView>
-            <FlatList
+          <>
+            <BottomSheetFlatList
               data={comments}
               renderItem={renderComment}
               keyExtractor={(item) => item.comreplyid}
-              style={{ flex: 1 }}
               contentContainerStyle={{
-                flexGrow: 1, // Ensures the content takes up full available space
+                flexGrow: 1,
+                paddingBottom: 80, // Space for input box
               }}
-              ListEmptyComponent={() => {
-                return (
-                  <PlainView style={styles.sheetContent}>
-                    <Text style={styles.title}>
-                      No comments yet. Be the first
-                    </Text>
-                  </PlainView>
-                );
-              }}
+              ListEmptyComponent={() => (
+                <PlainView style={styles.sheetContent}>
+                  <Text style={styles.title}>
+                    No comments yet. Be the first
+                  </Text>
+                </PlainView>
+              )}
+              keyboardShouldPersistTaps="handled" // Ensures taps on FlatList items work
             />
             <PlainView
               style={{
                 flexDirection: "row",
                 alignItems: "center",
                 gap: 10,
+                padding: 10,
+                backgroundColor: Colors[colorScheme].background,
               }}
             >
               <MInput
@@ -215,7 +219,7 @@ export const Comments = ({
                 />
               </TouchableOpacity>
             </PlainView>
-          </KeyboardAvoidingView>
+          </>
         ) : (
           <Text style={styles.title}>No Post Selected</Text>
         )}

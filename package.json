@@ -19,6 +19,7 @@
     "@shopify/flash-list": "1.7.1",
     "@tamagui/config": "^1.116.14",
     "axios": "^1.7.7",
+    "eas-cli": "^13.4.2",
     "expo": "~52.0.7",
     "expo-font": "~13.0.1",
     "expo-linear-gradient": "^14.0.1",

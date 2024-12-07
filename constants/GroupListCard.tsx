@@ -2,17 +2,18 @@ import React from "react";
 import { View, Text, Image, ImageBackground, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { accent } from "./Colors";
+import { Group } from "./types";
 
 interface GroupListCardProps {
   backgroundImage: string | null; // URL or local path for the background image
   avatarImage: string | null; // URL or local path for the avatar image
-  groupName: string; // Group name to display
+  group: Group; // Group name to display
 }
 
 const GroupListCard: React.FC<GroupListCardProps> = ({
   backgroundImage,
   avatarImage,
-  groupName,
+  group,
 }) => {
   return backgroundImage ? (
     <ImageBackground
@@ -20,7 +21,7 @@ const GroupListCard: React.FC<GroupListCardProps> = ({
       style={styles.background}
       imageStyle={styles.backgroundImage}
     >
-      <Content avatarImage={avatarImage} groupName={groupName} />
+      <Content avatarImage={avatarImage} group={group} />
     </ImageBackground>
   ) : (
     <LinearGradient
@@ -29,14 +30,14 @@ const GroupListCard: React.FC<GroupListCardProps> = ({
       end={{ x: 1, y: 0 }} // Left-to-right gradient
       style={styles.background}
     >
-      <Content avatarImage={avatarImage} groupName={groupName} />
+      <Content avatarImage={avatarImage} group={group} />
     </LinearGradient>
   );
 };
 
-const Content: React.FC<{ avatarImage: string | null; groupName: string }> = ({
+const Content: React.FC<{ avatarImage: string | null; group: Group }> = ({
   avatarImage,
-  groupName,
+  group,
 }) => (
   <View style={styles.overlay}>
     {avatarImage ? (
@@ -44,11 +45,12 @@ const Content: React.FC<{ avatarImage: string | null; groupName: string }> = ({
     ) : (
       <View style={styles.fallbackAvatar}>
         <Text style={styles.fallbackAvatarText}>
-          {groupName.charAt(0).toUpperCase()}
+          {group.groupname.charAt(0).toUpperCase()}
         </Text>
       </View>
     )}
-    <Text style={styles.groupName}>{groupName}</Text>
+    <Text style={styles.groupName}>{group.groupname}</Text>
+    <Text style={styles.groupIntro}>{group.groupintro}</Text>
   </View>
 );
 
@@ -100,7 +102,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "#fff",
     fontWeight: "bold",
-    textAlign: "center",
+  },
+  groupIntro: {
+    fontSize: 18,
+    color: "#fff",
+    fontWeight: "light",
   },
 });
 
