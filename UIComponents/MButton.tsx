@@ -17,6 +17,7 @@ interface AnimatedButtonProps {
   onPress: () => void;
   style?: ViewStyle; // Style for the button container
   textStyle?: TextStyle; // Style for the button text
+  disabled?: boolean;
 }
 
 const MButton: React.FC<AnimatedButtonProps> = ({
@@ -24,6 +25,7 @@ const MButton: React.FC<AnimatedButtonProps> = ({
   onPress,
   style = {}, // Ensure default empty object if style is undefined
   textStyle = {}, // Ensure default empty object if textStyle is undefined
+  disabled = false,
 }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const colorAnim = useRef(new Animated.Value(0)).current;
@@ -68,6 +70,7 @@ const MButton: React.FC<AnimatedButtonProps> = ({
       //   style={[styles.button, { ...style }]}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
+      disabled={false}
     >
       <Animated.View
         style={[
