@@ -15,6 +15,7 @@ import { NotificationProvider } from "@/contexts/NotificationContext";
 import Colors from "@/constants/Colors";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import AnimatedLoading from "@/constants/AnimatedLoading";
+import Drawer from "expo-router/drawer";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -60,17 +61,21 @@ function RootLayoutNav() {
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <NotificationProvider>
         <GestureHandlerRootView>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: {
-                backgroundColor: Colors[colorScheme].background,
-              },
-            }}
+          <Drawer
+            screenOptions={{ drawerPosition: "right", headerShown: false }}
           >
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-          </Stack>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: {
+                  backgroundColor: Colors[colorScheme].background,
+                },
+              }}
+            >
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+            </Stack>
+          </Drawer>
         </GestureHandlerRootView>
       </NotificationProvider>
     </ThemeProvider>

@@ -1,6 +1,12 @@
 // Import create with type
 import { create } from "zustand";
-import { Group, Post, StoreState, UserProfile } from "./constants/types";
+import {
+  Group,
+  Post,
+  ProfileInfo,
+  StoreState,
+  UserProfile,
+} from "./constants/types";
 
 // Create the store with proper typing
 export const MStore = create<StoreState>((set) => ({
@@ -12,6 +18,7 @@ export const MStore = create<StoreState>((set) => ({
   myGroups: null,
   otherGroups: null,
   singleGroup: null,
+  profileInfo: null,
   updateProfile: (newProfile: UserProfile) => set({ profile: newProfile }),
   updateSinglePost: (newPost: Post | null) => set({ singlePost: newPost }),
   updatePosts: (newPosts: Post[]) => set({ posts: newPosts }),
@@ -28,4 +35,6 @@ export const MStore = create<StoreState>((set) => ({
   updateMyGroups: (groups: Group[]) => set({ myGroups: groups }),
   updateOtherGroups: (groups: Group[]) => set({ otherGroups: groups }),
   updateSingleGroup: (group: Group) => set({ singleGroup: group }),
+  updateProfileInfo: (profileInfo: ProfileInfo) =>
+    set({ profileInfo: profileInfo }),
 }));

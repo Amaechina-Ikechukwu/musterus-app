@@ -84,7 +84,7 @@ export default function GroupsScreen() {
     }
     return (
       <View>
-        <Text>{group[1]}</Text>
+        <Text>{group[1].toUpperCase()}</Text>
       </View>
     );
   }

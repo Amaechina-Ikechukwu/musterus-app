@@ -1,5 +1,6 @@
 import Colors from "@/constants/Colors";
 import { mwidth } from "@/constants/ScreenDimensions";
+import { useNotification } from "@/contexts/NotificationContext";
 import MButton from "@/UIComponents/MButton";
 import MInput from "@/UIComponents/MInput";
 import React, { useState } from "react";
@@ -30,9 +31,10 @@ const CreateGroupPost: React.FC<CreateGroupPostProps> = ({
   const [postBody, setPostBody] = useState("");
   const [loading, setLoading] = useState(false);
   const colorScheme = useColorScheme() ?? "light";
+  const { showNotification } = useNotification();
   const handleCreateOrEditPost = async () => {
     if (!postTitle || !postBody) {
-      Alert.alert("Error", "Both title and body are required.");
+      showNotification("Both title and body are required.");
       return;
     }
 
@@ -62,17 +64,17 @@ const CreateGroupPost: React.FC<CreateGroupPostProps> = ({
       const data = await response.json();
 
       if (response.ok && data.Post) {
-        Alert.alert("Success", "Post has been saved successfully!");
+        showNotification("Post has been saved successfully!");
         // Optionally, clear the inputs or navigate back
         setPostTitle("");
         setPostBody("");
       } else {
-        Alert.alert("Error", "Failed to save the post.");
+        showNotification("Failed to save the post.");
         console.error(data);
       }
     } catch (error) {
       console.error("Error creating/editing post:", error);
-      Alert.alert("Error", "An unexpected error occurred.");
+      showNotification("An unexpected error occurred.");
     } finally {
       setLoading(false);
     }

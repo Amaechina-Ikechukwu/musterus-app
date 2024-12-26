@@ -11,10 +11,19 @@ import { api } from "@/constants/shortened"; // Update this with the actual API 
 
 type ReactionComponentProps = {
   commentId: string;
+
+  divid: string;
+  uid: string;
+  mykey: string;
+  mskl: string;
 };
 
 export default function ReactionComponent({
   commentId,
+  divid,
+  uid,
+  mykey,
+  mskl,
 }: ReactionComponentProps) {
   const [selectedReaction, setSelectedReaction] = useState<string | null>(null);
   const reactions = ["👍", "❤️", "😔", "👎"];
@@ -23,9 +32,14 @@ export default function ReactionComponent({
     setSelectedReaction(reaction);
 
     try {
-      const response = await axios.post(`${api}/reactions`, {
+      const response = await axios.post(`${api}/likebuttons`, {
         commentId,
         reaction,
+        selec: reactions.indexOf(reaction) + 1,
+        uid,
+        divid,
+        mykey,
+        mskl,
       });
 
       if (response.status === 200) {
@@ -45,7 +59,7 @@ export default function ReactionComponent({
   return (
     <View style={styles.container}>
       <PlainView style={styles.reactionContainer}>
-        {reactions.map((reaction) => (
+        {reactions.map((reaction, index) => (
           <TouchableOpacity
             key={reaction}
             onPress={() => handleReactionPress(reaction)}

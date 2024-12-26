@@ -25,13 +25,35 @@ export default function TabLayout() {
   const colorScheme = useColorScheme();
   const [value, setValue] = useState<string | null>(null); // Initialize to null
   const [loading, setLoading] = useState(true); // Track loading status
-  const [profile, updateProfile, updatePosts] = MStore(
+  const [profile, updateProfile, updatePosts, updateProfileInfo] = MStore(
     useShallow((state) => [
       state.profile,
       state.updateProfile,
       state.updatePosts,
+      state.updateProfileInfo,
     ])
   );
+  async function getUserProfileInfo(
+    username: string,
+    data: { mskl: string; mykey: string }
+  ) {
+    try {
+      // Make the API request with the entered username and password
+      const response = await axios.get(
+        `${api}/mu/${username}?mskl=${data.mskl}&mykey=${data.mykey}`
+      );
+
+      // Check if login was successful
+      if (response.data) {
+        updateProfileInfo({
+          MyPost: response.data.MyPost,
+          MyFollowers: response.data.MyFollowers,
+          MyFriends: response.data.MyFriends,
+        });
+      } else {
+      }
+    } catch (error) {}
+  }
   async function getUserProfile(
     username: string,
     data: { mskl: string; mykey: string }
@@ -43,6 +65,7 @@ export default function TabLayout() {
       if (response.data) {
         updateProfile(response.data.MyProfile);
         updatePosts(response.data.Comments);
+        getUserProfileInfo(username, data);
       } else {
         router.push("/auth/startup");
       }
@@ -61,6 +84,7 @@ export default function TabLayout() {
         const response = await axios.get(`${api}/authenticate`, {
           params: { username, password },
         });
+
         if (response.data) {
           await getUserProfile(username, response.data);
           router.push("/(tabs)");
@@ -132,7 +156,7 @@ export default function TabLayout() {
           tabBarHideOnKeyboard: true,
           headerLeftContainerStyle: { paddingLeft: 20 },
           headerLeft: () => (
-            <Link href="/modal" asChild>
+            <Link href="/profile" asChild>
               <TouchableOpacity>
                 <UserAvatar
                   imageUrl={
@@ -154,6 +178,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <TabBarIcon name="social-medium" color={color} />
           ),
+          headerShown: false,
         }}
       />
       <Tabs.Screen
@@ -178,6 +203,17 @@ export default function TabLayout() {
         options={{
           title: "Profile",
           tabBarIcon: ({ color }) => <TabBarIcon name="torso" color={color} />,
+          headerTitle: profile?.firstname + " " + profile?.lastname,
+          headerStyle: {
+            shadowOpacity: 0, // Removes shadow
+            borderTopWidth: 0, // Removes border
+            elevation: 0, // Removes elevation (used in Android for shadows)
+            backgroundColor: Colors[colorScheme ?? "light"].background, // Set background to match theme
+            shadowOffset: {
+              width: 0,
+              height: 0,
+            },
+          },
         }}
       />
     </Tabs>

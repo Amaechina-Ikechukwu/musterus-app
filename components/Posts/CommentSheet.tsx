@@ -96,7 +96,7 @@ export const Comments = ({
   const handleSheetClose = () => {
     updateSinglePost(null); // Reset the post state when the sheet is closed
     setCommentInput("");
-    Keyboard.dismiss();
+   () => Keyboard.dismiss();
   };
 
   const handleSendComment = async () => {

@@ -151,7 +151,11 @@ export interface APIResponse {
   Group: Group;
   MyGroupAccess: Group;
 }
-
+export interface ProfileInfo {
+  MyPost: Post[];
+  MyFollowers: UserProfile[];
+  MyFriends: UserProfile[];
+}
 // Define the store state type
 export type StoreState = {
   profile: UserProfile | null;
@@ -162,6 +166,7 @@ export type StoreState = {
   myGroups: Group[] | null;
   otherGroups: Group[] | null;
   singleGroup: Group | null;
+  profileInfo: ProfileInfo | null;
   updatePosts: (post: Post[]) => void;
   updateProfile: (profile: UserProfile) => void;
   updateSinglePost: (post: Post | null) => void;
@@ -170,4 +175,5 @@ export type StoreState = {
   updateMyGroups: (groups: Group[]) => void;
   updateOtherGroups: (groups: Group[]) => void;
   updateSingleGroup: (group: Group) => void;
+  updateProfileInfo: (profileInfo: ProfileInfo) => void;
 };

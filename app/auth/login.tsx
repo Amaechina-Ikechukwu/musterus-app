@@ -46,7 +46,9 @@ export default function Login() {
     username: "",
     password: "",
   });
-  const [updateProfile] = MStore(useShallow((state) => [state.updateProfile]));
+  const [updateProfile, updateProfileInfo] = MStore(
+    useShallow((state) => [state.updateProfile, state.updateProfileInfo])
+  );
   const handleInputChange = (field: string, value: string) => {
     setInputValue((prev) => ({
       ...prev,
@@ -66,6 +68,11 @@ export default function Login() {
       // Check if login was successful
       if (response.data) {
         updateProfile(response.data.MemberProfile);
+        updateProfileInfo({
+          MyPost: response.data.MyPost,
+          MyFollowers: response.data.MyFollowers,
+          MyFriends: response.data.MyFriends,
+        });
       } else {
         router.push("/auth/startup");
       }
@@ -119,25 +126,31 @@ export default function Login() {
         gap: 15,
         justifyContent: "center",
         alignContent: "center",
-        height: "100%", backgroundColor:"transaparent"
+        height: "100%",
+        backgroundColor: "transaparent",
       }}
     >
-      <View style={{ marginBottom: 30, backgroundColor:"transaparent" }}>
+      <View style={{ marginBottom: 30, backgroundColor: "transaparent" }}>
         <MusterDisplay />
       </View>
-      <MInput
-        placeholder="Enter username"
-        keyboardType="default"
-        autoCapitalize={"none"}
-        onChange={(text) => handleInputChange("username", text)}
-        style={{ alignSelf: "center", width: "100%" }}
-      />
-      <MInput
-        placeholder="Password"
-        textContentType="password"
-        onChange={(text) => handleInputChange("password", text)}
-        style={{ alignSelf: "center", width: "100%" }}
-      />
+      <View style={{ backgroundColor: "transparent" }}>
+        <MInput
+          placeholder="Enter username"
+          keyboardType="default"
+          autoCapitalize={"none"}
+          onChange={(text) => handleInputChange("username", text)}
+          style={{ alignSelf: "center", width: "100%" }}
+          label="Username"
+        />
+        <MInput
+          placeholder="Enter password"
+          textContentType="password"
+          onChange={(text) => handleInputChange("password", text)}
+          style={{ alignSelf: "center", width: "100%" }}
+          label="Password"
+        />
+      </View>
+
       <MButton
         title="Login"
         onPress={handleLogin}

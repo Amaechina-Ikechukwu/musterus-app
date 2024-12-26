@@ -5,6 +5,7 @@ import {
   useColorScheme,
   ScrollView,
   Alert,
+  Switch,
 } from "react-native";
 import { Text } from "../Themed";
 import Colors, { accent } from "@/constants/Colors";
@@ -12,6 +13,10 @@ import { mwidth } from "@/constants/ScreenDimensions";
 import { api } from "@/constants/shortened";
 import MInput from "@/UIComponents/MInput";
 import MButton from "@/UIComponents/MButton";
+import { MStore } from "@/mstore";
+import { useShallow } from "zustand/react/shallow";
+import AnimatedLoading from "@/constants/AnimatedLoading";
+import { useNotification } from "@/contexts/NotificationContext";
 
 interface EditgroupProps {
   mykey: string;
@@ -27,18 +32,26 @@ const Editgroup: React.FC<EditgroupProps> = ({
   grid = 0,
 }) => {
   const colorScheme = useColorScheme() ?? "light";
-
-  const [groupName, setGroupName] = useState("");
-  const [groupCategory, setGroupCategory] = useState("");
-  const [moderated, setModerated] = useState(0); // 0 = No, 1 = Yes
-  const [publicGroup, setPublicGroup] = useState(0); // 0 = Public, 1 = Private
-  const [groupIntro, setGroupIntro] = useState("");
-  const [groupPolicy, setGroupPolicy] = useState("");
-  const [website, setWebsite] = useState("");
+  const { showNotification } = useNotification();
+  const [singleGroup] = MStore(useShallow((state) => [state.singleGroup]));
+  if (!singleGroup) {
+    return <AnimatedLoading />;
+  }
+  const [groupName, setGroupName] = useState(singleGroup?.groupname || "");
+  const [groupCategory, setGroupCategory] = useState(
+    singleGroup?.groupcategory || ""
+  );
+  const [moderated, setModerated] = useState(singleGroup?.moderated || 0); // 0 or 1
+  const [publicGroup, setPublicGroup] = useState(singleGroup?.publicgroup || 0); // 0 or 1
+  const [groupIntro, setGroupIntro] = useState(singleGroup?.groupintro || "");
+  const [groupPolicy, setGroupPolicy] = useState(
+    singleGroup?.grouppolicy || ""
+  );
+  const [website, setWebsite] = useState(singleGroup?.website || "");
 
   const handleSubmit = async () => {
     if (!groupName.trim() || !groupCategory.trim()) {
-      Alert.alert("Validation Error", "Group name and category are required.");
+      showNotification("Group name and category are required.");
       return;
     }
 
@@ -48,11 +61,11 @@ const Editgroup: React.FC<EditgroupProps> = ({
       mskl,
       uid,
       list: 2, // Assuming the user owns the group for editing/creating
-      grid, // 0 for new group creation or existing group ID for editing
+      grid: singleGroup.grid, // 0 for new group creation or existing group ID for editing
       groupname: groupName,
       groupcategory: groupCategory,
       moderated,
-      publicgroup: publicGroup,
+      publicGroup,
       groupintro: [groupIntro],
       grouppolicy: [groupPolicy],
       website,
@@ -69,9 +82,9 @@ const Editgroup: React.FC<EditgroupProps> = ({
       });
 
       const data = await response.json();
+
       if (data.success) {
-        Alert.alert(
-          "Success",
+        showNotification(
           grid === 0
             ? "Group created successfully!"
             : "Group updated successfully!"
@@ -80,8 +93,7 @@ const Editgroup: React.FC<EditgroupProps> = ({
         throw new Error(data.message || "Failed to save group.");
       }
     } catch (error) {
-      console.error("Error saving group:", error);
-      Alert.alert("Error", "Unable to save group. Please try again later.");
+      showNotification("Unable to save group. Please try again later.");
     }
   };
 
@@ -108,22 +120,6 @@ const Editgroup: React.FC<EditgroupProps> = ({
       />
 
       <MInput
-        label="Moderated"
-        placeholder="Enter 0 for No, 1 for Yes"
-        value={String(moderated)}
-        onChange={(value) => setModerated(Number(value))}
-        keyboardType="numeric"
-      />
-
-      <MInput
-        label="Public Group"
-        placeholder="Enter 0 for Public, 1 for Private"
-        value={String(publicGroup)}
-        onChange={(value) => setPublicGroup(Number(value))}
-        keyboardType="numeric"
-      />
-
-      <MInput
         label="Group Introduction"
         placeholder="Enter group introduction"
         value={groupIntro}
@@ -145,7 +141,29 @@ const Editgroup: React.FC<EditgroupProps> = ({
         value={website}
         onChange={setWebsite}
       />
+      <View style={styles.switchContainer}>
+        <Text>Moderated</Text>
+        <Switch
+          value={moderated === 1}
+          onValueChange={(value) => setModerated(value ? 1 : 0)}
+          thumbColor={moderated === 1 ? accent : Colors[colorScheme].text}
+        />
+      </View>
 
+      <View style={styles.switchContainer}>
+        <View>
+          <Text>Public/Private Group</Text>
+          <Text style={{ color: accent, fontSize: 16 }}>
+            {publicGroup === 0 ? "Public Group" : "Private Group"}
+          </Text>
+        </View>
+
+        <Switch
+          value={publicGroup === 1}
+          onValueChange={(value) => setPublicGroup(value ? 1 : 0)}
+          thumbColor={publicGroup === 1 ? accent : Colors[colorScheme].text}
+        />
+      </View>
       <MButton
         title={grid === 0 ? "Create Group" : "Update Group"}
         onPress={handleSubmit}
@@ -159,6 +177,12 @@ const styles = StyleSheet.create({
   submitButton: {
     backgroundColor: accent,
     marginTop: 16,
+  },
+  switchContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginVertical: 10,
   },
 });
 

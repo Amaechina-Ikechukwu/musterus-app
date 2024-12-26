@@ -17,6 +17,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Comments } from "@/components/Posts/CommentSheet";
 import AnimatedLoading from "@/constants/AnimatedLoading";
 import { Post } from "@/constants/types";
+import { router } from "expo-router";
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 const MemoizedPostCard = React.memo(PostCard);
@@ -70,15 +71,18 @@ export default function TabOneScreen() {
     }
   );
 
-  const onViewableItemsChanged = useCallback(({ viewableItems }) => {
-    // Loop through the array of viewable items
-    viewableItems.forEach(({ item }) => {
-      updatePostInView(item.comid); // Access comid for each viewable post
-    });
+  const onViewableItemsChanged = useCallback(
+    ({ viewableItems }: { viewableItems: any }) => {
+      // Loop through the array of viewable items
+      viewableItems.forEach(({ item }: { item: any }) => {
+        updatePostInView(item.comid); // Access comid for each viewable post
+      });
 
-    // Optionally update visible posts
-    // updatePostInView(viewableItems);
-  }, []);
+      // Optionally update visible posts
+      // updatePostInView(viewableItems);
+    },
+    []
+  );
 
   if (!posts || !profile) {
     return (
@@ -113,7 +117,7 @@ export default function TabOneScreen() {
         {!singlePost && (
           <AnimatedTouchable
             style={[styles.floatButton, { opacity: footerOpacity }]}
-            onPress={() => console.log("Button Pressed")}
+            onPress={() => router.push("/posts")}
           >
             <Text style={styles.footerText}>M+</Text>
           </AnimatedTouchable>

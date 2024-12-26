@@ -70,7 +70,7 @@ const MButton: React.FC<AnimatedButtonProps> = ({
       //   style={[styles.button, { ...style }]}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
-      disabled={false}
+      disabled={disabled}
     >
       <Animated.View
         style={[

@@ -92,7 +92,13 @@ export default function PostCard({ post }: { post: Post }) {
         )}
       </View>
       <View style={styles.reaction}>
-        <ReactionComponent commentId={post.comid} />
+        <ReactionComponent
+          commentId={post.comid}
+          divid={"0"}
+          mskl={post.mskl}
+          mykey={post.profilekey}
+          uid={post.uid}
+        />
         <TouchableOpacity
           onPress={() => updateSinglePost(post)}
           style={{ padding: 20, opacity: 0.7 }}
