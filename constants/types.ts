@@ -152,7 +152,7 @@ export interface APIResponse {
   MyGroupAccess: Group;
 }
 export interface ProfileInfo {
-  MyPost: Post[];
+  MyPosts: Post[];
   MyFollowers: UserProfile[];
   MyFriends: UserProfile[];
 }

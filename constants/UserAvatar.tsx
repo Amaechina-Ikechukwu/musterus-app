@@ -1,20 +1,20 @@
+import { Text, View } from "@/components/Themed";
 import React from "react";
 import {
   Image,
   StyleSheet,
-  View,
-  Text,
   ViewStyle,
   ImageStyle,
+  useColorScheme,
 } from "react-native";
+import Colors, { accent } from "./Colors";
 
 interface AvatarProps {
-  imageUrl: string;
+  imageUrl?: string | null; // Allow undefined or null
   name: string;
   size?: number;
   containerStyle?: ViewStyle;
   imageStyle?: ImageStyle;
-  showFallback?: boolean;
 }
 
 export const UserAvatar: React.FC<AvatarProps> = ({
@@ -23,13 +23,12 @@ export const UserAvatar: React.FC<AvatarProps> = ({
   size = 40,
   containerStyle,
   imageStyle,
-  showFallback,
 }) => {
   const [hasError, setHasError] = React.useState(false);
-
+  const colorScheme = useColorScheme() ?? "light";
   // Get initials from name
   const getInitials = (name: string): string => {
-    if (name == null) {
+    if (!name) {
       return "M";
     }
     return name
@@ -48,7 +47,9 @@ export const UserAvatar: React.FC<AvatarProps> = ({
           width: size,
           height: size,
           borderRadius: size / 2,
-          backgroundColor: "#E1E1E1",
+          backgroundColor: Colors[colorScheme].darkTint,
+          borderWidth: 2,
+          borderColor: accent,
         },
         containerStyle,
       ]}
@@ -59,12 +60,11 @@ export const UserAvatar: React.FC<AvatarProps> = ({
     </View>
   );
 
-  if (hasError) {
-    return showFallback ? <FallbackAvatar /> : null;
-  }
-  if (showFallback || imageUrl == null) {
+  // Determine if fallback avatar should be displayed
+  if (!imageUrl || hasError) {
     return <FallbackAvatar />;
   }
+
   return (
     <View>
       <View
@@ -85,7 +85,7 @@ export const UserAvatar: React.FC<AvatarProps> = ({
             },
             imageStyle,
           ]}
-          onError={() => setHasError(true)}
+          onError={() => setHasError(true)} // Set error state if image fails to load
           onLoad={() => setHasError(false)} // Reset error state on successful load
         />
       </View>
@@ -108,7 +108,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#E1E1E1",
   },
   initials: {
-    color: "#666666",
     fontWeight: "600",
   },
 });

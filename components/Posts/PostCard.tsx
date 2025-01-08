@@ -46,7 +46,6 @@ export default function PostCard({ post }: { post: Post }) {
                 : ""
             }
             name={`${post.firstname} ${post.lastname}` || ""}
-            showFallback={!post.avatar}
           />
           <Text>{`${post.firstname} ${post.lastname}`}</Text>
         </View>

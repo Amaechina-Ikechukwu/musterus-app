@@ -3,11 +3,12 @@ import { StyleSheet } from "react-native";
 import EditScreenInfo from "@/components/EditScreenInfo";
 import { Text, View } from "@/components/Themed";
 import ProfileInfo from "@/components/Profile/ProfileInfo";
+import ProfileInfoHeaders from "@/components/Profile/ProfileInfoHeaders";
 
 export default function TabTwoScreen() {
   return (
     <View style={styles.container}>
-      <ProfileInfo />
+      <ProfileInfoHeaders />
     </View>
   );
 }

@@ -1,8 +1,8 @@
 import AnimatedLoading from "@/constants/AnimatedLoading";
-import { accent } from "@/constants/Colors";
+import Colors, { accent } from "@/constants/Colors";
 import GroupListCard from "@/constants/GroupListCard";
-import { api, newAvatar } from "@/constants/shortened";
-import { Group, ProfileInfo } from "@/constants/types";
+import { api, checkMediaType, newAvatar } from "@/constants/shortened";
+import { Group, Post, ProfileInfo } from "@/constants/types";
 import { useNotification } from "@/contexts/NotificationContext";
 import { MStore } from "@/mstore";
 import axios from "axios";
@@ -14,6 +14,8 @@ import {
   StyleSheet,
   Dimensions,
   FlatList,
+  ActivityIndicator,
+  useColorScheme,
 } from "react-native";
 import { useShallow } from "zustand/react/shallow";
 import { Text, View } from "../Themed";
@@ -22,45 +24,84 @@ import { router } from "expo-router";
 import PostCard from "../Posts/PostCard";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Comments } from "../Posts/CommentSheet";
+import { Image } from "react-native";
+import VideoPlayer from "../Posts/VideoPlayer";
+import { UserAvatar } from "@/constants/UserAvatar";
+import ProfileHeadingInfo from "./ProfileInfo";
 
 const { width } = Dimensions.get("window");
 
-const GroupList = ({ groups }: { groups: Group[] | null }) => {
-  const [updateSingleGroup] = MStore(
-    useShallow((state) => [state.updateSingleGroup])
+const UserPost = ({ post }: { post: Post }) => {
+  const colorScheme = useColorScheme() ?? "light";
+  const [loading, setLoading] = useState(true);
+  const [updateSinglePost] = MStore(
+    useShallow((state) => [state.updateSinglePost])
   );
-  if (!groups) {
-    return <AnimatedLoading />;
-  }
-  const handleRouting = (item: Group) => {
-    updateSingleGroup(item);
-    router.push(`/groups/${item.groupkey}`);
-  };
   return (
-    <View style={{}}>
-      <FlatList
-        data={groups}
-        keyExtractor={(item, index) => `${item.groupname}-${index}`}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => handleRouting(item)}>
-            <GroupListCard
-              avatarImage={item.groupheader && newAvatar(item.groupheader)}
-              backgroundImage={item.groupbg && newAvatar(item.groupbg)}
-              group={item}
-            />
-          </TouchableOpacity>
+    <View
+      style={[{ backgroundColor: Colors[colorScheme].darkTint, zIndex: 999 }]}
+    >
+      <View style={styles.postHeader}>
+        <View style={{ flexDirection: "row", gap: 5, alignItems: "center" }}>
+          <UserAvatar
+            imageUrl={
+              api && post.avatar
+                ? `${api.slice(0, -3)}${post.avatar.slice(1)}`
+                : ""
+            }
+            name={`${post.firstname} ${post.lastname}` || ""}
+          />
+          <Text>{`${post.firstname} ${post.lastname}`}</Text>
+        </View>
+        <Text style={{ fontWeight: "300" }}>{post.writetime}</Text>
+      </View>
+      <View style={styles.postView}>
+        <Text style={styles.title}>{post.comment}</Text>
+        {post.attachedimage && typeof post.attachedimage === "string" && (
+          <>
+            {loading && checkMediaType(post.attachedimage) == "image" && (
+              <View style={styles.loader}>
+                <ActivityIndicator size="small" color={accent} />
+              </View>
+            )}
+            {(() => {
+              const mediaType = checkMediaType(post.attachedimage);
+
+              if (mediaType === "image") {
+                return (
+                  <Image
+                    style={[styles.image]}
+                    source={{ uri: newAvatar(post.attachedimage) }}
+                    onLoadEnd={() => setLoading(false)}
+                    onError={(error) => {
+                      setLoading(false);
+                    }}
+                  />
+                );
+              } else if (mediaType === "video") {
+                return (
+                  <VideoPlayer
+                    url={newAvatar(post.attachedimage)}
+                    comid={post.comid}
+                  />
+                );
+              } else {
+                console.warn("Unsupported media type:", post.attachedimage);
+                return <Text>Unsupported media type</Text>;
+              }
+            })()}
+          </>
         )}
-        contentContainerStyle={styles.listContent}
-      />
+      </View>
     </View>
   );
 };
-
+const TabLabels = ["Posts", "Followers", "Friends"];
 const TabOne = () => {
   const [profileInfo, profile] = MStore(
     useShallow((state) => [state.profileInfo, state.profile])
   );
-  const posts = profileInfo?.MyPost;
+  const posts = profileInfo?.MyPosts;
   const MemoizedPostCard = React.memo(PostCard);
   const [singlePost, updateSinglePost, updatePostInView] = MStore(
     useShallow((state) => [
@@ -71,10 +112,9 @@ const TabOne = () => {
   );
   return (
     <View style={styles.tabContent}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <View style={styles.container}>
-          {/* Post List */}
-          <Animated.FlatList
+      <View style={styles.container}>
+        <GestureHandlerRootView>
+          <FlatList
             data={posts}
             keyExtractor={(item) => item.comid}
             renderItem={({ item }) => <MemoizedPostCard post={item} />}
@@ -92,14 +132,13 @@ const TabOne = () => {
             updateSinglePost={updateSinglePost}
             profile={profile}
           />
-        </View>
-      </GestureHandlerRootView>
+        </GestureHandlerRootView>
+      </View>
     </View>
   );
 };
 
 const TabTwo = () => {
-  const [myGroups] = MStore(useShallow((state) => [state.myGroups]));
   return (
     <View style={styles.tabContent}>
       <Text>Added Soon</Text>
@@ -107,18 +146,16 @@ const TabTwo = () => {
   );
 };
 const TabThree = () => {
-  const [myGroups] = MStore(useShallow((state) => [state.myGroups]));
   return (
     <View style={styles.tabContent}>
       <Text>Added Soon</Text>
     </View>
   );
 };
-
 const ProfileInfoHeaders = () => {
   const [activeTab, setActiveTab] = useState(0);
   const scrollX = useRef(new Animated.Value(0)).current;
-  const scrollViewRef = useRef<ScrollView>(null);
+  const [tabContentHeight, setTabContentHeight] = useState<number[]>([]);
   const [profile, updateProfileInfo, profileInfo] = MStore(
     useShallow((state) => [
       state.profile,
@@ -130,16 +167,29 @@ const ProfileInfoHeaders = () => {
 
   const fetchProfileInfo = async () => {
     try {
-      const { data }: { data: ProfileInfo } = await axios.get(
-        `${api}/mu/${profile?.publicurl}?mykey=${profile?.profilekey}&mskl=${profile?.mskl}`
+      const response = await fetch(
+        `${api}/mu/${profile?.publicurl}?mykey=${profile?.profilekey}&mskl=${profile?.mskl}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
 
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+      }
+
+      const data: ProfileInfo = await response.json();
+
       updateProfileInfo({
-        MyPost: data.MyPost,
+        MyPosts: data.MyPosts,
         MyFollowers: data.MyFollowers,
         MyFriends: data.MyFriends,
       });
     } catch (err) {
+      console.error("Error fetching profile information:", err);
       showNotification(
         "Failed to fetch profile information. Please try again."
       );
@@ -149,60 +199,73 @@ const ProfileInfoHeaders = () => {
   useEffect(() => {
     fetchProfileInfo();
   }, []);
-  const onTabPress = (index: number) => {
-    setActiveTab(index);
-    scrollViewRef.current?.scrollTo({ x: index * width, animated: true });
+  const onTabPress = (index: number) => setActiveTab(index);
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 0:
+        return <TabOne />;
+      case 1:
+        return <TabTwo />;
+      case 2:
+        return <TabThree />;
+      default:
+        return null;
+    }
   };
 
-  const handleScroll = (event: any) => {
-    const offsetX = event.nativeEvent.contentOffset.x;
-    const newIndex = Math.round(offsetX / width);
-    setActiveTab(newIndex);
+  const handleContentSizeChange = (index: number, height: number) => {
+    const updatedHeights = [...tabContentHeight];
+    updatedHeights[index] = height;
+    setTabContentHeight(updatedHeights);
   };
+
+  const renderHeader = () => <ProfileHeadingInfo />;
+
+  const renderTabs = () => (
+    <View style={styles.header}>
+      {TabLabels.map((tab, index) => (
+        <TouchableOpacity
+          key={index}
+          style={[styles.tab, activeTab === index ? styles.activeTab : null]}
+          onPress={() => onTabPress(index)}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === index ? styles.activeTabText : null,
+            ]}
+          >
+            {tab}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
 
   return (
     <View style={styles.container}>
-      {/* Header Tabs */}
-      <View style={styles.header}>
-        {["Posts", "Followrs", "Friends"].map((tab, index) => (
-          <TouchableOpacity
-            key={index}
-            style={[styles.tab, activeTab === index ? styles.activeTab : null]}
-            onPress={() => onTabPress(index)}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === index ? styles.activeTabText : null,
-              ]}
-            >
-              {tab}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* Swipable Views */}
-      <ScrollView
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-          { useNativeDriver: false, listener: handleScroll }
-        )}
-        ref={scrollViewRef}
-      >
-        <View style={{ width }}>
-          <TabOne />
-        </View>
-        <View style={{ width }}>
-          <TabTwo />
-        </View>
-        <View style={{ width }}>
-          <TabThree />
-        </View>
-      </ScrollView>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <FlatList
+          data={[{ key: "header" }, { key: "tabs" }, { key: "content" }]}
+          keyExtractor={(item) => item.key}
+          renderItem={({ item }) => {
+            if (item.key === "header") {
+              return renderHeader();
+            }
+            if (item.key === "tabs") {
+              return renderTabs();
+            }
+            if (item.key === "content") {
+              return (
+                <View style={styles.tabContent}>{renderTabContent()}</View>
+              );
+            }
+          }}
+          stickyHeaderIndices={[1]} // Make the tabs sticky
+          showsVerticalScrollIndicator={false}
+        />
+      </GestureHandlerRootView>
     </View>
   );
 };
@@ -241,6 +304,36 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 15, // Add padding to avoid clipping at the end
+  },
+  postHeader: {
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexDirection: "row",
+    opacity: 0.7,
+  },
+  image: {
+    width: "100%",
+    aspectRatio: 3 / 4,
+    borderRadius: 10,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "400",
+    lineHeight: 30,
+  },
+  postView: {
+    padding: 20,
+    gap: 10,
+  },
+  loader: {
+    position: "relative",
+    zIndex: 1,
+  },
+  reaction: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
   },
 });
 

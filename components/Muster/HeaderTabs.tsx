@@ -19,6 +19,7 @@ import { useShallow } from "zustand/react/shallow";
 import { Text, View } from "../Themed";
 import { mwidth } from "@/constants/ScreenDimensions";
 import { router } from "expo-router";
+import MusterFriends from "./MusterFriends";
 
 const { width } = Dimensions.get("window");
 
@@ -54,10 +55,9 @@ const GroupList = ({ groups }: { groups: Group[] | null }) => {
 };
 
 const TabOne = () => {
-  const [allGroups] = MStore(useShallow((state) => [state.allGroups]));
   return (
     <View style={styles.tabContent}>
-      <Text>Added Soon</Text>
+      <MusterFriends />
     </View>
   );
 };

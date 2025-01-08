@@ -95,7 +95,7 @@ const ListOfInfo = ({ profile }: { profile: UserProfile }) => {
     </ScrollView>
   );
 };
-export default function ProfileInfo() {
+export default function ProfileHeadingInfo() {
   const [profile] = MStore(useShallow((state) => [state.profile]));
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
@@ -165,7 +165,7 @@ export default function ProfileInfo() {
           </View>
         </Modal>
       </PlainView>
-      <ProfileInfoHeaders />
+      {/* <ProfileInfoHeaders /> */}
     </View>
   );
 }
