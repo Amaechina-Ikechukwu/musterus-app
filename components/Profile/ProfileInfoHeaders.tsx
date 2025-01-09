@@ -2,11 +2,17 @@ import AnimatedLoading from "@/constants/AnimatedLoading";
 import Colors, { accent } from "@/constants/Colors";
 import GroupListCard from "@/constants/GroupListCard";
 import { api, checkMediaType, newAvatar } from "@/constants/shortened";
-import { Group, Post, ProfileInfo } from "@/constants/types";
+import {
+  CommonUserInfo,
+  Group,
+  Post,
+  ProfileInfo,
+  UserProfile,
+} from "@/constants/types";
 import { useNotification } from "@/contexts/NotificationContext";
 import { MStore } from "@/mstore";
 import axios from "axios";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   ScrollView,
   Animated,
@@ -16,6 +22,7 @@ import {
   FlatList,
   ActivityIndicator,
   useColorScheme,
+  View as PlainView,
 } from "react-native";
 import { useShallow } from "zustand/react/shallow";
 import { Text, View } from "../Themed";
@@ -30,72 +37,91 @@ import { UserAvatar } from "@/constants/UserAvatar";
 import ProfileHeadingInfo from "./ProfileInfo";
 
 const { width } = Dimensions.get("window");
-
-const UserPost = ({ post }: { post: Post }) => {
+function ListOfFriends({
+  friends,
+  tabName,
+}: {
+  friends: CommonUserInfo[];
+  tabName: string;
+}) {
   const colorScheme = useColorScheme() ?? "light";
-  const [loading, setLoading] = useState(true);
-  const [updateSinglePost] = MStore(
-    useShallow((state) => [state.updateSinglePost])
-  );
-  return (
-    <View
-      style={[{ backgroundColor: Colors[colorScheme].darkTint, zIndex: 999 }]}
-    >
-      <View style={styles.postHeader}>
-        <View style={{ flexDirection: "row", gap: 5, alignItems: "center" }}>
-          <UserAvatar
-            imageUrl={
-              api && post.avatar
-                ? `${api.slice(0, -3)}${post.avatar.slice(1)}`
-                : ""
-            }
-            name={`${post.firstname} ${post.lastname}` || ""}
-          />
-          <Text>{`${post.firstname} ${post.lastname}`}</Text>
-        </View>
-        <Text style={{ fontWeight: "300" }}>{post.writetime}</Text>
-      </View>
-      <View style={styles.postView}>
-        <Text style={styles.title}>{post.comment}</Text>
-        {post.attachedimage && typeof post.attachedimage === "string" && (
-          <>
-            {loading && checkMediaType(post.attachedimage) == "image" && (
-              <View style={styles.loader}>
-                <ActivityIndicator size="small" color={accent} />
+  const renderItem = useCallback(({ item }: { item: CommonUserInfo }) => {
+    return (
+      <TouchableOpacity
+        onPress={() =>
+          router.push(`/usersprofile/${item.profilekey}/${item.publicurl}`)
+        }
+      >
+        <PlainView
+          style={[
+            styles.profileContainer,
+            { backgroundColor: Colors[colorScheme].darkTint },
+          ]}
+        >
+          <View
+            style={[
+              styles.profileHeader,
+              {
+                alignItems: "center",
+                backgroundColor: Colors[colorScheme].darkTint,
+              },
+            ]}
+          >
+            <View
+              style={[
+                styles.userDetails,
+                {
+                  alignItems: "center",
+                  backgroundColor: Colors[colorScheme].darkTint,
+                },
+              ]}
+            >
+              <UserAvatar
+                imageUrl={newAvatar(item.avatar)}
+                size={50}
+                name={`${item.firstname} ${item.lastname}`}
+              />
+              <View
+                style={{
+                  width: "80%",
+                  gap: 5,
+                  backgroundColor: Colors[colorScheme].darkTint,
+                }}
+              >
+                <Text style={styles.userName}>
+                  {item.firstname} {item.lastname}
+                </Text>
               </View>
-            )}
-            {(() => {
-              const mediaType = checkMediaType(post.attachedimage);
+            </View>
+          </View>
+        </PlainView>
+      </TouchableOpacity>
+    );
+  }, []);
 
-              if (mediaType === "image") {
-                return (
-                  <Image
-                    style={[styles.image]}
-                    source={{ uri: newAvatar(post.attachedimage) }}
-                    onLoadEnd={() => setLoading(false)}
-                    onError={(error) => {
-                      setLoading(false);
-                    }}
-                  />
-                );
-              } else if (mediaType === "video") {
-                return (
-                  <VideoPlayer
-                    url={newAvatar(post.attachedimage)}
-                    comid={post.comid}
-                  />
-                );
-              } else {
-                console.warn("Unsupported media type:", post.attachedimage);
-                return <Text>Unsupported media type</Text>;
-              }
-            })()}
-          </>
-        )}
-      </View>
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={friends}
+        keyExtractor={(item) => item.uid}
+        renderItem={renderItem}
+        contentContainerStyle={styles.listContainer}
+        ListEmptyComponent={() => <Text>You dont have {tabName} yet</Text>}
+        initialNumToRender={10}
+        showsVerticalScrollIndicator={false}
+        windowSize={5}
+        maxToRenderPerBatch={5}
+        removeClippedSubviews={true}
+        getItemLayout={(data, index) => ({
+          length: 80,
+          offset: 80 * index,
+          index,
+        })}
+      />
     </View>
   );
-};
+}
+
 const TabLabels = ["Posts", "Followers", "Friends"];
 const TabOne = () => {
   const [profileInfo, profile] = MStore(
@@ -110,6 +136,9 @@ const TabOne = () => {
       state.updatePostInView,
     ])
   );
+  if (!posts) {
+    return <AnimatedLoading />;
+  }
   return (
     <View style={styles.tabContent}>
       <View style={styles.container}>
@@ -139,66 +168,32 @@ const TabOne = () => {
 };
 
 const TabTwo = () => {
+  const [profileInfo] = MStore(useShallow((state) => [state.profileInfo]));
+  if (!profileInfo?.MyFriends) {
+    return <AnimatedLoading />;
+  }
   return (
     <View style={styles.tabContent}>
-      <Text>Added Soon</Text>
+      <ListOfFriends friends={profileInfo?.MyFriends} tabName="friends" />
     </View>
   );
 };
 const TabThree = () => {
+  const [profileInfo] = MStore(useShallow((state) => [state.profileInfo]));
+  if (!profileInfo?.MyFollowers) {
+    return <AnimatedLoading />;
+  }
   return (
     <View style={styles.tabContent}>
-      <Text>Added Soon</Text>
+      <ListOfFriends friends={profileInfo?.MyFollowers} tabName="followers" />
     </View>
   );
 };
-const ProfileInfoHeaders = () => {
+const ProfileInfoHeaders = ({ profile }: { profile: UserProfile }) => {
   const [activeTab, setActiveTab] = useState(0);
   const scrollX = useRef(new Animated.Value(0)).current;
   const [tabContentHeight, setTabContentHeight] = useState<number[]>([]);
-  const [profile, updateProfileInfo, profileInfo] = MStore(
-    useShallow((state) => [
-      state.profile,
-      state.updateProfileInfo,
-      state.profileInfo,
-    ])
-  );
-  const { showNotification } = useNotification();
 
-  const fetchProfileInfo = async () => {
-    try {
-      const response = await fetch(
-        `${api}/mu/${profile?.publicurl}?mykey=${profile?.profilekey}&mskl=${profile?.mskl}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-      }
-
-      const data: ProfileInfo = await response.json();
-
-      updateProfileInfo({
-        MyPosts: data.MyPosts,
-        MyFollowers: data.MyFollowers,
-        MyFriends: data.MyFriends,
-      });
-    } catch (err) {
-      console.error("Error fetching profile information:", err);
-      showNotification(
-        "Failed to fetch profile information. Please try again."
-      );
-    }
-  };
-
-  useEffect(() => {
-    fetchProfileInfo();
-  }, []);
   const onTabPress = (index: number) => setActiveTab(index);
 
   const renderTabContent = () => {
@@ -220,7 +215,7 @@ const ProfileInfoHeaders = () => {
     setTabContentHeight(updatedHeights);
   };
 
-  const renderHeader = () => <ProfileHeadingInfo />;
+  const renderHeader = () => <ProfileHeadingInfo profile={profile} />;
 
   const renderTabs = () => (
     <View style={styles.header}>
@@ -271,10 +266,6 @@ const ProfileInfoHeaders = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
   header: {
     flexDirection: "row",
   },
@@ -334,6 +325,48 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     width: "100%",
+  },
+  container: {
+    flex: 1,
+
+    width: mwidth,
+  },
+  listContainer: {
+    paddingBottom: 20,
+  },
+  profileContainer: {
+    marginBottom: 15,
+
+    borderRadius: 10,
+    padding: 10,
+  },
+  profileHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  userDetails: {
+    flexDirection: "row",
+
+    justifyContent: "space-around",
+  },
+  userName: {
+    fontWeight: "700",
+    fontSize: 18,
+  },
+  buttonsContainer: {
+    flexDirection: "row",
+    gap: 20,
+  },
+  actionButton: {
+    backgroundColor: "#ddd",
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 5,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonText: {
+    color: "#333",
   },
 });
 

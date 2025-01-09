@@ -13,6 +13,7 @@ import { mwidth } from "@/constants/ScreenDimensions";
 import { TouchableOpacity } from "react-native";
 import Colors, { accent } from "@/constants/Colors";
 import { UserAvatar } from "@/constants/UserAvatar";
+import { router } from "expo-router";
 
 export default function MusterFriends() {
   const { showNotification } = useNotification();
@@ -111,7 +112,13 @@ export default function MusterFriends() {
                     Make Friend
                   </Text>
                 </TouchableOpacity>
+
                 <TouchableOpacity
+                  onPress={() =>
+                    router.push(
+                      `/usersprofile/${item.profilekey}/${item.publicurl}`
+                    )
+                  }
                   style={[
                     styles.actionButton,
                     {

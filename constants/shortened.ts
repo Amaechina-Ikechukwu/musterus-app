@@ -1,10 +1,14 @@
 export const api = process.env.EXPO_PUBLIC_API_URL;
-export function newAvatar(avatar: string) {
-   if (avatar == null) {
-     return "";
-   }
-  return `${api.slice(0, -3)}/${avatar.slice(1, avatar.length)}`;
+export function newAvatar(avatar: string | null): string {
+  if (!avatar) {
+    return "";
+  }
+  if (!api) {
+    return "";
+  }
+  return `${api.slice(0, -3)}/${avatar.slice(1)}`;
 }
+
 export function checkMediaType(oldurl: string): "image" | "video" | "unknown" {
   const url = newAvatar(oldurl);
 

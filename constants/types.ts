@@ -156,6 +156,19 @@ export interface ProfileInfo {
   MyFollowers: UserProfile[];
   MyFriends: UserProfile[];
 }
+export type CardData = {
+  imageid: string;
+  filename: string;
+  thumbnail: string;
+  imagetype: string;
+  filetype: string;
+  imagealt: string;
+  imagetitle: string;
+  relatedpage: string;
+  fileext: string;
+  uploaddate: string;
+};
+
 // Define the store state type
 export type StoreState = {
   profile: UserProfile | null;

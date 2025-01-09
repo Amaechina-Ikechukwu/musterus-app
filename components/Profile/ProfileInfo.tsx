@@ -95,20 +95,27 @@ const ListOfInfo = ({ profile }: { profile: UserProfile }) => {
     </ScrollView>
   );
 };
-export default function ProfileHeadingInfo() {
-  const [profile] = MStore(useShallow((state) => [state.profile]));
+export default function ProfileHeadingInfo({
+  profile,
+  hide,
+}: {
+  profile: UserProfile;
+  hide?: boolean;
+}) {
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
   const colorScheme = useColorScheme() ?? "light";
   useEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity onPress={() => router.push(`/settings`)}>
-          <EvilIcons name="gear" size={28} color={Colors[colorScheme].text} />
-        </TouchableOpacity>
-        // <DrawerToggleButton />
-      ),
-    });
+    if (!hide) {
+      navigation.setOptions({
+        headerRight: () => (
+          <TouchableOpacity onPress={() => router.push(`/settings`)}>
+            <EvilIcons name="gear" size={28} color={Colors[colorScheme].text} />
+          </TouchableOpacity>
+          // <DrawerToggleButton />
+        ),
+      });
+    }
   }, [navigation]);
   if (!profile) {
     return (

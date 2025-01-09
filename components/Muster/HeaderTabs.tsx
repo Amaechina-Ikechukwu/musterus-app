@@ -20,6 +20,7 @@ import { Text, View } from "../Themed";
 import { mwidth } from "@/constants/ScreenDimensions";
 import { router } from "expo-router";
 import MusterFriends from "./MusterFriends";
+import MusterCards from "./MusterCards";
 
 const { width } = Dimensions.get("window");
 
@@ -66,7 +67,7 @@ const TabTwo = () => {
   const [myGroups] = MStore(useShallow((state) => [state.myGroups]));
   return (
     <View style={styles.tabContent}>
-      <Text>Added Soon</Text>
+      <MusterCards />
     </View>
   );
 };
