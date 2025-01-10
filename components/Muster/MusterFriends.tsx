@@ -4,7 +4,7 @@ import { useNotification } from "@/contexts/NotificationContext";
 import { api, newAvatar } from "@/constants/shortened";
 import { MStore } from "@/mstore";
 import { useShallow } from "zustand/react/shallow";
-import { CommonUserInfo, UserProfile } from "@/constants/types";
+import { CardData, CommonUserInfo, UserProfile } from "@/constants/types";
 import { Text, View } from "../Themed";
 import { FlatList } from "react-native";
 import AnimatedLoading from "@/constants/AnimatedLoading";
@@ -19,6 +19,7 @@ export default function MusterFriends() {
   const { showNotification } = useNotification();
   const [profile] = MStore(useShallow((state) => [state.profile]));
   const [friends, setFriends] = useState<CommonUserInfo[]>([]);
+
   const colorScheme = useColorScheme() ?? "light";
   const getFriends = async () => {
     const url = `${api}/musterpoint?mykey=${profile?.profilekey}&mskl=${profile?.mskl}`;

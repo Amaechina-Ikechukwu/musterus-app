@@ -1,5 +1,6 @@
 import {
   FlatList,
+  Image,
   ImageBackground,
   View as PlainView,
   StyleSheet,
@@ -14,17 +15,22 @@ import { api, newAvatar } from "@/constants/shortened";
 import { CardData } from "@/constants/types";
 import Colors from "@/constants/Colors";
 import { Text, View } from "../Themed";
-import { mwidth } from "@/constants/ScreenDimensions";
+import { mheight, mwidth } from "@/constants/ScreenDimensions";
 import AnimatedLoading from "@/constants/AnimatedLoading";
+import MButton from "@/UIComponents/MButton";
 import { router } from "expo-router";
 
-export default function MusterCards() {
+export default function MusterSingleCards({
+  eventNumber,
+}: {
+  eventNumber: string;
+}) {
   const { showNotification } = useNotification();
   const [profile] = MStore(useShallow((state) => [state.profile]));
   const [cards, setCards] = useState<CardData[]>([]);
   const colorScheme = useColorScheme() ?? "light";
   const getFriends = async () => {
-    const url = `${api}/eventcards?mykey=${profile?.profilekey}&mskl=${profile?.mskl}`;
+    const url = `${api}/eventcards?mykey=${profile?.profilekey}&mskl=${profile?.mskl}&event=${eventNumber}`;
 
     try {
       const response = await fetch(url, {
@@ -35,24 +41,12 @@ export default function MusterCards() {
       });
 
       const data = await response.json();
-      uniteCards(data.Cards);
+
+      setCards(data.Cards);
     } catch (error) {
       console.log(error);
       showNotification("Unable fetch friends. Please try again later.");
     }
-  };
-  const uniteCards = (cards: CardData[]): void => {
-    const uniqueTitles = new Set<string>();
-    const cardArray: CardData[] = [];
-
-    for (const card of cards) {
-      if (!uniqueTitles.has(card.imagetitle)) {
-        uniqueTitles.add(card.imagetitle);
-        cardArray.push(card);
-      }
-    }
-
-    setCards(cardArray);
   };
 
   useEffect(() => {
@@ -61,39 +55,19 @@ export default function MusterCards() {
 
   const renderItem = useCallback(({ item }: { item: CardData }) => {
     return (
-      <TouchableOpacity onPress={() => router.push(`/muster/${item.filetype}`)}>
+      <TouchableOpacity
+        onPress={() => router.push(`/muster/${eventNumber}/${item.filetype}`)}
+      >
         <PlainView
           style={[
             { backgroundColor: Colors[colorScheme].darkTint, borderRadius: 20 },
           ]}
         >
-          <ImageBackground
+          <Image
             style={styles.image}
             src={newAvatar(item.thumbnail)} // Ensure this returns { uri: string }
             resizeMode="contain"
-          >
-            <PlainView
-              style={{
-                alignItems: "center",
-                justifyContent: "center",
-                height: "100%",
-              }}
-            >
-              <Text
-                style={{
-                  fontWeight: "bold",
-                  fontSize: 20,
-                  fontStyle: "italic",
-                  backgroundColor: "#000000c0",
-                  textAlign: "center",
-                  color: Colors.dark.text,
-                  padding: 10,
-                }}
-              >
-                {item.imagetitle.toUpperCase()}
-              </Text>
-            </PlainView>
-          </ImageBackground>
+          />
         </PlainView>
       </TouchableOpacity>
     );
@@ -111,7 +85,24 @@ export default function MusterCards() {
         data={cards}
         keyExtractor={(item) => item.thumbnail}
         renderItem={renderItem}
-        ListEmptyComponent={AnimatedLoading}
+        ListEmptyComponent={() => (
+          <View
+            style={[
+              styles.container,
+              {
+                alignItems: "center",
+                justifyContent: "center",
+                height: mheight,
+                gap: 10,
+              },
+            ]}
+          >
+            <Text style={{ textAlign: "center", fontSize: 30 }}>
+              No cards yet
+            </Text>
+            <MButton title="Tap to go back" onPress={() => router.back()} />
+          </View>
+        )}
         initialNumToRender={10}
         showsVerticalScrollIndicator={false}
         windowSize={5}
