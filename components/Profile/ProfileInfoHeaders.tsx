@@ -139,6 +139,7 @@ const TabOne = () => {
   if (!posts) {
     return <AnimatedLoading />;
   }
+
   return (
     <View style={styles.tabContent}>
       <View style={styles.container}>
