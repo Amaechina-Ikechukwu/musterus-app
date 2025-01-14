@@ -13,6 +13,7 @@ import { UserAvatar } from "@/constants/UserAvatar";
 import AnimatedLoading from "@/constants/AnimatedLoading";
 import { View } from "@/components/Themed";
 import { TouchableOpacity } from "react-native";
+import { DrawerToggleButton } from "@react-navigation/drawer";
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof Foundation>["name"];
@@ -46,7 +47,7 @@ export default function TabLayout() {
       // Check if login was successful
       if (response.data) {
         updateProfileInfo({
-          MyPost: response.data.MyPost,
+          MyPosts: response.data.MyPosts,
           MyFollowers: response.data.MyFollowers,
           MyFriends: response.data.MyFriends,
         });
@@ -178,6 +179,7 @@ export default function TabLayout() {
               </TouchableOpacity>
             </Link>
           ),
+          // headerRight: () => <DrawerToggleButton />,
         }}
       />
       <Tabs.Screen
@@ -191,6 +193,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="messages"
+        options={{
+          title: "Messages",
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="comments" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="groups"
         options={{
           title: "Groups",
@@ -200,13 +211,7 @@ export default function TabLayout() {
           headerShown: false,
         }}
       />
-      <Tabs.Screen
-        name="advert"
-        options={{
-          title: "Adverts",
-          tabBarIcon: ({ color }) => <TabBarIcon name="burst" color={color} />,
-        }}
-      />
+
       <Tabs.Screen
         name="profile"
         options={{

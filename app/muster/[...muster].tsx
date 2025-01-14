@@ -18,6 +18,7 @@ export default function index() {
   const { showNotification } = useNotification();
 
   useEffect(() => {
+    console.log({ muster });
     navigation.setOptions({
       headerTitle: "Event Cards",
       headerShown: true,

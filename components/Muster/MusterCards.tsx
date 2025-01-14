@@ -114,17 +114,12 @@ export default function MusterCards() {
         ListEmptyComponent={AnimatedLoading}
         initialNumToRender={10}
         showsVerticalScrollIndicator={false}
-        windowSize={5}
+        // windowSize={5}
         numColumns={2}
         contentContainerStyle={{ gap: 20 }}
         columnWrapperStyle={{ gap: 10, justifyContent: "space-around" }}
         maxToRenderPerBatch={5}
         removeClippedSubviews={true}
-        getItemLayout={(data, index) => ({
-          length: 80,
-          offset: 80 * index,
-          index,
-        })}
       />
     </View>
   );

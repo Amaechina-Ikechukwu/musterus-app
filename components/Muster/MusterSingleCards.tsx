@@ -44,7 +44,6 @@ export default function MusterSingleCards({
 
       setCards(data.Cards);
     } catch (error) {
-      console.log(error);
       showNotification("Unable fetch friends. Please try again later.");
     }
   };
@@ -80,7 +79,7 @@ export default function MusterSingleCards({
     );
   }
   return (
-    <View style={styles.container}>
+    <PlainView style={styles.container}>
       <FlatList
         data={cards}
         keyExtractor={(item) => item.thumbnail}
@@ -107,7 +106,7 @@ export default function MusterSingleCards({
         showsVerticalScrollIndicator={false}
         windowSize={5}
         numColumns={2}
-        contentContainerStyle={{ gap: 20 }}
+        contentContainerStyle={{ gap: 20, width: "100%" }}
         columnWrapperStyle={{ gap: 10, justifyContent: "space-around" }}
         maxToRenderPerBatch={5}
         removeClippedSubviews={true}
@@ -117,7 +116,7 @@ export default function MusterSingleCards({
           index,
         })}
       />
-    </View>
+    </PlainView>
   );
 }
 const styles = StyleSheet.create({

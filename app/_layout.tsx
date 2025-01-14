@@ -18,6 +18,7 @@ import AnimatedLoading from "@/constants/AnimatedLoading";
 import Drawer from "expo-router/drawer";
 import React from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { DrawerComponent } from "@/UIComponents/DrawerComponent";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -63,7 +64,13 @@ function RootLayoutNav() {
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <NotificationProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
-          <Drawer screenOptions={{ headerShown: false }}>
+          <Drawer
+            drawerContent={DrawerComponent}
+            screenOptions={{
+              headerShown: false,
+              drawerPosition: "right",
+            }}
+          >
             <Stack
               screenOptions={{
                 headerShown: false,
