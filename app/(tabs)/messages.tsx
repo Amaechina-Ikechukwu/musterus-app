@@ -14,7 +14,7 @@ export default function MessageScreen() {
   const fetchMessages = async () => {
     try {
       const response = await fetch(
-        `${api}/chatroom??mykey=${profile?.profilekey}&mskl=${profile?.mskl}`,
+        `${api}/chatroom?mykey=${profile?.profilekey}&mskl=${profile?.mskl}`,
         {
           method: "GET",
           headers: {
@@ -29,7 +29,7 @@ export default function MessageScreen() {
 
       const data = await response.json();
 
-      console.log(JSON.stringify(data, null, 2));
+      console.log(JSON.stringify(data.OnlineUsers, null, 2));
     } catch (err) {
       console.error("Error fetching profile information:", err);
       showNotification(

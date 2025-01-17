@@ -19,7 +19,7 @@ import { mheight, mwidth } from "@/constants/ScreenDimensions";
 import AnimatedLoading from "@/constants/AnimatedLoading";
 import MButton from "@/UIComponents/MButton";
 import { router } from "expo-router";
-
+import { useNavigation } from "expo-router";
 export default function MusterSingleCards({
   eventNumber,
 }: {
@@ -27,8 +27,9 @@ export default function MusterSingleCards({
 }) {
   const { showNotification } = useNotification();
   const [profile] = MStore(useShallow((state) => [state.profile]));
-  const [cards, setCards] = useState<CardData[]>([]);
+  const [cards, setCards] = useState<CardData[] | undefined>();
   const colorScheme = useColorScheme() ?? "light";
+  const navigation = useNavigation();
   const getFriends = async () => {
     const url = `${api}/eventcards?mykey=${profile?.profilekey}&mskl=${profile?.mskl}&event=${eventNumber}`;
 
@@ -41,36 +42,16 @@ export default function MusterSingleCards({
       });
 
       const data = await response.json();
-
       setCards(data.Cards);
     } catch (error) {
-      showNotification("Unable fetch friends. Please try again later.");
+      showNotification("Unable to fetch friends. Please try again later.");
     }
   };
 
   useEffect(() => {
     getFriends();
-  }, []);
+  }, []); // Dependency array should remain empty as `getFriends` is not recreated
 
-  const renderItem = useCallback(({ item }: { item: CardData }) => {
-    return (
-      <TouchableOpacity
-        onPress={() => router.push(`/muster/${eventNumber}/${item.filetype}`)}
-      >
-        <PlainView
-          style={[
-            { backgroundColor: Colors[colorScheme].darkTint, borderRadius: 20 },
-          ]}
-        >
-          <Image
-            style={styles.image}
-            src={newAvatar(item.thumbnail)} // Ensure this returns { uri: string }
-            resizeMode="contain"
-          />
-        </PlainView>
-      </TouchableOpacity>
-    );
-  }, []);
   if (!cards) {
     return (
       <View style={styles.container}>
@@ -78,12 +59,26 @@ export default function MusterSingleCards({
       </View>
     );
   }
+  //  useEffect(() => {
+  //    if (cards?.length > 0) {
+  //      navigation.setOptions({
+  //        headerTitle: cards[0]?.imagetitle || "Event Cards",
+  //        headerShown: true,
+  //      });
+  //    }
+  //  }, [cards, navigation]);
   return (
     <PlainView style={styles.container}>
       <FlatList
         data={cards}
         keyExtractor={(item) => item.thumbnail}
-        renderItem={renderItem}
+        renderItem={({ item }) => (
+          <CardItem
+            item={item}
+            eventNumber={eventNumber}
+            colorScheme={colorScheme}
+          />
+        )}
         ListEmptyComponent={() => (
           <View
             style={[
@@ -119,11 +114,38 @@ export default function MusterSingleCards({
     </PlainView>
   );
 }
+
+const CardItem = ({
+  item,
+  eventNumber,
+  colorScheme,
+}: {
+  item: CardData;
+  eventNumber: string;
+  colorScheme: string;
+}) => {
+  return (
+    <TouchableOpacity
+      onPress={() => router.push(`/muster/${eventNumber}/${item.filetype}`)}
+    >
+      <PlainView
+        style={[
+          { backgroundColor: Colors[colorScheme].darkTint, borderRadius: 20 },
+        ]}
+      >
+        <Image
+          style={styles.image}
+          source={{ uri: newAvatar(item.thumbnail) }}
+          resizeMode="contain"
+        />
+      </PlainView>
+    </TouchableOpacity>
+  );
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
-    width: mwidth,
   },
   image: {
     borderRadius: 20,
@@ -131,3 +153,4 @@ const styles = StyleSheet.create({
     height: 200,
   },
 });
+

@@ -3,45 +3,46 @@ import React, { useEffect } from "react";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { MStore } from "@/mstore";
 import { useShallow } from "zustand/react/shallow";
-import { api } from "@/constants/shortened";
-import { useNotification } from "@/contexts/NotificationContext";
 import { Text, View } from "@/components/Themed";
-import { mwidth } from "@/constants/ScreenDimensions";
 import MusterSingleCards from "@/components/Muster/MusterSingleCards";
 import MusterCardSend from "@/components/Muster/MusterCardSend";
 
-export default function index() {
+export default function Index() {
   const { muster } = useLocalSearchParams();
   const [profile] = MStore(useShallow((state) => [state.profile]));
   const navigation = useNavigation();
   const colorScheme = useColorScheme() ?? "light";
-  const { showNotification } = useNotification();
+
+  const musterArray = Array.isArray(muster) ? muster : muster ? [muster] : [];
 
   useEffect(() => {
-    console.log({ muster });
-    navigation.setOptions({
-      headerTitle: "Event Cards",
-      headerShown: true,
-      headerShadowVisible: false,
-    });
-  }, [navigation]);
-  if (muster[0] && muster.length == 1) {
-    return (
-      <View style={{ flex: 1, backgroundColor: "transparent" }}>
-        <MusterSingleCards eventNumber={muster[0]} />
-      </View>
-    );
-  }
-  if (muster[1] && muster.length == 2) {
-    return (
-      <View style={{ flex: 1, backgroundColor: "transparent" }}>
-        <MusterCardSend eventNumber={muster[0]} cardNumber={muster[1]} />
-      </View>
-    );
-  }
+    if (musterArray.length > 0) {
+      navigation.setOptions({
+        headerTitle: "Event Cards",
+        headerShown: true,
+        headerShadowVisible: false,
+      });
+    }
+  }, [navigation, musterArray]);
+
+  const renderContent = () => {
+    if (musterArray.length === 1) {
+      return <MusterSingleCards eventNumber={musterArray[0]} />;
+    }
+    if (musterArray.length === 2) {
+      return (
+        <MusterCardSend
+          eventNumber={musterArray[0]}
+          cardNumber={musterArray[1]}
+        />
+      );
+    }
+    return <Text>Added soon</Text>;
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: "transparent" }}>
-      <Text>Added soon</Text>
+      {renderContent()}
     </View>
   );
 }

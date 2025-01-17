@@ -98,9 +98,10 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "transparent",
   },
   image: {
-    backgroundColor: "#E1E1E1",
+    backgroundColor: "transparent",
   },
   fallbackContainer: {
     justifyContent: "center",

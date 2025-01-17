@@ -24,36 +24,7 @@ import MusterCards from "./MusterCards";
 
 const { width } = Dimensions.get("window");
 
-const GroupList = ({ groups }: { groups: Group[] | null }) => {
-  const [updateSingleGroup] = MStore(
-    useShallow((state) => [state.updateSingleGroup])
-  );
-  if (!groups) {
-    return <AnimatedLoading />;
-  }
-  const handleRouting = (item: Group) => {
-    updateSingleGroup(item);
-    router.push(`/groups/${item.groupkey}`);
-  };
-  return (
-    <View style={{ width: mwidth * 0.9 }}>
-      <FlatList
-        data={groups}
-        keyExtractor={(item, index) => `${item.groupname}-${index}`}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => handleRouting(item)}>
-            <GroupListCard
-              avatarImage={item.groupheader && newAvatar(item.groupheader)}
-              backgroundImage={item.groupbg && newAvatar(item.groupbg)}
-              group={item}
-            />
-          </TouchableOpacity>
-        )}
-        contentContainerStyle={styles.listContent}
-      />
-    </View>
-  );
-};
+
 
 const TabOne = () => {
   return (

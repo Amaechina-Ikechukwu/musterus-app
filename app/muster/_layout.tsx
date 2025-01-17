@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 
-export default function GroupLayout() {
+export default function Layout() {
   return (
     <Stack
       screenOptions={{
@@ -9,7 +9,7 @@ export default function GroupLayout() {
         headerTitle: "",
         presentation: "modal",
         contentStyle: {
-          paddingHorizontal: 40,
+          paddingHorizontal: 20,
         },
       }}
     />

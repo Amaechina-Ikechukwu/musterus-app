@@ -1,14 +1,17 @@
+import Colors from "@/constants/Colors";
 import { Stack } from "expo-router";
+import { useColorScheme } from "react-native";
 
-export default function GroupLayout() {
+export default function Layout() {
+  const colorScheme = useColorScheme() ?? "light";
   return (
     <Stack
       screenOptions={{
-        headerShown: true,
         headerShadowVisible: false,
         presentation: "modal",
         contentStyle: {
-          paddingHorizontal: 40,
+          paddingHorizontal: 20,
+          backgroundColor: Colors[colorScheme].background,
         },
       }}
     />

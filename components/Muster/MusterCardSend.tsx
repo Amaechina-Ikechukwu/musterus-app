@@ -33,12 +33,12 @@ export default function MusterCardSend({
   const [profile] = MStore(useShallow((state) => [state.profile]));
   const [cards, setCards] = useState<CardData[]>([]);
   const [friends, setFriends] = useState<UserProfile[]>([]);
-  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null); // Track selected user
-  const [modalVisible, setModalVisible] = useState(false); // Control modal visibility
-  const [message, setMessage] = useState(""); // Text input state
+  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [message, setMessage] = useState("");
   const colorScheme = useColorScheme() ?? "light";
 
-  const getFriends = async () => {
+  const getFriendsAndCards = async () => {
     const url = `${api}/eventcards?mykey=${profile?.profilekey}&mskl=${profile?.mskl}&event=${eventNumber}`;
 
     try {
@@ -49,45 +49,19 @@ export default function MusterCardSend({
         },
       });
 
+      if (!response.ok) throw new Error("Failed to fetch data");
+
       const data = await response.json();
-      setCards(data.Cards);
-      setFriends(data.MyFriendsList);
+      setCards(data.Cards || []);
+      setFriends(data.MyFriendsList || []);
     } catch (error) {
-      console.log(error);
-      showNotification("Unable fetch friends. Please try again later.");
+      console.error(error);
+      showNotification("Unable to fetch friends. Please try again later.");
     }
   };
 
   useEffect(() => {
-    getFriends();
-  }, []);
-
-  const renderItem = useCallback(({ item }: { item: UserProfile }) => {
-    return (
-      <TouchableOpacity>
-        <View
-          style={[
-            {
-              backgroundColor: Colors[colorScheme].darkTint,
-              borderRadius: 20,
-              gap: 10,
-              alignItems: "center",
-              justifyContent: "center",
-              width: 200,
-              padding: 10,
-            },
-          ]}
-        >
-          <UserAvatar
-            name={item.firstname + " " + item.lastname}
-            imageUrl={newAvatar(item.avatar)}
-            size={100}
-          />
-          <Text>{item.firstname + " " + item.lastname}</Text>
-          <MButton onPress={() => handleSendCard(item)} title="Send card" />
-        </View>
-      </TouchableOpacity>
-    );
+    getFriendsAndCards();
   }, []);
 
   const handleSendCard = (user: UserProfile) => {
@@ -96,19 +70,21 @@ export default function MusterCardSend({
   };
 
   const handleConfirmSend = async () => {
+    if (!selectedUser) return;
+
+    if (!message.trim()) {
+      showNotification("Please add a message");
+      return;
+    }
+
+    const url = `${api}/eventcards/send?mykey=${profile?.profilekey}&mskl=${
+      profile?.mskl
+    }&event=${eventNumber}&friendid=${selectedUser.friendid}&userid=${
+      profile?.uid
+    }&card=${eventNumber}&giftcardid=${""}&message=${message}`;
+
     try {
-      if (message.length == 0) {
-        showNotification("Please add a message");
-        return;
-      }
-      showNotification(`Sending card to ${selectedUser?.firstname}`);
-
-      const url = `${api}/eventcards/send?mykey=${profile?.profilekey}&mskl=${
-        profile?.mskl
-      }&event=${eventNumber}&friendid=${selectedUser?.friendid}&userid=${
-        profile?.uid
-      }&card=${eventNumber}&giftcardid=${""}&message=${message}`;
-
+      showNotification(`Sending card to ${selectedUser.firstname}`);
       const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -116,18 +92,42 @@ export default function MusterCardSend({
         },
       });
 
-      const data = await response.json();
-      console.log(data);
-      showNotification(`Card sent to ${selectedUser?.firstname}`);
-      //  setModalVisible(false);
-      //  setMessage("");
+      if (!response.ok) throw new Error("Failed to send card");
+
+      showNotification(`Card sent to ${selectedUser.firstname}`);
+      setModalVisible(false);
+      setMessage("");
     } catch (error) {
-      console.log(error);
-      showNotification("Unable fetch friends. Please try again later.");
+      console.error(error);
+      showNotification("Unable to send card. Please try again later.");
     }
   };
+
   const selectedCard = cards.find((card) => card.filetype === cardNumber);
-  if (!friends) {
+
+  const renderFriendItem = useCallback(
+    ({ item }: { item: UserProfile }) => (
+      <TouchableOpacity>
+        <View
+          style={[
+            styles.friendCard,
+            { backgroundColor: Colors[colorScheme].darkTint },
+          ]}
+        >
+          <UserAvatar
+            name={`${item.firstname} ${item.lastname}`}
+            imageUrl={newAvatar(item.avatar)}
+            size={100}
+          />
+          <Text>{`${item.firstname} ${item.lastname}`}</Text>
+          <MButton onPress={() => handleSendCard(item)} title="Send card" />
+        </View>
+      </TouchableOpacity>
+    ),
+    [colorScheme]
+  );
+
+  if (!friends.length) {
     return (
       <View style={styles.container}>
         <AnimatedLoading />
@@ -140,44 +140,23 @@ export default function MusterCardSend({
       <FlatList
         data={friends}
         keyExtractor={(item) => item.profilekey}
-        renderItem={renderItem}
+        renderItem={renderFriendItem}
         ListEmptyComponent={() => (
-          <View
-            style={[
-              styles.container,
-              {
-                alignItems: "center",
-                justifyContent: "center",
-                height: mheight,
-                gap: 10,
-              },
-            ]}
-          >
-            <Text style={{ textAlign: "center", fontSize: 30 }}>
+          <View style={styles.emptyList}>
+            <Text style={styles.emptyText}>
               You don’t have friends to send cards to yet
             </Text>
             <MButton
-              title="Tap connect with friends"
-              onPress={() => router.back()}
+              title="Tap to connect with friends"
+              onPress={router.back}
             />
           </View>
         )}
-        initialNumToRender={10}
-        showsVerticalScrollIndicator={false}
-        windowSize={5}
         numColumns={2}
-        contentContainerStyle={{ gap: 20 }}
-        columnWrapperStyle={{ gap: 10, justifyContent: "space-around" }}
-        maxToRenderPerBatch={5}
-        removeClippedSubviews={true}
-        getItemLayout={(data, index) => ({
-          length: 80,
-          offset: 80 * index,
-          index,
-        })}
+        columnWrapperStyle={styles.columnWrapper}
+        contentContainerStyle={styles.listContent}
       />
 
-      {/* Modal */}
       {selectedUser && (
         <Modal
           visible={modalVisible}
@@ -187,27 +166,20 @@ export default function MusterCardSend({
         >
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <View
-                style={{
-                  flexDirection: "row-reverse",
-                  alignItems: "center",
-                  gap: 10,
-                }}
-              >
+              <View style={styles.modalHeader}>
                 <UserAvatar
-                  name={selectedUser.firstname + " " + selectedUser.lastname}
+                  name={`${selectedUser.firstname} ${selectedUser.lastname}`}
                   imageUrl={newAvatar(selectedUser.avatar)}
                   size={120}
                 />
                 <AntDesign name="right" size={30} color={accent} />
                 <Image
-                  style={{ width: 120, height: 120, borderRadius: 20 }}
-                  src={newAvatar(selectedCard?.thumbnail)} // Ensure this returns { uri: string }
+                  style={styles.cardImage}
+                  source={{ uri: newAvatar(selectedCard?.thumbnail) }}
                   resizeMode="cover"
                 />
               </View>
-
-              <Text style={{ fontSize: 20, marginVertical: 10 }}>
+              <Text style={styles.modalTitle}>
                 Send a card to {selectedUser.firstname} {selectedUser.lastname}
               </Text>
               <MInput
@@ -217,12 +189,12 @@ export default function MusterCardSend({
                 onChange={setMessage}
               />
               <MButton
-                style={{ width: mwidth * 0.8 }}
+                style={styles.modalButton}
                 title={`Send to ${selectedUser.firstname}`}
                 onPress={handleConfirmSend}
               />
               <MButton
-                style={{ backgroundColor: "red", width: mwidth * 0.8 }}
+                style={[styles.modalButton, styles.cancelButton]}
                 title="Cancel"
                 onPress={() => setModalVisible(false)}
               />
@@ -237,7 +209,31 @@ export default function MusterCardSend({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: mwidth,
+  },
+  listContent: {
+    gap: 20,
+  },
+  columnWrapper: {
+    gap: 10,
+    justifyContent: "space-around",
+  },
+  friendCard: {
+    borderRadius: 20,
+    gap: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    width: 200,
+    padding: 10,
+  },
+  emptyList: {
+    alignItems: "center",
+    justifyContent: "center",
+    height: mheight,
+    gap: 10,
+  },
+  emptyText: {
+    textAlign: "center",
+    fontSize: 30,
   },
   modalContainer: {
     flex: 1,
@@ -248,9 +244,29 @@ const styles = StyleSheet.create({
   modalContent: {
     width: "90%",
     padding: 20,
-
     borderRadius: 20,
     alignItems: "center",
     gap: 10,
+    backgroundColor: "#fff",
+  },
+  modalHeader: {
+    flexDirection: "row-reverse",
+    alignItems: "center",
+    gap: 10,
+  },
+  cardImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    marginVertical: 10,
+  },
+  modalButton: {
+    width: mwidth * 0.8,
+  },
+  cancelButton: {
+    backgroundColor: "red",
   },
 });
