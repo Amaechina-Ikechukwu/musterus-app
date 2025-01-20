@@ -155,13 +155,6 @@ const TabOne = () => {
             viewabilityConfig={{ viewAreaCoveragePercentThreshold: 100 }}
             ListEmptyComponent={() => <Text>No Post Yet</Text>}
           />
-
-          {/* Bottom Sheet */}
-          <Comments
-            singlePost={singlePost}
-            updateSinglePost={updateSinglePost}
-            profile={profile}
-          />
         </GestureHandlerRootView>
       </View>
     </View>

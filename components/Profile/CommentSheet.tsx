@@ -93,18 +93,9 @@ export const Comments = ({
       bottomSheetRef.current?.close();
     }
   }, [singlePost]);
-  React.useEffect(
-    () =>
-      navigation.addListener("beforeRemove", (e) => {
-        // Prevent default behavior of leaving the screen
-        e.preventDefault();
-
-        // Prompt the user before leaving the screen
-        handleSheetClose();
-        console.log("Off");
-      }),
-    [navigation]
-  );
+  useEffect(() => {
+    handleSheetClose();
+  }, [navigation]);
 
   const handleSheetClose = () => {
     updateSinglePost(null); // Reset the post state when the sheet is closed

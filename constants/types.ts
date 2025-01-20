@@ -93,6 +93,29 @@ export type Comment = CommonUserInfo & {
   attachedimage: string | null;
   userpassword: string;
 };
+//Messages
+export type OnlineUsers = CommonUserInfo & {
+  iod: string;
+  lastactivity: string;
+  ipaddress: string;
+  whatdid: string;
+  username: string;
+  userpassword: string;
+  lastloginip: string | null;
+  usertimezone: string | null;
+  currentlocation: string | null;
+  inrelationwith: string | null;
+  scheduler: string | null;
+  speakinglanguages: string | null;
+  dmid: string | null;
+  uid1: string | null;
+  uid2: string | null;
+  msgbody: string | null;
+  reaction: string | null;
+  msgtime: string | null;
+  dmstatus: string | null;
+};
+
 // Group type
 export type Group = {
   grid: string;
