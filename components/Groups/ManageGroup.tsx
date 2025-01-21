@@ -21,27 +21,57 @@ import AnimatedLoading from "@/constants/AnimatedLoading";
 import { GroupMember } from "@/constants/types";
 import { mwidth } from "@/constants/ScreenDimensions";
 import { Text, View } from "../Themed";
+import { useNotification } from "@/contexts/NotificationContext";
 
 interface ManageGroupProps {
   mykey: string;
   mskl: string;
   uid: string;
-  grid?: string | number; // 0 for new group, otherwise group ID
+  grid: string | number; // 0 for new group, otherwise group ID
 }
 
 interface GroupMemberItemProps {
   item: GroupMember;
   isExpanded: boolean;
   onToggle: () => void;
+  mykey: string;
+  mskl: string;
+  grid: string | number;
 }
 
 const GroupMemberItem: React.FC<GroupMemberItemProps> = ({
   item,
   isExpanded,
   onToggle,
+  mykey,
+  mskl,
+  grid,
 }) => {
   const colorScheme = useColorScheme() ?? "light";
   const height = useSharedValue(isExpanded ? 50 : 0);
+  const { showNotification } = useNotification();
+
+  // handleInvite function to manage group member actions
+  const handleInvite = async (memberId: string, action: string) => {
+    try {
+      const url = `https://www.musterus.com/ws/groups/manage?mykey=${mykey}&mskl=${mskl}&group=${grid}&action=${action}&member=${memberId}`;
+      const response = await fetch(url, { method: "POST" });
+
+      if (!response.ok) {
+        throw new Error(`Failed with status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.err === 0) {
+        showNotification(`${action} sent successfully!`);
+      } else {
+        throw new Error(data.message || `Failed to send ${action}. `);
+      }
+    } catch (error) {
+      showNotification(`Failed to ${action} member. Please try again later.`);
+    }
+  };
 
   const animatedStyle = useAnimatedStyle(() => ({
     height: withTiming(height.value, { duration: 300 }),
@@ -103,14 +133,16 @@ const GroupMemberItem: React.FC<GroupMemberItemProps> = ({
                     borderColor: Colors[colorScheme].tabIconSelected,
                   },
                 ]}
+                onPress={() => handleInvite(item.memberid, "invite")}
               >
-                <Text style={[styles.buttonText]}>Invite</Text>
+                <Text style={styles.buttonText}>Invite</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
                   styles.actionButton,
                   { borderWidth: 1, borderColor: "yellow" },
                 ]}
+                onPress={() => handleInvite(item.memberid, "approve")}
               >
                 <Text style={styles.buttonText}>Approve</Text>
               </TouchableOpacity>
@@ -119,6 +151,7 @@ const GroupMemberItem: React.FC<GroupMemberItemProps> = ({
                   styles.actionButton,
                   { borderWidth: 1, borderColor: accent },
                 ]}
+                onPress={() => handleInvite(item.memberid, "moderator")}
               >
                 <Text style={styles.buttonText}>Make Moderator</Text>
               </TouchableOpacity>
@@ -141,7 +174,7 @@ const ManageGroup: React.FC<ManageGroupProps> = ({
   mykey,
   mskl,
   uid,
-  grid = 0,
+  grid,
 }) => {
   const [expandedIndices, setExpandedIndices] = useState<boolean[]>([]);
 
@@ -164,10 +197,13 @@ const ManageGroup: React.FC<ManageGroupProps> = ({
           item={item}
           isExpanded={isExpanded}
           onToggle={() => toggleExpansion(index)}
+          mykey={mykey}
+          mskl={mskl}
+          grid={grid}
         />
       );
     },
-    [expandedIndices, toggleExpansion]
+    [expandedIndices, toggleExpansion, mykey, mskl, grid]
   );
 
   const memoizedGroupMembers = useMemo(() => groupMembers, [groupMembers]);
@@ -198,7 +234,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-
     width: mwidth,
   },
   listContainer: {
@@ -206,7 +241,6 @@ const styles = StyleSheet.create({
   },
   profileContainer: {
     marginBottom: 15,
-
     borderRadius: 10,
     padding: 10,
   },
@@ -216,7 +250,6 @@ const styles = StyleSheet.create({
   },
   userDetails: {
     flexDirection: "row",
-
     justifyContent: "space-around",
   },
   userName: {

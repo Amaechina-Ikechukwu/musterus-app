@@ -204,6 +204,7 @@ export type StoreState = {
   singleGroup: Group | null;
   profileInfo: ProfileInfo | null;
   groupMembers: GroupMember[] | null;
+  friend: OnlineUsers | null;
   updatePosts: (post: Post[]) => void;
   updateProfile: (profile: UserProfile) => void;
   updateSinglePost: (post: Post | null) => void;
@@ -214,4 +215,5 @@ export type StoreState = {
   updateSingleGroup: (group: Group) => void;
   updateProfileInfo: (profileInfo: ProfileInfo) => void;
   updateGroupMembers: (members: GroupMember[]) => void;
+  updateFriend: (friend: OnlineUsers) => void;
 };

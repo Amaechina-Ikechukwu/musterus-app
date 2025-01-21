@@ -8,7 +8,12 @@ import AnimatedLoading from "@/constants/AnimatedLoading";
 import Colors from "@/constants/Colors";
 import { MStore } from "@/mstore";
 import { EvilIcons } from "@expo/vector-icons";
-import { router, useLocalSearchParams, useNavigation } from "expo-router";
+import {
+  router,
+  useLocalSearchParams,
+  useNavigation,
+  usePathname,
+} from "expo-router";
 import { useEffect } from "react";
 import {
   View,
@@ -21,6 +26,7 @@ import { useShallow } from "zustand/react/shallow";
 
 export default function GroupsScreen() {
   const { group } = useLocalSearchParams();
+  const path = usePathname();
   const navigation = useNavigation();
   const colorScheme = useColorScheme() ?? "light";
   const [singleGroup, profile] = MStore(
@@ -47,6 +53,28 @@ export default function GroupsScreen() {
         ),
     });
   }, [navigation]);
+  useEffect(() => {
+    let updatedPath = path.split("/").slice(0, -1).join("/");
+
+    const unsubscribe = navigation.addListener("beforeRemove", (e) => {
+      // Check if the action is 'goBack'
+      if (e.data.action.type === "GO_BACK") {
+        // Prevent the default action
+        e.preventDefault();
+
+        // Check if updatedPath has only one part (root path)
+        if (updatedPath.split("/").length === 2) {
+          router.replace("/(tabs)/groups");
+        } else {
+          router.push(updatedPath as string); // Type assertion to "string"
+        }
+      }
+    });
+
+    // Cleanup the listener on unmount
+    return unsubscribe;
+  }, [navigation, path]);
+
   if (singleGroup.groupstatus == "0") {
     return <SubscribeGroup />;
   }

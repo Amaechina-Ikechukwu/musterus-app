@@ -26,9 +26,7 @@ export const DrawerComponent = (props: DrawerContentComponentProps) => {
   const [profile] = MStore(useShallow((state) => [state.profile]));
   const colorScheme = useColorScheme() ?? "light";
   const path = useGlobalSearchParams();
-  useEffect(() => {
-    console.log(path);
-  }, []);
+
   return (
     <View style={{ flex: 1, padding: 20, gap: 20 }}>
       {/* Header */}

@@ -3,6 +3,7 @@ import { create } from "zustand";
 import {
   Group,
   GroupMember,
+  OnlineUsers,
   Post,
   ProfileInfo,
   StoreState,
@@ -21,6 +22,7 @@ export const MStore = create<StoreState>((set) => ({
   singleGroup: null,
   profileInfo: null,
   groupMembers: null,
+  friend: null,
   updateProfile: (newProfile: UserProfile) => set({ profile: newProfile }),
   updateSinglePost: (newPost: Post | null) => set({ singlePost: newPost }),
   updatePosts: (newPosts: Post[]) => set({ posts: newPosts }),
@@ -41,4 +43,5 @@ export const MStore = create<StoreState>((set) => ({
     set({ profileInfo: profileInfo }),
   updateGroupMembers: (members: GroupMember[]) =>
     set({ groupMembers: members }),
+  updateFriend: (friendData: OnlineUsers) => set({ friend: friendData }),
 }));

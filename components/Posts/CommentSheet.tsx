@@ -5,10 +5,10 @@ import {
   StyleSheet,
   ActivityIndicator,
   FlatList,
-  useColorScheme,
   KeyboardAvoidingView,
   TouchableOpacity,
   Keyboard,
+  useColorScheme,
 } from "react-native";
 import BottomSheet, {
   BottomSheetFlatList,
@@ -42,7 +42,7 @@ export interface Comment {
 
 export interface CommentSheetProps {
   singlePost: Post | null;
-  updateSinglePost: (post: any) => void;
+  updateSinglePost: (post: Post | null) => void;
   profile: UserProfile | null;
 }
 
@@ -55,28 +55,25 @@ export const Comments = ({
   const [loading, setLoading] = useState(false);
   const [comments, setComments] = useState<Comment[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [commentInput, setCommentInput] = useState<string>("");
   const colorScheme = useColorScheme() ?? "light";
   const snapPoints = useMemo(() => ["75%"], []);
-  const [commentInput, setCommentInput] = useState<string>("");
   const { showNotification } = useNotification();
   const navigation = useNavigation();
-  const fetchComments = async () => {
-    if (!singlePost) return;
 
-    const { comid, uid } = singlePost; // Assuming these properties exist in `singlePost`
+  const fetchComments = async () => {
+    if (!singlePost || !profile) return;
 
     try {
       setLoading(true);
       setError(null);
-
       const response = await axios.get(`${api}/api/comments`, {
         params: {
-          mykey: profile?.profilekey,
-          comid,
-          uid,
+          mykey: profile.profilekey,
+          comid: singlePost.comid,
+          uid: singlePost.uid,
         },
       });
-
       setComments(response.data.replies.reverse() || []);
     } catch (err) {
       setError("Failed to fetch comments. Please try again.");
@@ -93,83 +90,57 @@ export const Comments = ({
       bottomSheetRef.current?.close();
     }
   }, [singlePost]);
-  React.useEffect(
-    () =>
-      navigation.addListener("beforeRemove", (e) => {
-        // Prevent default behavior of leaving the screen
-        e.preventDefault();
 
-        // Prompt the user before leaving the screen
-        handleSheetClose();
-        console.log("Off");
-      }),
-    [navigation]
-  );
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("beforeRemove", (e) => {
+      e.preventDefault();
+      handleSheetClose();
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   const handleSheetClose = () => {
-    updateSinglePost(null); // Reset the post state when the sheet is closed
+    updateSinglePost(null);
     setCommentInput("");
     () => Keyboard.dismiss();
   };
 
   const handleSendComment = async () => {
-    if (!commentInput.trim()) return; // Don't send empty comment
+    if (!commentInput.trim() || !singlePost || !profile) return;
 
     try {
-      setError(null);
-      if (singlePost == null) {
-        showNotification("Could not add comment at the momemnt");
-        return null;
-      }
-      const { comid, uid } = singlePost;
       showNotification("Sending...");
-      const response = await axios.get(`${api}/api/comments`, {
-        params: {
-          mykey: profile?.profilekey,
-          comid: singlePost.comid,
-          uid: profile?.uid,
-          comment: commentInput,
-          ref: 0,
-          mskl: profile?.mskl,
-        },
+      const { comid } = singlePost;
+      await axios.post(`${api}/api/comments`, {
+        mykey: profile.profilekey,
+        comid,
+        uid: profile.uid,
+        comment: commentInput,
+        ref: 0,
+        mskl: profile.mskl,
       });
 
-      if (response.data.replies.length > comments?.length) {
-        showNotification("Commment sent.");
-        const response = await axios.get(`${api}/api/comments`, {
-          params: {
-            mykey: profile?.profilekey,
-            comid,
-            uid,
-          },
-        });
-
-        setComments(response.data.replies.reverse() || []);
-        setCommentInput("");
-      } else {
-        showNotification("Could not add comment at the momemnt");
-      }
+      showNotification("Comment sent.");
+      fetchComments();
+      setCommentInput("");
     } catch (err) {
-      showNotification("Could not add comment at the momemnt");
-    } finally {
+      showNotification("Could not add comment at the moment.");
     }
   };
+
   const renderComment = ({ item }: { item: Comment }) => (
     <View style={styles.commentContainer}>
       <PlainView style={styles.postHeader}>
-        {singlePost ? (
-          <PlainView
-            style={{ flexDirection: "row", gap: 5, alignItems: "center" }}
-          >
-            <UserAvatar
-              imageUrl={item?.avatar == null ? null : newAvatar(item?.avatar)}
-              name={item?.firstname + item?.lastname || ""}
-            />
-            <Text>{item?.firstname + " " + item?.lastname}</Text>
-          </PlainView>
-        ) : null}
-
-        <Text style={{ fontWeight: "light" }}>{item && item?.writetime}</Text>
+        <PlainView
+          style={{ flexDirection: "row", gap: 5, alignItems: "center" }}
+        >
+          <UserAvatar
+            imageUrl={item.attachedimage ? newAvatar(item.attachedimage) : null}
+            name={item.firstname + " " + item.lastname || ""}
+          />
+          <Text>{item.firstname + " " + item.lastname}</Text>
+        </PlainView>
+        <Text style={styles.commentTime}>{item.writetime}</Text>
       </PlainView>
       <PlainView style={{ paddingHorizontal: 20, paddingVertical: 10 }}>
         <Text style={styles.commentText}>{item.comment}</Text>
@@ -182,7 +153,7 @@ export const Comments = ({
       ref={bottomSheetRef}
       index={-1}
       snapPoints={snapPoints}
-      enablePanDownToClose={true}
+      enablePanDownToClose
       onClose={handleSheetClose}
     >
       <BottomSheetView style={[styles.sheetContent, { flex: 1 }]}>
@@ -196,28 +167,17 @@ export const Comments = ({
               data={comments}
               renderItem={renderComment}
               keyExtractor={(item) => item.comreplyid}
-              contentContainerStyle={{
-                flexGrow: 1,
-                paddingBottom: 80, // Space for input box
-              }}
+              contentContainerStyle={{ flexGrow: 1, paddingBottom: 80 }}
               ListEmptyComponent={() => (
                 <PlainView style={styles.sheetContent}>
                   <Text style={styles.title}>
-                    No comments yet. Be the first
+                    No comments yet. Be the first!
                   </Text>
                 </PlainView>
               )}
-              keyboardShouldPersistTaps="handled" // Ensures taps on FlatList items work
+              keyboardShouldPersistTaps="handled"
             />
-            <PlainView
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 10,
-                padding: 10,
-                backgroundColor: Colors[colorScheme].background,
-              }}
-            >
+            <PlainView style={styles.inputContainer}>
               <MInput
                 placeholder="Enter comment"
                 value={commentInput}
@@ -246,7 +206,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    zIndex: 9999,
   },
   title: {
     fontSize: 16,
@@ -258,17 +217,13 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     width: mwidth * 0.9,
   },
-  commentUsername: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
   commentText: {
     fontSize: 14,
-
     marginVertical: 5,
   },
   commentTime: {
     fontSize: 12,
+    color: "gray",
   },
   errorText: {
     fontSize: 16,
@@ -281,5 +236,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     opacity: 0.7,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    padding: 10,
+    backgroundColor: Colors.light.background,
   },
 });
