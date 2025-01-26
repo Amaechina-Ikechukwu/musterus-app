@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Text,
-  View,
+
   ActivityIndicator,
   TouchableOpacity,
   Image,
@@ -18,6 +17,7 @@ import { Foundation } from "@expo/vector-icons";
 import { MStore } from "@/mstore";
 import { useShallow } from "zustand/react/shallow";
 import VideoPlayer from "./VideoPlayer";
+import { Text, View } from "../Themed";
 
 export default function PostCard({ post }: { post: Post }) {
   const colorScheme = useColorScheme() ?? "light";
@@ -37,8 +37,15 @@ export default function PostCard({ post }: { post: Post }) {
         { backgroundColor: Colors[colorScheme].darkTint },
       ]}
     >
-      <View style={styles.postHeader}>
-        <View style={{ flexDirection: "row", gap: 5, alignItems: "center" }}>
+      <View style={[styles.postHeader, { backgroundColor: "transparent" }]}>
+        <View
+          style={{
+            flexDirection: "row",
+            gap: 5,
+            alignItems: "center",
+            backgroundColor: "transparent",
+          }}
+        >
           <UserAvatar
             imageUrl={
               api && post.avatar
@@ -51,7 +58,7 @@ export default function PostCard({ post }: { post: Post }) {
         </View>
         <Text style={{ fontWeight: "300" }}>{post.writetime}</Text>
       </View>
-      <View style={styles.postView}>
+      <View style={[styles.postView, { backgroundColor: "transparent" }]}>
         <Text style={styles.title}>{post.comment}</Text>
         {post.attachedimage && typeof post.attachedimage === "string" && (
           <>
@@ -89,7 +96,7 @@ export default function PostCard({ post }: { post: Post }) {
           </>
         )}
       </View>
-      <View style={styles.reaction}>
+      <View style={[styles.reaction, { backgroundColor: "transparent" }]}>
         <ReactionComponent
           commentId={post.comid}
           divid={"0"}

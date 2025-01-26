@@ -25,3 +25,22 @@ export function checkMediaType(oldurl: string): "image" | "video" | "unknown" {
   // Return "unknown" if no match is found
   return "unknown";
 }
+export const relationships = [
+  { label: "In a relationship", value: 1 },
+  { label: "Married", value: 2 },
+  { label: "Divorced", value: 3 },
+  { label: "Single", value: 4 },
+  { label: "It's Complicated", value: 5 },
+  { label: "Widowed", value: 6 },
+  { label: "NULL", value: 0 },
+];
+
+export const educationLevel = [
+  { label: "--", value: 0 },
+  { label: "Dropped out", value: 1 },
+  { label: "Highschool graduate", value: 2 },
+  { label: "General Education Diploma (GED)", value: 3 },
+  { label: "Bachelors Degree", value: 4 },
+  { label: "Masters Degree", value: 5 },
+  { label: "PhD", value: 6 },
+];

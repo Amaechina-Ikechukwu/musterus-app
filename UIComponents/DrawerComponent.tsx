@@ -53,7 +53,7 @@ export const DrawerComponent = (props: DrawerContentComponentProps) => {
             styles.button,
             { borderBottomColor: Colors[colorScheme].tabIconDefault },
           ]}
-          onPress={() => router.push(`/`)}
+          onPress={() => router.push(`/settings/updateprofile`)}
         >
           <Text>Edit Profile</Text>
         </TouchableOpacity>

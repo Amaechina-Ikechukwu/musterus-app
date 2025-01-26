@@ -32,7 +32,7 @@ export default function PostList() {
       state.updatePostInView,
     ])
   );
-
+  const colorScheme = useColorScheme() ?? "light";
   const scrollY = useRef(new Animated.Value(0)).current;
   const lastScrollY = useRef(0); // Track the last scroll position
   const buttonVisible = useRef(true); // Track button visibility state
@@ -97,7 +97,12 @@ export default function PostList() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <View style={styles.container}>
+      <View
+        style={[
+          styles.container,
+          { backgroundColor: Colors[colorScheme].background },
+        ]}
+      >
         {/* Post List */}
         <Animated.FlatList
           data={posts}
@@ -135,7 +140,6 @@ export default function PostList() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
   },
   floatButton: {
     position: "absolute",

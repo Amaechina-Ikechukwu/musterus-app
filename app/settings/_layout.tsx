@@ -8,7 +8,7 @@ export default function SettingsLayout() {
         headerTitle: "Settings",
         presentation: "modal",
         contentStyle: {
-          paddingHorizontal: 40,
+          paddingHorizontal: 20,
         },
       }}
     />

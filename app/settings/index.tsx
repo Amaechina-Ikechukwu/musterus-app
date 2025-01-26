@@ -28,6 +28,7 @@ export default function index() {
     <View style={{ alignItems: "center" }}>
       <PlainView>
         <TouchableOpacity
+          onPress={() => router.push(`/settings/updateprofile`)}
           style={[
             styles.button,
             {
